@@ -30,6 +30,8 @@ class TranscribeRequest(BaseModel):
 async def main(request: TranscribeRequest,file: UploadFile = File(...)):
     try:
         file_name = file.filename
+        file_content = await file.read()
+        
         blob_url = request.blob_url
         display = await transcribe_audio(blob_url, az_speech_key, az_speech_endpoint)
         summary_text = await summarize_text(display)
