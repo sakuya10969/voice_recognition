@@ -18,7 +18,7 @@ async def create_transcription_job(blob_url, headers, az_speech_endpoint):
             transcription_url, headers=headers, json=body
         ) as response:
             if response.status != 201:
-                raise Exception(f"Error creating job: {await response.text()}")
+                raise Exception(f"ジョブの作成に失敗しました: {await response.text()}")
             return (await response.json())["self"]
 
 
@@ -32,16 +32,16 @@ async def poll_transcription_status(job_url, headers, max_attempts=30, interval=
                 if status_data["status"] == "Succeeded":
                     return status_data["links"]["files"]
                 elif status_data["status"] in ["Failed", "Cancelled"]:
-                    raise Exception(f"Job failed or cancelled: {status_data['status']}")
+                    raise Exception(f"ジョブの進行に失敗しました: {status_data['status']}")
         raise Exception("Job timed out")
 
 
-async def get_transcription_result(files_url, headers):
+async def get_transcription_result(file_url, headers):
     """ジョブの結果から contentUrl を取得する"""
     async with aiohttp.ClientSession() as session:
-        async with session.get(files_url, headers=headers) as response:
+        async with session.get(file_url, headers=headers) as response:
             if response.status != 200:
-                raise Exception(f"Error fetching results: {await response.text()}")
+                raise Exception(f"結果の取得に失敗しました: {await response.text()}")
             files_data = await response.json()
             return files_data["values"][0]["links"]["contentUrl"]
 

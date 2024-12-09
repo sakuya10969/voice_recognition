@@ -17,6 +17,9 @@ az_speech_key = os.getenv("AZ_SPEECH_KEY")
 az_speech_endpoint = os.getenv("AZ_SPEECH_ENDPOINT")
 az_openai_key=os.getenv("AZ_OPENAI_KEY")
 az_openai_endpoint=os.getenv("AZ_OPENAI_ENDPOINT")
+client_id = os.getenv("CLIENT_ID")
+tenant_id = os.getenv("TENANT_ID")
+client_secret = os.getenv("CLIENT_SECRET")
 
 class TranscribeRequest(BaseModel):
     blob_url: str
