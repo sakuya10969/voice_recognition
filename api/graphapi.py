@@ -1,17 +1,15 @@
 import httpx
 from fastapi import HTTPException
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
-
-env_path = Path(".") / ".env"
-load_dotenv(dotenv_path=env_path)
 
 access_token = None
 token_expiry = None
 
 async def get_access_token(client_id: str, tenant_id: str, client_secret: str) -> str:
+    """
+    アクセストークンの取得
+    """
+    
     global access_token, token_expiry
     now = datetime.now(timezone.utc)
     graphapi_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
@@ -42,9 +40,12 @@ async def get_access_token(client_id: str, tenant_id: str, client_secret: str) -
     return access_token
 
 
-async def upload_sharepoint(access_token: str, site_id: str, folder_path: str, file_name: str, file_content: bytes):
-    upload_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{folder_path}/{file_name}:/content"
-
+async def upload_onedrive(access_token: str, drive_id: str, folder_path: str, file_name: str, file_content: bytes):
+    """
+    クライアント側でアップロードされたファイルをOneDriveにアップロード
+    """
+    
+    upload_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/drive/root:/{folder_path}/{file_name}:/content"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/octet-stream",
@@ -63,8 +64,12 @@ async def upload_sharepoint(access_token: str, site_id: str, folder_path: str, f
     return item_id
 
 
-async def create_share_link(access_token: str, site_id: str, item_id: str):
-    share_url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/items/{item_id}/createLink"
+async def create_share_link(access_token: str, drive_id: str, item_id: str):
+    """
+    Onedriveにアップロードされたファイルの公開URLを取得
+    """
+    
+    share_url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/drive/items/{item_id}/createLink"
     headers = {"Authorization": f"Bearer {access_token}"}
     data = {"type": "view", "scope": "anonymous"}
 
@@ -78,3 +83,21 @@ async def create_share_link(access_token: str, site_id: str, item_id: str):
         link_data = response.json()
 
     return link_data["link"]["webUrl"]
+
+
+async def handle_upload_sharepoint(
+    client_id: str,
+    tenant_id: str,
+    client_secret: str,
+    drive_id: str,
+    folder_path: str,
+    file_name: str,
+    file_content: bytes,
+) -> str:
+    access_token = await get_access_token(client_id, tenant_id, client_secret)
+
+    item_id = await upload_onedrive(access_token, drive_id, folder_path, file_name, file_content)
+
+    onedrive_url = await create_share_link(access_token, drive_id, item_id)
+
+    return onedrive_url
