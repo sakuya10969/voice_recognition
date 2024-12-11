@@ -66,8 +66,8 @@ async def transcribe_audio(blob_url, az_speech_key, az_speech_endpoint):
     # ジョブ作成
     job_url = await create_transcription_job(blob_url, headers, az_speech_endpoint)
     # ジョブ進行確認
-    files_url = await poll_transcription_status(job_url, headers)
+    file_url = await poll_transcription_status(job_url, headers)
     # contentUrl を取得
-    content_url = await get_transcription_result(files_url, headers)
+    content_url = await get_transcription_result(file_url, headers)
     # display を取得
     return await fetch_transcription_display(content_url)
