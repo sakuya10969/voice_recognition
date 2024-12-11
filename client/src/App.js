@@ -1,20 +1,10 @@
 import { Box } from '@mui/material';
-import { useState } from 'react';
 
 import Header from './components/Header';
+import Main from './components/Main';
 import Footer from './components/Footer';
-import FileUpload from './components/FileUpload';
-import Note from './components/Note';
-import { handleSendAudio, handleGetTranscription } from './api/Api';
 
 function App() {
-  const [ content, setContent ] = useState('');
-  const handleSubmit = async () => {
-    await handleSendAudio();
-    const transcription = await handleGetTranscription();
-    setContent(transcription);
-  }
-
   return (
     <Box
       sx={{
@@ -26,17 +16,7 @@ function App() {
       }}
     >
       <Header />
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        <FileUpload onClick={handleSubmit} />
-        <Note content={content}/>
-      </Box>
+      <Main />
       <Footer />
     </Box>
   );

@@ -30,7 +30,7 @@ const Note = ({ content }) => {
         }}
       >
         <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-          ここには議事録内容が表示されます。入りきらなくなった分はスクロールで表示される仕様にしています。
+          {content}
         </Typography>
       </Box>
     </Paper>

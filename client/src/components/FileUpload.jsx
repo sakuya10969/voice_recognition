@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -6,14 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
 
-const FileUpload = ({ onClick }) => {
-  const [file, setFile] = useState(null);
-
-    const handleFileChange = (event) => {
-      const file = event.target.files[0];
-    setFile(file);
-  };
-
+const FileUpload = ({ onChange, onClick, file }) => {
   return (
     <Box
         sx={{
@@ -32,7 +24,7 @@ const FileUpload = ({ onClick }) => {
             },
         }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }} gutterBottom>
+          <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }} gutterBottom>
             ファイルをアップロードしてください
         </Typography>
 
@@ -40,7 +32,7 @@ const FileUpload = ({ onClick }) => {
             type="file"
             style={{ display: 'none'}}
             id="file-input"
-            onChange={handleFileChange}  
+            onChange={onChange}  
         />
         <label htmlFor="file-input">
             <Button
