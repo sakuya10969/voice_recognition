@@ -2,8 +2,29 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import { Document, Packer, Paragraph } from "docx";
+import { saveAs } from 'file-saver';
+import IconButton from '@mui/material/IconButton';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const Note = ({ content }) => {
+  const handleDownload = async () => {
+    const fileName = `議事録_${new Date().toLocaleString().replace(/[\/:]/g, '-').replace(/,/g, '')}.docx`;
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [new Paragraph(content)],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, fileName);
+
+  }
+
   return (
     <Paper
       elevation={3}
@@ -17,12 +38,26 @@ const Note = ({ content }) => {
         border: '1px solid black',
       }}
     >
-      <Typography
-        variant="h6"
-        sx={{ fontWeight: 'bold', borderBottom: '1px solid black', pb: 1, textAlign: 'center' }}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderBottom: '1px solid black',
+          pb: 1,
+        }}
       >
-        議事録
-      </Typography>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', textAlign: 'center' }}
+        >
+          議事録
+        </Typography>
+        <IconButton color='primary'  sx={{ transform: 'transLateX(50px)' }} onClick={handleDownload} disabled={!content || content.trim() === ''}>
+          <DownloadIcon />
+        </IconButton>
+      </Box>
+
       <Box
         sx={{
           overflowY: 'auto',

@@ -4,69 +4,75 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const FileUpload = ({ onChange, onClick, file }) => {
+const FileUpload = ({ onChange, onClick, file, isUploading }) => {
   return (
     <Box
-        sx={{
-            border: '1px dashed black',
-            borderRadius: '5px',
-            p: 3,
-            textAlign: 'gray',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '300px',
-            height: '400px',
-            '&:hover': {
-            backgroundColor: 'whitesmoke',
-            },
-        }}
+      sx={{
+        border: '1px dashed black',
+        borderRadius: '5px',
+        p: 3,
+        textAlign: 'gray',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '300px',
+        height: '400px',
+        '&:hover': {
+          backgroundColor: 'whitesmoke',
+        },
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }} gutterBottom>
+        ファイルをアップロードしてください
+      </Typography>
+
+      <input
+        type="file"
+        style={{ display: 'none' }}
+        id="file-input"
+        onChange={onChange}
+      />
+      <label htmlFor="file-input">
+        <Button
+          variant="contained"
+          component="span"
+          startIcon={<CloudUploadIcon />}
+          sx={{ mb: 2 }}
         >
-          <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }} gutterBottom>
-            ファイルをアップロードしてください
+          ファイルの選択
+        </Button>
+      </label>
+
+      {file && (
+        <Typography variant="body1" sx={{ mb: 2, textAlign: 'center' }}>
+          選択されたファイル: {file.name}
         </Typography>
-
-        <input
-            type="file"
-            style={{ display: 'none'}}
-            id="file-input"
-            onChange={onChange}  
-        />
-        <label htmlFor="file-input">
-            <Button
-            variant="contained"
-            component="span"
-            startIcon={<CloudUploadIcon />}
-            sx={{ mb: 2 }}
-            >
-            ファイルの選択
-            </Button>
-        </label>
-
-        {file && (
-            <Typography variant="body1" sx={{ mb: 2 }}>
-            選択されたファイル: {file.name}
-            </Typography>
-        )}
-
+      )}
+      {isUploading ? (
+        <>
+          <Typography variant="body1" sx={{ mb: 2, textAlign: 'center' }}> 処理中... </Typography>
+          <CircularProgress />
+        </>
+      ) : (
         <IconButton
-            color="primary"
-            onClick={onClick}
-            disabled={!file}
-            sx={{
+          color="primary"
+          onClick={onClick}
+          disabled={!file}
+          sx={{
             border: '1px solid #ccc',
             borderRadius: '5px',
             ':disabled': {
-                opacity: 0.5,
+              opacity: 0.5,
             },
-            }}
+          }}
         >
-            <SendIcon />
+          <SendIcon />
         </IconButton>
+      )}
     </Box>
-
   );
 };
 
