@@ -9,4 +9,12 @@ async def upload_blob(container_name: str, blob_name: str, blob_connection: str,
         return blob_client.url
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
+async def delete_blob(container_name: str, blob_name: str, connection_string: str):
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        container_client = blob_service_client.get_container_client(container_name)
+        await container_client.delete_blob(blob_name)
+    except Exception as e:
+        raise Exception(f"Failed to delete blob: {e}")
