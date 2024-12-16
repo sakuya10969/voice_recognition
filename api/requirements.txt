@@ -6,3 +6,4 @@ requests
 python-dotenv
 pydantic
 azure-storage-blob
+aiofiles

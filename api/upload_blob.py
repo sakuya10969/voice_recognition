@@ -9,3 +9,4 @@ async def upload_blob(container_name: str, blob_name: str, blob_connection: str,
         return blob_client.url
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    

@@ -20,11 +20,11 @@ az_speech_endpoint = os.getenv("AZ_SPEECH_ENDPOINT")
 az_openai_key = os.getenv("AZ_OPENAI_KEY")
 az_openai_endpoint = os.getenv("AZ_OPENAI_ENDPOINT")
 az_blob_connection = os.getenv("AZ_BLOB_CONNECTION")
-client_id = os.getenv("CLIENT_ID")
-tenant_id = os.getenv("TENANT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
-drive_id = os.getenv("DRIVE_ID")
-folder_path = "voice recognition"
+# client_id = os.getenv("CLIENT_ID")
+# tenant_id = os.getenv("TENANT_ID")
+# client_secret = os.getenv("CLIENT_SECRET")
+# drive_id = os.getenv("DRIVE_ID")
+# folder_path = "voice recognition"
 account_name = "strvr010"
 container_name = "container-vr-dev"
 
