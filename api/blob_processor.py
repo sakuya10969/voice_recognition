@@ -15,6 +15,6 @@ async def delete_blob(container_name: str, blob_name: str, connection_string: st
     try:
         blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         container_client = blob_service_client.get_container_client(container_name)
-        await container_client.delete_blob(blob_name)
+        container_client.delete_blob(blob_name)
     except Exception as e:
         raise Exception(f"Failed to delete blob: {e}")

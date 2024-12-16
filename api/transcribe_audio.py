@@ -9,7 +9,9 @@ async def create_transcription_job(blob_url, headers, az_speech_endpoint):
         "locale": "ja-jp",
         "contentUrls": [blob_url],
         "properties": {
+            "diarizationEnabled": True,
             "punctuationMode": "DictatedAndAutomatic",
+            "wordLevelTimestampsEnabled": True,
         },
     }
     transcription_url = f"{az_speech_endpoint}/speechtotext/v3.2/transcriptions"
