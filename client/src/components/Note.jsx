@@ -62,6 +62,7 @@ const Note = ({ content }) => {
         sx={{
           overflowY: 'auto',
           mt: 2,
+          height: '90%'
         }}
       >
         <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
