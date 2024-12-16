@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from transcribe_audio import transcribe_audio
 from summary import summarize_text
 from upload_blob import upload_blob
+from mp4_processor import mp4_processor
 
 app = FastAPI()
 env_path = Path(".") / ".env"
@@ -32,8 +33,9 @@ container_name = "container-vr-dev"
 @app.post("/transcribe")
 async def main(file: UploadFile = File(...)):
     try:
-        file_name = file.filename
-        file_data = await file.read()
+        response = await mp4_processor(file)
+        file_name = response["file_name"]
+        file_data = response["file_data"]
 
         blob_url = await upload_blob(
             container_name, file_name, az_blob_connection, file_data

@@ -4,6 +4,6 @@ openai
 tiktoken
 requests
 python-dotenv
-pydantic
 azure-storage-blob
 aiofiles
+ffmpeg-python
