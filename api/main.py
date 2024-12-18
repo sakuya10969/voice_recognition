@@ -4,6 +4,7 @@ import os
 import logging
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from transcribe_audio import transcribe_audio
 from summary import summarize_text
@@ -14,7 +15,7 @@ app = FastAPI()
 env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
-origins = ["http://localhost:3000"]
+# origins = [os.getenv("CLIENT_DEV_URL")]
 
 az_speech_key = os.getenv("AZ_SPEECH_KEY")
 az_speech_endpoint = os.getenv("AZ_SPEECH_ENDPOINT")
@@ -29,6 +30,7 @@ az_blob_connection = os.getenv("AZ_BLOB_CONNECTION")
 account_name = "strvr010"
 container_name = "container-vr-dev"
 
+app.mount("/", StaticFiles(directory="client/build", html=True), name="static")
 
 @app.post("/transcribe")
 async def main(file: UploadFile = File(...)):
@@ -55,7 +57,7 @@ async def main(file: UploadFile = File(...)):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
