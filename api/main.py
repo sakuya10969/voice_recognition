@@ -30,7 +30,7 @@ az_blob_connection = os.getenv("AZ_BLOB_CONNECTION")
 account_name = "strvr010"
 container_name = "container-vr-dev"
 
-app.mount("/", StaticFiles(directory="client/build", html=True), name="static")
+# app.mount("/", StaticFiles(directory="client/build", html=True), name="static")
 
 @app.post("/transcribe")
 async def main(file: UploadFile = File(...)):

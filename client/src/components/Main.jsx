@@ -7,26 +7,32 @@ import { handleSendAudio } from "../api/Api";
 
 const Main = () => {
   const [file, setFile] = useState(null);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [isUploading, setUploading] = useState(false);
-  const handleFileChange = (e) => {
-      setFile(e.target.files[0]);
-  } 
+  const handleFileChange = (file) => {
+        setFile(file);
+    } 
   const handleUpload = async () => {
+    if (!file) return;
     setUploading(true);
-    const transcription = await handleSendAudio(file);
-    setContent(transcription);
-    setFile(null);
-    setUploading(false);
+    try {
+      const transcription = await handleSendAudio(file);
+      setContent(transcription);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setUploading(false);
+      setFile(null);
+    }
   }
 
   return (
       <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        width: '100%',
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        width: "100%",
       }}
     >
       <FileUpload onChange={handleFileChange} onClick={handleUpload} file={file} isUploading={isUploading} />

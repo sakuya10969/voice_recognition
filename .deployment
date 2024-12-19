@@ -1,9 +1,0 @@
-[config]
-SCM_DO_BUILD_DURING_DEPLOYMENT=true
-SCMS_BUILD_ARGS=--exclude .git \
-                --exclude node_modules \
-                --exclude __pycache__ \
-                --exclude .venv \
-                --exclude .env \
-                --exclude *.pyc \
-                --exclude .cache
