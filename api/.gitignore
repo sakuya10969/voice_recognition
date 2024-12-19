@@ -2,3 +2,6 @@
 .venv
 __pychache
 *.pyc
+.python_packages
+__pycache__
+local.settings.json
