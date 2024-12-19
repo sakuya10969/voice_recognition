@@ -9,7 +9,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const Note = ({ content }) => {
   const handleDownload = async () => {
-    const fileName = `議事録_${new Date().toLocaleString().replace(/[\/:]/g, "-").replace(/,/g, "")}.docx`;
+    const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
 
     const doc = new Document({
       sections: [
