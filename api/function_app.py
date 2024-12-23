@@ -58,6 +58,7 @@ async def main(file: UploadFile = File(...)):
             status_code=500, detail=f"Failed to process transcription: {str(e)}"
         )
 
+
 fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -66,4 +67,7 @@ fastapi_app.add_middleware(
     allow_headers=["*"],
 )
 
-app = func.AsgiFunctionApp(app=fastapi_app, http_auth_level=func.AuthLevel.ANONYMOUS)
+app = func.AsgiFunctionApp(
+    app=fastapi_app, 
+    http_auth_level=func.AuthLevel.ANONYMOUS, 
+)

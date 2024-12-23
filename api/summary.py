@@ -46,8 +46,8 @@ async def fetch_summary(chunk, client, semaphore):
                             f"対象の文章:{chunk}\n\n"
                             "フォーマット例:\n\n"
                             "要約:\n[ここに要約]\n\n"
-                            "会話形式:\n"
-                            "話者A: [ここに話者Aの発言]\n"
+                            "会話形式:\n\n"
+                            "話者A: [ここに話者Aの発言]\n\n"
                             "話者B: [ここに話者Bの発言]\n\n"
                         ),
                     },

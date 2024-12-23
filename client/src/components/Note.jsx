@@ -53,12 +53,11 @@ const Note = ({ content }) => {
           議事録
         </Typography>
         <IconButton
-          color="black"
           sx={{ transform: "transLateX(50px)" }}
           onClick={handleDownload}
           disabled={!content || content.trim() === ""}
         >
-          <DownloadIcon />
+          <DownloadIcon sx={{ color: "black" }} />
         </IconButton>
       </Box>
 
