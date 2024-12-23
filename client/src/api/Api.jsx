@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const apiUrl = "http://localhost:7071/transcribe";
+// const apiUrl = "http://localhost:7071/transcribe";
+const apiUrl = "https://func-vr-dev-010.azurewebsites.net/transcribe";
 
 export const handleSendAudio = async (file) => {
     try {
