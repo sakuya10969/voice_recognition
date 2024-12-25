@@ -8,7 +8,7 @@
   "responseOverrides": {
     "401": {
       "statusCode": 302,
-      "redirect": "/.auth/login/aad?post_login_redirect_uri=https%3A%2F%2Fyellow-bush-06d653a00.4.azurestaticapps.net%2Fdashboard"
+      "redirect": "/.auth/login/aad?post_login_redirect_uri=/"
     }
   }
 }
