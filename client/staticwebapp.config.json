@@ -1,20 +1,18 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html"
-  },
   "routes": [
+    {
+      "route": "/.auth/login/done",
+      "redirect": "https://yellow-bush-06d653a00.4.azurestaticapps.net",
+      "statusCode": 302
+    },
     {
       "route": "/*",
       "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/.auth/login/done",
-      "redirect": "https://yellow-bush-06d653a00.4.azurestaticapps.net"
     }
   ],
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/aad",
+      "redirect": "/.auth/login/aad?post_login_redirect_uri=https://yellow-bush-06d653a00.4.azurestaticapps.net",
       "statusCode": 302
     }
   }
