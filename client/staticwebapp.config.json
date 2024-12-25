@@ -5,13 +5,17 @@
   "routes": [
     {
       "route": "/*",
-      "allowedRoles": [ "authenticated" ]
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/.auth/login/done",
+      "redirect": "https://yellow-bush-06d653a00.4.azurestaticapps.net"
     }
   ],
   "responseOverrides": {
     "401": {
-      "statusCode": 302,
-      "redirect": "/.auth/login/aad?post_login_redirect_uri=/"
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
     }
   }
 }
