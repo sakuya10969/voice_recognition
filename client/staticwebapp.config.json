@@ -1,4 +1,15 @@
 {
+  "auth": {
+    "identityProviders": {
+      "azureActiveDirectory": {
+        "registration": {
+          "openIdIssuer": "https://login.microsoftonline.com/8d0c73f0-0e78-48aa-8f93-334a9b8ada7b",
+          "clientIdSettingName": "2c246e37-8201-4a85-ac35-8db32bf067a5",
+          "clientSecretSettingName": "b320492a-b166-4e70-b4a5-0609aa5071bd"
+        }
+      }
+    }
+  },
   "routes": [
     {
       "route": "/*",
