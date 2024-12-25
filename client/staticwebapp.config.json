@@ -1,19 +1,14 @@
 {
   "routes": [
     {
-      "route": "/.auth/login/done",
-      "redirect": "https://yellow-bush-06d653a00.4.azurestaticapps.net",
-      "statusCode": 302
-    },
-    {
       "route": "/*",
       "allowedRoles": ["authenticated"]
     }
   ],
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/aad?post_login_redirect_uri=https://yellow-bush-06d653a00.4.azurestaticapps.net",
-      "statusCode": 302
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad?post_login_redirect_uri=https%3A%2F%2Fyellow-bush-06d653a00.4.azurestaticapps.net%2Fdashboard"
     }
   }
 }
