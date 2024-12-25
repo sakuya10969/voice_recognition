@@ -14,8 +14,13 @@
     {
       "route": "/*",
       "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/transcribe",
+      "serve": "https://app-vr-dev-010-ajfwaffjh6gqchf0.japanwest-01.azurewebsites.net/transcribe"
     }
   ],
+  
   "responseOverrides": {
     "401": {
       "statusCode": 302,
