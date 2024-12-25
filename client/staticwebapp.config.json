@@ -1,18 +1,17 @@
 {
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
   "routes": [
     {
       "route": "/*",
-      "redirect": "/.auth/login/aad",
-      "statusCode": 302
+      "allowedRoles": [ "authenticated" ]
     }
   ],
-  "auth": {
-    "identityProviders": {
-      "azureActiveDirectory": {
-        "registration": {
-          "clientId": "2c246e37-8201-4a85-ac35-8db32bf067a5"
-        }
-      }
+  "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/aad"
     }
   }
 }
