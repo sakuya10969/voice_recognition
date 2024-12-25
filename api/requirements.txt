@@ -7,7 +7,6 @@ async-timeout==5.0.1
 attrs==24.3.0
 azure-cognitiveservices-speech==1.41.1
 azure-core==1.32.0
-azure-functions==1.21.3
 azure-storage-blob==12.24.0
 certifi==2024.12.14
 cffi==1.17.1
