@@ -1,6 +1,11 @@
 {
   "routes": [
     {
+      "route": "/.auth/login/done",
+      "redirect": "/",
+      "statusCode": 302
+    },
+    {
       "route": "/*",
       "allowedRoles": ["authenticated"]
     }
