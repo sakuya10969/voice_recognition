@@ -2,7 +2,8 @@
   "routes": [
     {
       "route": "/*",
-      "allowedRoles": ["authenticated"]
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
     }
   ],
   "auth": {
