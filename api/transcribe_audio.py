@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 
 
-async def create_transcription_job(blob_url, headers, az_speech_endpoint):
+async def create_transcription_job(blob_url: str, headers: dict, az_speech_endpoint: str) -> str:
     """ジョブを作成する"""
     body = {
         "displayName": "Transcription",
@@ -24,7 +24,7 @@ async def create_transcription_job(blob_url, headers, az_speech_endpoint):
             return (await response.json())["self"]
 
 
-async def poll_transcription_status(job_url, headers, max_attempts=30, interval=10):
+async def poll_transcription_status(job_url: str, headers: dict, max_attempts=30, interval=10) -> str:
     """ジョブの進行状況をチェックする"""
     async with aiohttp.ClientSession() as session:
         for _ in range(max_attempts):
@@ -38,7 +38,7 @@ async def poll_transcription_status(job_url, headers, max_attempts=30, interval=
         raise Exception("Job timed out")
 
 
-async def get_transcription_result(file_url, headers):
+async def get_transcription_result(file_url: str, headers: dict) -> str:
     """ジョブの結果から contentUrl を取得する"""
     async with aiohttp.ClientSession() as session:
         async with session.get(file_url, headers=headers) as response:
@@ -48,7 +48,7 @@ async def get_transcription_result(file_url, headers):
             return files_data["values"][0]["links"]["contentUrl"]
 
 
-async def fetch_transcription_display(content_url):
+async def fetch_transcription_display(content_url: str) -> str:
     """contentUrl にアクセスして display を取得する"""
     async with aiohttp.ClientSession() as session:
         async with session.get(content_url) as response:
@@ -58,7 +58,7 @@ async def fetch_transcription_display(content_url):
             return content_data["combinedRecognizedPhrases"][0]["display"]
 
 
-async def transcribe_audio(blob_url, az_speech_key, az_speech_endpoint):
+async def transcribe_audio(blob_url: str, az_speech_key: str, az_speech_endpoint: str) ->str:
     """メイン処理"""
     headers = {
         "Ocp-Apim-Subscription-Key": az_speech_key,

@@ -1,7 +1,7 @@
 import os
 import tempfile
 import ffmpeg
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile, HTTPException, File
 
 
 def save_disk_sync(file: UploadFile, destination: str, chunk_size: int = 128 * 1024 * 1024):
@@ -22,7 +22,7 @@ def convert_wav(input_path: str, output_path: str):
         raise RuntimeError(f"FFmpeg failed: {e.stderr.decode()}")
 
 
-async def mp4_processor(file: UploadFile):
+async def mp4_processor(file: UploadFile = File(...)) -> dict:
     try:
         sanitized_filename = os.path.basename(file.filename)
         file_extension = os.path.splitext(sanitized_filename)[1].lower()

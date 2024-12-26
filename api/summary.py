@@ -65,8 +65,6 @@ async def summarize_text(text):
     chunks = split_chunks(text, max_tokens_per_chunk, encoding)
     semaphore = asyncio.Semaphore(15)
 
-    summaries = await asyncio.gather(
-        *(fetch_summary(chunk, client, semaphore) for chunk in chunks),
-    )
+    summaries = await asyncio.gather(*(fetch_summary(chunk, client, semaphore) for chunk in chunks),)
 
     return "\n".join(summaries)

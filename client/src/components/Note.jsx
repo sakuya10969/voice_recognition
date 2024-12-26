@@ -32,8 +32,7 @@ const Note = ({ content }) => {
         height: "600px",
         padding: 2,
         margin: 2,
-        borderRadius: "5px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 5px 7px rgba(0, 0, 0)",
         border: "1px solid black",
       }}
     >
