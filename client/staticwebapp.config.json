@@ -11,7 +11,7 @@
           "login": {
             "loginParameters": [
               "prompt=login",
-              "response_type=id_token"
+              "response_type=code"
             ]
           }
         }
