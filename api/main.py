@@ -1,7 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from dotenv import load_dotenv
 import os
-import logging
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -45,5 +44,4 @@ async def main(file: UploadFile = File(...)):
 
         return summary_text
     except Exception as e:
-        logging.error(f"Error during transcription: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to process transcription: {str(e)}")
+        raise HTTPException(status_code=500, detail={str(e)})

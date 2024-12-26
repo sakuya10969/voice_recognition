@@ -46,4 +46,4 @@ async def mp4_processor(file: UploadFile = File(...)) -> dict:
             return {"file_name": output_filename, "file_data": wav_data}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"File processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail={str(e)})
