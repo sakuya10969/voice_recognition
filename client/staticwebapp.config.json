@@ -12,6 +12,6 @@
     }
   },
   "globalHeaders": {
-    "Access-Control-Allow-Origin": "https://app-vr-dev-010-ajfwaffjh6gqchf0.japanwest-01.azurewebsites.net"
+    "Access-Control-Allow-Origin": "*"
   }
 }
