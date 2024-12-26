@@ -10,5 +10,8 @@
       "statusCode": 302,
       "redirect": "/.auth/login/aad?post_login_redirect_uri=/"
     }
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "https://app-vr-dev-010-ajfwaffjh6gqchf0.japanwest-01.azurewebsites.net"
   }
 }
