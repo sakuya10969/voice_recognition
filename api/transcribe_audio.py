@@ -12,6 +12,7 @@ def create_headers(az_speech_key: str) -> dict:
     return {
         "Ocp-Apim-Subscription-Key": az_speech_key,
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
     }
 
 
