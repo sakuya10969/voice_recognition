@@ -58,7 +58,7 @@ const Note = ({ content }) => {
               opacity: 0.5,
             } }}
           onClick={handleDownload}
-          disabled={!content || content.trim() === ""}
+          disabled={!content || (typeof content === "string" && content.trim() === "")}
         >
           <DownloadIcon sx={{ color: "black" }} />
         </IconButton>
