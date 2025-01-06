@@ -33,7 +33,7 @@ const FileUpload = ({ onChange, onClick, file, isUploading }) => {
     <Box
       {...getRootProps()}
       sx={{
-        border: "2px dashed black",
+        border: "1px dashed black",
         borderRadius: "10px",
         p: 3,
         display: "flex",
