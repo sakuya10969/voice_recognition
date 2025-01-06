@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 from transcribe_audio import transcribe_audio
 from summary import summarize_text
@@ -18,6 +19,8 @@ az_blob_connection = os.getenv("AZ_BLOB_CONNECTION")
 container_name = "container-vr-dev"
 
 app = FastAPI()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,4 +47,5 @@ async def main(file: UploadFile = File(...)):
 
         return summary_text
     except Exception as e:
+        logger.error(str(e))
         raise HTTPException(status_code=500, detail={str(e)})
