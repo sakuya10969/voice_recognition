@@ -1,8 +1,10 @@
-import aiohttp
+import os
 import asyncio
+import aiohttp
+from fastapi import HTTPException
 
 
-def create_headers(az_speech_key: str) -> dict:
+async def create_headers(az_speech_key: str) -> dict:
     """
     Azure Speech Service用のヘッダーを作成。
 
@@ -12,7 +14,6 @@ def create_headers(az_speech_key: str) -> dict:
     return {
         "Ocp-Apim-Subscription-Key": az_speech_key,
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
     }
 
 
@@ -43,8 +44,9 @@ async def create_transcription_job(
             transcription_url, headers=headers, json=body
         ) as response:
             if response.status != 201:
-                raise RuntimeError(
-                    f"ジョブの作成に失敗しました: {await response.text()}"
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"ジョブの作成に失敗しました: {await response.text()}",
                 )
             return (await response.json())["self"]
 
@@ -69,10 +71,11 @@ async def poll_transcription_status(
                 if status_data["status"] == "Succeeded":
                     return status_data["links"]["files"]
                 elif status_data["status"] in ["Failed", "Cancelled"]:
-                    raise RuntimeError(
-                        f"ジョブの進行に失敗しました: {status_data['status']}"
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"ジョブの進行に失敗しました: {status_data['status']}",
                     )
-        raise RuntimeError("ジョブのタイムアウト")
+        raise HTTPException(status_code=500, detail="ジョブのタイムアウト")
 
 
 async def get_transcription_result(file_url: str, headers: dict) -> str:
@@ -86,7 +89,10 @@ async def get_transcription_result(file_url: str, headers: dict) -> str:
     async with aiohttp.ClientSession() as session:
         async with session.get(file_url, headers=headers) as response:
             if response.status != 200:
-                raise RuntimeError(f"結果の取得に失敗しました: {await response.text()}")
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"結果の取得に失敗しました: {await response.text()}",
+                )
             files_data = await response.json()
             return files_data["values"][0]["links"]["contentUrl"]
 
@@ -101,8 +107,9 @@ async def fetch_transcription_display(content_url: str) -> str:
     async with aiohttp.ClientSession() as session:
         async with session.get(content_url) as response:
             if response.status != 200:
-                raise RuntimeError(
-                    f"contentUrl の取得に失敗しました: {await response.text()}"
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"contentUrl の取得に失敗しました: {await response.text()}",
                 )
             content_data = await response.json()
             return content_data["combinedRecognizedPhrases"][0]["display"]
@@ -119,7 +126,7 @@ async def transcribe_audio(
     :param az_speech_endpoint: Azure Speech Serviceエンドポイント
     :return: 文字起こしされたテキスト
     """
-    headers = create_headers(az_speech_key)
+    headers = await create_headers(az_speech_key)
 
     # ジョブ作成
     job_url = await create_transcription_job(blob_url, headers, az_speech_endpoint)

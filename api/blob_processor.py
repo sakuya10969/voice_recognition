@@ -1,7 +1,8 @@
 from azure.storage.blob import BlobServiceClient
+from fastapi import HTTPException
 
 
-def upload_blob(
+async def upload_blob(
     container_name: str, blob_name: str, blob_connection: str, file_data: bytes
 ) -> str:
     """
@@ -26,11 +27,11 @@ def upload_blob(
         # アップロードしたBlobのURLを返す
         return blob_client.url
     except Exception as e:
-        # エラー発生時は例外をそのままスロー
-        raise RuntimeError(f"Failed to upload blob: {str(e)}")
+        # エラー発生時はFastAPI用のHTTPExceptionをスロー
+        raise HTTPException(status_code=500, detail=f"Failed to upload blob: {str(e)}")
 
 
-def delete_blob(container_name: str, blob_name: str, connection_string: str):
+async def delete_blob(container_name: str, blob_name: str, connection_string: str):
     """
     Azure Blob Storageからファイルを削除する関数。
 
@@ -48,5 +49,5 @@ def delete_blob(container_name: str, blob_name: str, connection_string: str):
         # Blobを削除
         container_client.delete_blob(blob_name)
     except Exception as e:
-        # エラー発生時は例外をそのままスロー
-        raise RuntimeError(f"Failed to delete blob: {str(e)}")
+        # エラー発生時はFastAPI用のHTTPExceptionをスロー
+        raise HTTPException(status_code=500, detail=f"Failed to delete blob: {str(e)}")

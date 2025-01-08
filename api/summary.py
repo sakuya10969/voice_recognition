@@ -4,6 +4,7 @@ from openai import AsyncAzureOpenAI
 from pathlib import Path
 from dotenv import load_dotenv
 import tiktoken
+from fastapi import HTTPException
 
 # 環境変数のロード
 env_path = Path(".") / ".env"
@@ -20,7 +21,7 @@ client = AsyncAzureOpenAI(
 encoding = tiktoken.encoding_for_model("gpt-4o")
 
 
-def split_chunks(text, max_tokens, encoding):
+async def split_chunks(text, max_tokens, encoding):
     """
     テキストをトークン数に基づいて分割する関数。
 
@@ -71,7 +72,7 @@ async def fetch_summary(chunk, client, semaphore):
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
-            return f"エラー: {str(e)}"
+            raise HTTPException(status_code=500, detail=f"エラー: {str(e)}")
 
 
 async def summarize_text(text):
@@ -83,12 +84,16 @@ async def summarize_text(text):
     """
     try:
         max_tokens_per_chunk = 3000
-        chunks = split_chunks(text, max_tokens_per_chunk, encoding)
+        chunks = await split_chunks(text, max_tokens_per_chunk, encoding)
         semaphore = asyncio.Semaphore(15)  # 同時実行の制限
 
         # 各チャンクを非同期に処理
-        summaries = await asyncio.gather(*(fetch_summary(chunk, client, semaphore) for chunk in chunks))
+        summaries = await asyncio.gather(
+            *(fetch_summary(chunk, client, semaphore) for chunk in chunks)
+        )
 
         return "\n".join(summaries)
     except Exception as e:
-        raise RuntimeError(f"Failed to summarize text: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to summarize text: {str(e)}"
+        )
