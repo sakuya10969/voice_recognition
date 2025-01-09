@@ -50,4 +50,5 @@ CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", \
     "--keyfile", "/api/key.pem", \
     "--workers", "4", \
     "--threads", "3", \
+    "--timeout", "3600", \
     "--log-level", "info"]
