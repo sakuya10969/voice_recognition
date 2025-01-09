@@ -1,4 +1,3 @@
-import os
 import asyncio
 import aiohttp
 from fastapi import HTTPException
@@ -17,9 +16,7 @@ async def create_headers(az_speech_key: str) -> dict:
     }
 
 
-async def create_transcription_job(
-    blob_url: str, headers: dict, az_speech_endpoint: str
-) -> str:
+async def create_transcription_job(blob_url: str, headers: dict, az_speech_endpoint: str) -> str:
     """
     ジョブを作成する。
 
@@ -51,9 +48,7 @@ async def create_transcription_job(
             return (await response.json())["self"]
 
 
-async def poll_transcription_status(
-    job_url: str, headers: dict, max_attempts=30, interval=10
-) -> str:
+async def poll_transcription_status(job_url: str, headers: dict, max_attempts=30, interval=10) -> str:
     """
     ジョブの進行状況をチェックする。
 
@@ -115,9 +110,7 @@ async def fetch_transcription_display(content_url: str) -> str:
             return content_data["combinedRecognizedPhrases"][0]["display"]
 
 
-async def transcribe_audio(
-    blob_url: str, az_speech_key: str, az_speech_endpoint: str
-) -> str:
+async def transcribe_audio(blob_url: str, az_speech_key: str, az_speech_endpoint: str) -> str:
     """
     音声ファイルを文字起こしするメイン処理。
 

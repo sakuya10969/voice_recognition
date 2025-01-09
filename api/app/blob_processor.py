@@ -2,9 +2,7 @@ from azure.storage.blob import BlobServiceClient
 from fastapi import HTTPException
 
 
-async def upload_blob(
-    container_name: str, blob_name: str, blob_connection: str, file_data: bytes
-) -> str:
+async def upload_blob(file_name: str, file_data: bytes, container_name: str, blob_connection: str) -> str:
     """
     Azure Blob Storageにファイルをアップロードする関数。
 
@@ -17,9 +15,7 @@ async def upload_blob(
     try:
         # BlobServiceClientの初期化
         blob_service_client = BlobServiceClient.from_connection_string(blob_connection)
-        blob_client = blob_service_client.get_blob_client(
-            container=container_name, blob=blob_name
-        )
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
 
         # ファイルをアップロード
         blob_client.upload_blob(file_data, overwrite=True)
@@ -31,7 +27,7 @@ async def upload_blob(
         raise HTTPException(status_code=500, detail=f"Failed to upload blob: {str(e)}")
 
 
-async def delete_blob(container_name: str, blob_name: str, connection_string: str):
+async def delete_blob(blob_name: str, container_name: str, connection_string: str):
     """
     Azure Blob Storageからファイルを削除する関数。
 
@@ -41,9 +37,7 @@ async def delete_blob(container_name: str, blob_name: str, connection_string: st
     """
     try:
         # BlobServiceClientの初期化
-        blob_service_client = BlobServiceClient.from_connection_string(
-            connection_string
-        )
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         container_client = blob_service_client.get_container_client(container_name)
 
         # Blobを削除

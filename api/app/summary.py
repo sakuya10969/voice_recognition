@@ -1,14 +1,12 @@
 import os
 import asyncio
 from openai import AsyncAzureOpenAI
-from pathlib import Path
 from dotenv import load_dotenv
 import tiktoken
 from fastapi import HTTPException
 
 # 環境変数のロード
-env_path = Path(".") / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 # OpenAIクライアントの初期化
 client = AsyncAzureOpenAI(

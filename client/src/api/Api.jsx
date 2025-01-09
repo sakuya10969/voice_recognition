@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const apiUrl = "http://127.0.0.1:8000/transcribe";
-const apiUrl = "https://20.222.220.202/transcribe";
+const apiUrl = "https://74.176.148.55/transcribe";
 
 
 export const handleSendAudio = async (file) => {

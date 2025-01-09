@@ -2,14 +2,15 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
+
 from dotenv import load_dotenv
-from api.app.transcribe_audio import transcribe_audio
-from api.app.summary import summarize_text
-from api.app.blob_processor import upload_blob, delete_blob
-from api.app.mp4_processor import mp4_processor
+from app.transcribe_audio import transcribe_audio
+from app.summary import summarize_text
+from app.blob_processor import upload_blob, delete_blob
+from app.mp4_processor import mp4_processor
 
 # 環境変数をロード
-load_dotenv(dotenv_path="/app/.env")
+load_dotenv()
 
 # 環境変数
 AZ_SPEECH_KEY = os.getenv("AZ_SPEECH_KEY")
@@ -48,13 +49,11 @@ async def main(file: UploadFile = File(...)):
         file_data = response["file_data"]
 
         # Azure Blob Storage にアップロード
-        blob_url = await upload_blob(CONTAINER_NAME, file_name, AZ_BLOB_CONNECTION, file_data)
+        blob_url = await upload_blob(file_name, file_data, CONTAINER_NAME, AZ_BLOB_CONNECTION)
         logger.info(f"Blob uploaded: {blob_url}")
 
         # 音声を文字起こし
-        transcribed_text = await transcribe_audio(
-            blob_url, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT
-        )
+        transcribed_text = await transcribe_audio(blob_url, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
         logger.info(f"Transcribed text: {transcribed_text}")
 
         # 要約処理
@@ -62,7 +61,7 @@ async def main(file: UploadFile = File(...)):
         logger.info(f"Summarized text: {summarized_text}")
 
         # 処理後のBlobを削除
-        await delete_blob(CONTAINER_NAME, file_name, AZ_BLOB_CONNECTION)
+        await delete_blob(file_name, CONTAINER_NAME, AZ_BLOB_CONNECTION)
         logger.info(f"Blob deleted: {file_name}")
 
         # 結果を返却
