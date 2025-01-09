@@ -4,10 +4,10 @@ import logging
 import json
 import os
 from dotenv import load_dotenv
-from transcribe_audio import transcribe_audio
-from summary import summarize_text
-from blob_processor import upload_blob, delete_blob
-from mp4_processor import mp4_processor
+from api.app.transcribe_audio import transcribe_audio
+from api.app.summary import summarize_text
+from api.app.blob_processor import upload_blob, delete_blob
+from api.app.mp4_processor import mp4_processor
 
 # 環境変数をロード
 load_dotenv()

@@ -38,4 +38,4 @@ WORKDIR /app
 EXPOSE 8000
 
 # GunicornとUvicornを使って高速起動を設定
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2", "--log-level", "info"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2", "--log-level", "info"]
