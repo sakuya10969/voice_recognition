@@ -9,20 +9,22 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const Note = ({ content }) => {
   const handleDownload = async () => {
-    const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
+  const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
 
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: [new Paragraph(content)],
-        },
-      ],
-    });
+  const paragraphs = content.split('\n').map(line => new Paragraph(line));
 
-    const blob = await Packer.toBlob(doc);
-    saveAs(blob, fileName);
-  };
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: paragraphs,
+      },
+    ],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, fileName);
+};
 
   return (
     <Paper
