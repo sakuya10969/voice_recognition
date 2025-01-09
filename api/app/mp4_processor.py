@@ -1,10 +1,10 @@
 import os
 import tempfile
 import ffmpeg
-from fastapi import HTTPException
+from fastapi import HTTPException, File ,UploadFile
 
 
-async def save_disk_async(file, destination: str):
+async def save_disk_async(file: UploadFile, destination: str):
     """
     ファイルをディスクに非同期で保存する関数。
 
@@ -36,7 +36,7 @@ def convert_wav_sync(input_path: str, output_path: str):
         )
 
 
-async def mp4_processor(file) -> dict:
+async def mp4_processor(file: UploadFile) -> dict:
     """
     MP4ファイルを処理し、WAVファイルに変換する関数。
 

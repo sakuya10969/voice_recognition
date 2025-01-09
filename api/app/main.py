@@ -1,7 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-import json
 import os
 from dotenv import load_dotenv
 from api.app.transcribe_audio import transcribe_audio
@@ -10,7 +9,7 @@ from api.app.blob_processor import upload_blob, delete_blob
 from api.app.mp4_processor import mp4_processor
 
 # 環境変数をロード
-load_dotenv()
+load_dotenv(dotenv_path="/app/.env")
 
 # 環境変数
 AZ_SPEECH_KEY = os.getenv("AZ_SPEECH_KEY")

@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Python依存関係をインストール
-COPY requirements.txt .
+COPY requirements.txt . 
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # 実行用のステージ
@@ -31,11 +31,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /install /usr/local
 COPY . .
 
+# .env ファイルをコンテナにコピー
+COPY .env /app/.env
+
+# SSL証明書をコンテナにコピー（ホストからコンテナにマウントする場合は別途volumes設定が必要）
+COPY cert.pem /app/cert.pem
+COPY key.pem /app/key.pem
+
 # 作業ディレクトリ
 WORKDIR /app
 
 # FastAPI が利用するポートを公開
-EXPOSE 8000
+EXPOSE 443
 
-# GunicornとUvicornを使って高速起動を設定
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2", "--log-level", "info"]
+# GunicornとUvicornを使ってSSL対応で起動を設定
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", \
+    "--bind", "0.0.0.0:443", \
+    "--certfile", "/app/cert.pem", \
+    "--keyfile", "/app/key.pem", \
+    "--workers", "4", \
+    "--threads", "3", \
+    "--log-level", "info"]
