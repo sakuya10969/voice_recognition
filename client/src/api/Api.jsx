@@ -18,7 +18,6 @@ export const handleSendAudio = async (file) => {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
-            timeout: 3600000
         });
 
         return response.data
