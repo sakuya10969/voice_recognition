@@ -23,18 +23,6 @@ export const handleSendAudio = async (file) => {
 
         return response.data
     } catch (error) {
-        console.error("Error", {
-            message: error.message,
-            name: error.name,
-            code: error.code,
-            config: error.config,
-            request: error.request,
-            response: error.response ? {
-                data: error.response.data,
-                status: error.response.status,
-                headers: error.response.headers
-            } : null
-        });
         alert("ファイルのアップロードに失敗しました");
         throw error;
     }
