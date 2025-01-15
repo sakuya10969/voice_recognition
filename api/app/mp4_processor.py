@@ -1,7 +1,8 @@
 import os
 import tempfile
-import ffmpeg
-from fastapi import HTTPException, File ,UploadFile
+import subprocess
+import imageio_ffmpeg as ffmpeg
+from fastapi import HTTPException, UploadFile
 
 
 async def save_disk_async(file: UploadFile, destination: str):
@@ -24,16 +25,24 @@ def convert_wav_sync(input_path: str, output_path: str):
     :param output_path: 出力ファイルのパス
     """
     try:
-        ffmpeg.input(input_path).output(
+        ffmpeg_path = (
+            ffmpeg.get_ffmpeg_exe()
+        )  # imageio_ffmpegでFFmpegバイナリのパスを取得
+        command = [
+            ffmpeg_path,
+            "-i",
+            input_path,  # 入力ファイル
+            "-ar",
+            "16000",  # サンプリングレート 16kHz
+            "-ac",
+            "1",  # モノラルに変換
+            "-sample_fmt",
+            "s16",  # サンプルフォーマット（16-bit PCM）
             output_path,
-            ar=16000,
-            ac=1,
-            sample_fmt="s16",
-        ).run(overwrite_output=True)
-    except ffmpeg.Error as e:
-        raise HTTPException(
-            status_code=500, detail=f"FFmpeg failed: {e.stderr.decode()}"
-        )
+        ]
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=500, detail=f"FFmpeg failed: {e.stderr}")
 
 
 async def mp4_processor(file: UploadFile) -> dict:
