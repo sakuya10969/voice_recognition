@@ -41,20 +41,8 @@ const Main = () => {
         onSubmit={handleFileUpload} // アップロード処理を渡す
         isUploading={isUploading} // アップロード状態を渡す
       />
-
       {/* テキスト表示 */}
-      <Box sx={{ width: "40%" }}>
-        {error && (
-          <Typography
-            variant="body1"
-            color="error"
-            sx={{ mb: 2, textAlign: "center" }}
-          >
-            {error}
-          </Typography>
-        )}
-        <Note content={content} />
-      </Box>
+      <Note content={content} />
     </Box>
   );
 };

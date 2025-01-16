@@ -23,7 +23,6 @@ const FileUpload = ({ onSubmit, isUploading }) => {
     },
   });
 
-  const projectName = watch("projectName"); // プロジェクト名の監視
   const file = watch("file"); // ファイルの監視
 
   const onDrop = (acceptedFiles, fileRejections) => {
@@ -141,7 +140,7 @@ const FileUpload = ({ onSubmit, isUploading }) => {
               opacity: 0.5,
             },
           }}
-          disabled={!isValid} // バリデーションとファイル選択の両方を確認
+          disabled={!file || !isValid} // バリデーションとファイル選択の両方を確認
         >
           送信
         </Button>
