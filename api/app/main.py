@@ -37,13 +37,11 @@ app.add_middleware(
 
 
 @app.post("/transcribe")
-async def main(project_name: str, file: UploadFile = File(...)):
+async def main(project_name: str, file: UploadFile = File(...)) -> str:
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
     try:
-        logger.info("Processing request...")
-
         # MP4ファイル処理
         response = await mp4_processor(file)
         file_name = response.get("file_name")

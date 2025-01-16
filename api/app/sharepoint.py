@@ -1,4 +1,3 @@
-import requests
 import os
 import time
 from dotenv import load_dotenv
@@ -18,7 +17,7 @@ tenant_id = os.getenv("TENANT_ID")
 # トークンキャッシュ
 token_cache = {"access_token": None, "expires_at": 0}
 
-def get_access_token():
+async def get_access_token():
     global token_cache
     # キャッシュが有効ならそれを使う
     if token_cache["access_token"] and token_cache["expires_at"] > time.time():
@@ -34,24 +33,29 @@ def get_access_token():
     }
 
     try:
-        response = requests.post(url, headers=headers, data=data, timeout=10)
-        if response.status_code == 200:
-            token_data = response.json()
-            access_token = token_data["access_token"]
-            expires_in = token_data.get("expires_in", 3600)  # デフォルト3600秒
-            token_cache = {
-                "access_token": access_token,
-                "expires_at": time.time()
-                + expires_in
-                - 300,  # 余裕を持たせて5分前に更新
-            }
-            return access_token
-        else:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Failed to get access token: {response.text}",
-            )
-    except requests.RequestException as e:
+        # 非同期でPOSTリクエスト
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url, headers=headers, data=data, timeout=10
+            ) as response:
+                if response.status == 200:
+                    token_data = await response.json()
+                    access_token = token_data["access_token"]
+                    expires_in = token_data.get("expires_in", 3600)  # デフォルト3600秒
+
+                    # キャッシュに保存
+                    token_cache = {
+                        "access_token": access_token,
+                        "expires_at": time.time() + expires_in - 300,  # 5分前に期限切れ
+                    }
+
+                    return access_token
+                else:
+                    raise HTTPException(
+                        status_code=response.status,
+                        detail=f"Failed to get access token: {await response.text()}",
+                    )
+    except aiohttp.ClientError as e:
         raise HTTPException(status_code=500, detail=f"HTTP Request failed: {str(e)}")
 
 

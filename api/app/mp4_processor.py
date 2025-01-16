@@ -17,7 +17,7 @@ async def save_disk_async(file: UploadFile, destination: str):
             out_file.write(chunk)
 
 
-def convert_wav_sync(input_path: str, output_path: str):
+def convert_wav(input_path: str, output_path: str):
     """
     MP4ファイルをWAVフォーマットに同期的に変換する関数。
 
@@ -72,7 +72,7 @@ async def mp4_processor(file: UploadFile) -> dict:
             await save_disk_async(file, input_path)
 
             # MP4をWAVに変換（同期処理）
-            convert_wav_sync(input_path, output_path)
+            convert_wav(input_path, output_path)
 
             # WAVファイルを読み取る
             with open(output_path, "rb") as f:
