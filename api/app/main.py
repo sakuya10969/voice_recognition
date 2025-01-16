@@ -2,15 +2,16 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
-
 from dotenv import load_dotenv
+
 from app.transcribe_audio import transcribe_audio
 from app.summary import summarize_text
 from app.blob_processor import upload_blob, delete_blob
 from app.mp4_processor import mp4_processor
+from app.sharepoint import upload_sharepoint
 
 # 環境変数をロード
-load_dotenv()
+load_dotenv(dotenv_path="../.env")
 
 # 環境変数
 AZ_SPEECH_KEY = os.getenv("AZ_SPEECH_KEY")
@@ -36,7 +37,7 @@ app.add_middleware(
 
 
 @app.post("/transcribe")
-async def main(file: UploadFile = File(...)):
+async def main(project_name: str, file: UploadFile = File(...)):
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
@@ -45,28 +46,26 @@ async def main(file: UploadFile = File(...)):
 
         # MP4ファイル処理
         response = await mp4_processor(file)
-        file_name = response["file_name"]
-        file_data = response["file_data"]
+        file_name = response.get("file_name")
+        file_data = response.get("file_data")
 
         # Azure Blob Storage にアップロード
         blob_url = await upload_blob(file_name, file_data, CONTAINER_NAME, AZ_BLOB_CONNECTION)
-        logger.info(f"Blob uploaded: {blob_url}")
 
         # 音声を文字起こし
         transcribed_text = await transcribe_audio(blob_url, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
-        logger.info(f"Transcribed text: {transcribed_text}")
 
         # 要約処理
         summarized_text = await summarize_text(transcribed_text)
-        logger.info(f"Summarized text: {summarized_text}")
+        
+        # SharepointにWordファイルをアップロード
+        await upload_sharepoint(project_name, summarized_text)
 
         # 処理後のBlobを削除
         await delete_blob(file_name, CONTAINER_NAME, AZ_BLOB_CONNECTION)
-        logger.info(f"Blob deleted: {file_name}")
 
         # 結果を返却
         return summarized_text
 
     except Exception as e:
-        logger.error(f"Error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail={"error": str(e)})
