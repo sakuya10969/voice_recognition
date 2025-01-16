@@ -1,10 +1,10 @@
 import axios from "axios";
 
-// const apiUrl = "http://127.0.0.1:8000/transcribe";
-const apiUrl = "https://app-vr-dev-010-ajfwaffjh6gqchf0.eastasia-01.azurewebsites.net/transcribe";
+const apiUrl = "http://127.0.0.1:8000/transcribe";
+// const apiUrl = "https://app-vr-dev-010-ajfwaffjh6gqchf0.eastasia-01.azurewebsites.net/transcribe";
 
 
-export const handleSendAudio = async (file) => {
+export const handleSendAudio = async (projectName, file) => {
     try {
         if (!file) {
             alert("ファイルを選択してください");
@@ -12,6 +12,7 @@ export const handleSendAudio = async (file) => {
         }
 
         const formData = new FormData();
+        formData.append("projectName", projectName);
         formData.append("file", file);
 
         const response = await axios.post(apiUrl, formData, {
