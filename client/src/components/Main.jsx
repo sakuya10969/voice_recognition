@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useState } from "react";
 
 import FileUpload from "./FileUpload";
@@ -7,22 +7,20 @@ import { handleSendAudio } from "../api/Api";
 
 const Main = () => {
   const [content, setContent] = useState(""); // 音声文字起こしの結果
-  const [isUploading, setUploading] = useState(false); // アップロード状態
-  const [error, setError] = useState(null); // エラーメッセージ
+  const [isUploading, setIsUploading] = useState(false); // アップロード状態
 
   // ファイルアップロード処理
   const handleFileUpload = async ({ projectName, file }) => {
-    setUploading(true); // アップロード状態を開始
-    setError(null); // エラーリセット
+    setIsUploading(true); // アップロード状態を開始
 
     try {
       const transcription = await handleSendAudio(projectName, file); // APIリクエスト
       setContent(transcription); // 結果を状態に保存
     } catch (err) {
       console.error("Error uploading file:", err);
-      setError("ファイルのアップロード中にエラーが発生しました。");
+      alert("ファイルのアップロードに失敗しました");
     } finally {
-      setUploading(false); // アップロード状態を終了
+      setIsUploading(false); // アップロード状態を終了
     }
   };
 
