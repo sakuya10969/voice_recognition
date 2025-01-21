@@ -8,6 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Modal from "@mui/material/Modal";
 import { useDropzone } from "react-dropzone";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -178,10 +179,27 @@ const FileUpload = ({
 
       {/* アップロード処理 */}
       {isUploading ? (
-        <>
-          <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}> 処理中... </Typography>
-          <CircularProgress />
-        </>
+        <Modal open={isUploading}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 300,
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: "8px",
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              処理中...
+            </Typography>
+            <CircularProgress />
+          </Box>
+        </Modal>
       ) : (
         <Button
           type="submit"

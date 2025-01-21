@@ -2,6 +2,7 @@ from docx import Document
 import tempfile
 import os
 from datetime import datetime
+import textwrap
 
 async def create_word(summary_text: str) -> str:
     """議事録を作成して一時ファイルパスを返す関数"""
@@ -10,14 +11,14 @@ async def create_word(summary_text: str) -> str:
     # 一時ディレクトリを取得し、完全なパスを作成
     temp_dir = tempfile.gettempdir()
     temp_path = os.path.join(temp_dir, file_name)
-
     # Wordファイル作成
     document = Document()
     document.add_heading("議事録", level=1)
-    document.add_paragraph(f"要約: {summary_text}")
+    wrapped_text = textwrap.fill(summary_text, width=50)
+    document.add_paragraph(wrapped_text)
+    document.add_paragraph(f"要約\n\n {wrapped_text}")
     document.save(temp_path)
 
-    print(f"作成されたWordファイル: {temp_path}")
     return temp_path
 
 async def cleanup_file(file_path: str):
