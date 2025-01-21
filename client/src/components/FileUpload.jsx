@@ -69,11 +69,19 @@ const FileUpload = ({
           labelId="project-select-label"
           label="プロジェクト"
           defaultValue=""
-          onChange={(e) => onProjectChange(e.target.value)}
           {...register("project", { required: "プロジェクトを選択してください" })}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 500,
+                width: 400,
+                overflowX: "auto"
+              },
+            },
+        }}
         >
           {sites.map((site) => (
-            <MenuItem key={site.id} value={site}>
+            <MenuItem key={site.id} value={site} onClick={() => onProjectChange(site)}>
               {site.name}
             </MenuItem>
           ))}
@@ -94,6 +102,15 @@ const FileUpload = ({
           defaultValue=""
           onChange={(e) => onProjectDirectoryChange(e.target.value)}
           {...register("directory", { required: "ディレクトリを選択してください" })}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 500,
+                width: 400,
+                overflowX: "auto",
+              },
+            },
+        }}
         >
           {directories.map((directory) => (
             <MenuItem key={directory.id} value={directory.name}>

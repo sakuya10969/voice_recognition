@@ -12,7 +12,9 @@ function App() {
         flexDirection: "column",
         justifyContent: "space-between",
         alignItems: "center",
-        minHeight: "100vh"
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden"
       }}
     >
       <Header />
