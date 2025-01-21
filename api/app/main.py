@@ -8,6 +8,7 @@ from app.transcribe_audio import transcribe_audio
 from app.summary import summarize_text
 from app.blob_processor import upload_blob, delete_blob
 from app.mp4_processor import mp4_processor
+from app.word_generator import create_word, cleanup_file
 from app.sharepoint import SharePointAccessClass
 
 # 環境変数をロード
@@ -42,7 +43,7 @@ app.add_middleware(
 sp_access = SharePointAccessClass(CLIENT_ID, CLIENT_SECRET, TENANT_ID)
 
 @app.post("/transcribe")
-async def main(file: UploadFile = File(...)) -> str:
+async def main(project: str, project_directory: str, file: UploadFile = File(...)) -> str:
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
@@ -51,23 +52,23 @@ async def main(file: UploadFile = File(...)) -> str:
         response = await mp4_processor(file)
         file_name = response.get("file_name")
         file_data = response.get("file_data")
-
         # Azure Blob Storage にアップロード
         blob_url = await upload_blob(file_name, file_data, CONTAINER_NAME, AZ_BLOB_CONNECTION)
 
-        # 音声を文字起こし
-        transcribed_text = await transcribe_audio(blob_url, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
-
-        # 要約処理
-        summarized_text = await summarize_text(transcribed_text)
+        try:
+            # 音声を文字起こし
+            transcribed_text = await transcribe_audio(blob_url, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
+            # 要約処理
+            summarized_text = await summarize_text(transcribed_text)
+            # SharepointにWordファイルをアップロード
+            word_file_path = await create_word(summarized_text)
+            await sp_access.upload_file_to_sharepoint(project, project_directory, word_file_path)
+            # 結果を返却
+            return summarized_text
         
-        # SharepointにWordファイルをアップロード
-
-        # 処理後のBlobを削除
-        await delete_blob(file_name, CONTAINER_NAME, AZ_BLOB_CONNECTION)
-
-        # 結果を返却
-        return summarized_text
+        finally:
+            await delete_blob(file_name, CONTAINER_NAME, AZ_BLOB_CONNECTION)
+            await cleanup_file(word_file_path)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail={"error": str(e)})
@@ -81,7 +82,6 @@ async def get_sites():
         return sp_access.get_sites()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"サイト取得中にエラーが発生しました: {str(e)}")
-
 
 @app.get("/directories")
 async def get_directories(site_id: str = Query(...)):

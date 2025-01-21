@@ -8,9 +8,6 @@ from fastapi import HTTPException, UploadFile
 async def save_disk_async(file: UploadFile, destination: str):
     """
     ファイルをディスクに非同期で保存する関数。
-
-    :param file: ファイルオブジェクト
-    :param destination: 保存先のパス
     """
     with open(destination, "wb") as out_file:
         while chunk := await file.read(1024 * 1024):  # 非同期で読み込み
@@ -20,9 +17,6 @@ async def save_disk_async(file: UploadFile, destination: str):
 def convert_wav(input_path: str, output_path: str):
     """
     MP4ファイルをWAVフォーマットに同期的に変換する関数。
-
-    :param input_path: 入力ファイルのパス
-    :param output_path: 出力ファイルのパス
     """
     try:
         ffmpeg_path = (
@@ -48,9 +42,6 @@ def convert_wav(input_path: str, output_path: str):
 async def mp4_processor(file: UploadFile) -> dict:
     """
     MP4ファイルを処理し、WAVファイルに変換する関数。
-
-    :param file: ファイルオブジェクト
-    :return: 処理後のファイル名とデータを含む辞書
     """
     try:
         # ファイル名と拡張子を取得

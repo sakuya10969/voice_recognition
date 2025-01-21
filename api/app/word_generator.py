@@ -20,7 +20,6 @@ async def create_word(summary_text: str) -> str:
     print(f"作成されたWordファイル: {temp_path}")
     return temp_path
 
-
 async def cleanup_file(file_path: str):
     """一時ファイルを削除"""
     try:

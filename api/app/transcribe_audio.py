@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 from fastapi import HTTPException
 
-
 async def create_headers(az_speech_key: str) -> dict:
     """
     Azure Speech Service用のヘッダーを作成。
@@ -15,15 +14,9 @@ async def create_headers(az_speech_key: str) -> dict:
         "Content-Type": "application/json",
     }
 
-
 async def create_transcription_job(blob_url: str, headers: dict, az_speech_endpoint: str) -> str:
     """
     ジョブを作成する。
-
-    :param blob_url: 音声ファイルのURL
-    :param headers: リクエストヘッダー
-    :param az_speech_endpoint: Azure Speech Serviceエンドポイント
-    :return: ジョブのURL
     """
     body = {
         "displayName": "Transcription",
@@ -47,16 +40,9 @@ async def create_transcription_job(blob_url: str, headers: dict, az_speech_endpo
                 )
             return (await response.json())["self"]
 
-
 async def poll_transcription_status(job_url: str, headers: dict, max_attempts=30, interval=10) -> str:
     """
     ジョブの進行状況をチェックする。
-
-    :param job_url: ジョブのURL
-    :param headers: リクエストヘッダー
-    :param max_attempts: 最大試行回数
-    :param interval: 各試行間の待機時間（秒）
-    :return: ファイルURL
     """
     async with aiohttp.ClientSession() as session:
         for _ in range(max_attempts):
@@ -72,14 +58,9 @@ async def poll_transcription_status(job_url: str, headers: dict, max_attempts=30
                     )
         raise HTTPException(status_code=500, detail="ジョブのタイムアウト")
 
-
 async def get_transcription_result(file_url: str, headers: dict) -> str:
     """
     ジョブの結果から contentUrl を取得する。
-
-    :param file_url: ファイルURL
-    :param headers: リクエストヘッダー
-    :return: contentUrl
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(file_url, headers=headers) as response:
@@ -91,13 +72,9 @@ async def get_transcription_result(file_url: str, headers: dict) -> str:
             files_data = await response.json()
             return files_data["values"][0]["links"]["contentUrl"]
 
-
 async def fetch_transcription_display(content_url: str) -> str:
     """
     contentUrl にアクセスして display を取得する。
-
-    :param content_url: コンテンツURL
-    :return: テキスト表示
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(content_url) as response:
@@ -109,15 +86,9 @@ async def fetch_transcription_display(content_url: str) -> str:
             content_data = await response.json()
             return content_data["combinedRecognizedPhrases"][0]["display"]
 
-
 async def transcribe_audio(blob_url: str, az_speech_key: str, az_speech_endpoint: str) -> str:
     """
     音声ファイルを文字起こしするメイン処理。
-
-    :param blob_url: 音声ファイルのURL
-    :param az_speech_key: Azure Speech Serviceキー
-    :param az_speech_endpoint: Azure Speech Serviceエンドポイント
-    :return: 文字起こしされたテキスト
     """
     headers = await create_headers(az_speech_key)
 

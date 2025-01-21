@@ -18,15 +18,9 @@ client = AsyncAzureOpenAI(
 # エンコーディングの初期化
 encoding = tiktoken.encoding_for_model("gpt-4o")
 
-
 async def split_chunks(text: str, max_tokens: int, encoding: tiktoken.Encoding) -> list:
     """
     テキストをトークン数に基づいて分割する関数。
-
-    :param text: 入力テキスト
-    :param max_tokens: 各チャンクの最大トークン数
-    :param encoding: トークンエンコーディング
-    :return: 分割されたテキストリスト
     """
     tokens = encoding.encode(text)
     return [
@@ -34,15 +28,9 @@ async def split_chunks(text: str, max_tokens: int, encoding: tiktoken.Encoding) 
         for i in range(0, len(tokens), max_tokens)
     ]
 
-
 async def fetch_summary(chunk: str, client: AsyncAzureOpenAI, semaphore: asyncio.Semaphore) -> str:
     """
     各チャンクをGPTモデルに投げて要約を取得する非同期関数。
-
-    :param chunk: テキストチャンク
-    :param client: OpenAIクライアント
-    :param semaphore: 非同期セマフォ
-    :return: 要約されたテキストまたはエラーメッセージ
     """
     async with semaphore:
         try:
@@ -72,13 +60,9 @@ async def fetch_summary(chunk: str, client: AsyncAzureOpenAI, semaphore: asyncio
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"エラー: {str(e)}")
 
-
 async def summarize_text(text: str) -> str:
     """
     メイン要約関数。
-
-    :param text: 入力テキスト
-    :return: 要約結果の文字列
     """
     try:
         max_tokens_per_chunk = 3000
