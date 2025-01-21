@@ -1,41 +1,44 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import SendIcon from "@mui/icons-material/Send";
+import Send from "@mui/icons-material/Send";
 import CircularProgress from "@mui/material/CircularProgress";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import { useDropzone } from "react-dropzone";
-import { useForm, Controller } from "react-hook-form";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-const FileUpload = ({ onSubmit, isUploading }) => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isValid },
-    setValue,
-    watch,
-  } = useForm({
-    mode: "onBlur", // フォームの即時バリデーション
-    defaultValues: {
-      projectName: "",
-      file: null,
-    },
+const FileUpload = ({
+  sites, // プロジェクト一覧
+  directories, // ディレクトリ一覧
+  onFileChange, // ファイル選択処理
+  onSubmit, // アップロード処理
+  onProjectChange, // サイト選択処理
+  onProjectDirectoryChange, // ディレクトリ選択処理
+  file, // 選択されたファイル
+  isUploading, // アップロード中フラグ
+}) => {
+  const [errorFileType, setErrorFileType] = useState(false);
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm({
+    mode: "onBlur"
   });
-
-  const file = watch("file"); // ファイルの監視
 
   const onDrop = (acceptedFiles, fileRejections) => {
     if (fileRejections.length > 0) {
-      alert("mp4またはwav形式のファイルをアップロードしてください。");
+      setErrorFileType(true);
       return;
     }
+    setErrorFileType(false);
     if (acceptedFiles.length > 0) {
-      setValue("file", acceptedFiles[0], { shouldValidate: true }); // ファイルをセットしてバリデーション実行
+      onFileChange(acceptedFiles[0]);
     }
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
     accept: {
@@ -44,103 +47,138 @@ const FileUpload = ({ onSubmit, isUploading }) => {
     },
   });
 
-  const handleFormSubmit = (data) => {
-    onSubmit(data); // file含む全データを送信
-  };
-
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       sx={{
-        border: "1px solid black",
-        borderRadius: "5px",
-        p: 3,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-        width: "450px",
-        height: "500px",
+        border: "1px solid black",
+        borderRadius: "5px",
+        p: 7,
+        width: "400px",
+        height: "550px",
       }}
     >
-      {/* プロジェクト名入力フィールド */}
-      <Controller
-        name="projectName"
-        control={control}
-        rules={{ required: "プロジェクト名を入力してください。" }}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label="プロジェクト名"
-            variant="outlined"
-            error={!!errors.projectName}
-            helperText={errors.projectName ? errors.projectName.message : ""}
-            sx={{ mb: 3, width: "80%" }}
-          />
+      {/* プロジェクト名セレクトボックス */}
+      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.project}>
+        <InputLabel id="project-select-label">プロジェクト</InputLabel>
+        <Select
+          labelId="project-select-label"
+          label="プロジェクト"
+          defaultValue=""
+          onChange={(e) => onProjectChange(e.target.value)}
+          {...register("project", { required: "プロジェクトを選択してください" })}
+        >
+          {sites.map((site) => (
+            <MenuItem key={site.id} value={site}>
+              {site.name}
+            </MenuItem>
+          ))}
+        </Select>
+        {errors.project && (
+          <Typography variant="body2" color="error">
+            {errors.project.message}
+          </Typography>
         )}
-      />
+      </FormControl>
 
-      {/* ドラッグ＆ドロップエリア */}
+      {/* ディレクトリ名セレクトボックス */}
+      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.directory}>
+        <InputLabel id="directory-select-label">ディレクトリ</InputLabel>
+        <Select
+          labelId="directory-select-label"
+          label="ディレクトリ名"
+          defaultValue=""
+          onChange={(e) => onProjectDirectoryChange(e.target.value)}
+          {...register("directory", { required: "ディレクトリを選択してください" })}
+        >
+          {directories.map((directory) => (
+            <MenuItem key={directory.id} value={directory.name}>
+              {directory.name}
+            </MenuItem>
+          ))}
+        </Select>
+        {errors.directory && (
+          <Typography variant="body2" color="error">
+            {errors.directory.message}
+          </Typography>
+        )}
+      </FormControl>
+
+      {/* ファイルアップロードエリア */}
       <Box
         {...getRootProps()}
         sx={{
+          border: "1px dashed black",
+          borderRadius: "5px",
+          p: 3,
+          mb: 3,
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          border: "1px dashed black",
-          borderRadius: "10px",
-          p: 2,
           width: "80%",
-          height: "300px",
-          textAlign: "center",
+          height: "350px",
+          backgroundColor: isDragActive ? "gainsboro" : "transparent",
           "&:hover": {
             backgroundColor: "whitesmoke",
           },
-          mb: 3,
         }}
       >
-        <input {...getInputProps()} />
-        {!file && (
+        <input
+          {...getInputProps()}
+          onChange={(e) => onFileChange(e.target.files[0])}
+        />
+        <label htmlFor="file-input">
           <Button
             variant="contained"
             component="span"
             startIcon={<CloudUploadIcon />}
-            sx={{ mb: 2, backgroundColor: "black" }}
+            sx={{
+              mb: 2,
+              backgroundColor: "black",
+              width: "160px",
+            }}
           >
             ファイルの選択
           </Button>
-        )}
+        </label>
+
         {file && (
-          <Typography
-            variant="body1"
-            sx={{ mt: 2, wordBreak: "break-word" }}
-          >
+          <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}>
             選択されたファイル: {file.name}
+          </Typography>
+        )}
+        {errorFileType && (
+          <Typography variant="body1" color="error" sx={{ mb: 2, textAlign: "center" }}>
+            mp4またはwav形式のファイルをアップロードしてください。
           </Typography>
         )}
       </Box>
 
+      {/* アップロード処理 */}
       {isUploading ? (
         <>
-          <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}>
-            処理中...
-          </Typography>
+          <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}> 処理中... </Typography>
           <CircularProgress />
         </>
       ) : (
         <Button
           type="submit"
-          variant="contained"
-          endIcon={<SendIcon />}
+          disabled={!file || !isValid}
+          endIcon={<Send />}
           sx={{
+            color: "white",
             backgroundColor: "black",
-            width: "100px",
+            borderRadius: "5px",
+            width: "110px",
             ":disabled": {
-              opacity: 0.5,
+              backgroundColor: "whitesmoke",
             },
           }}
-          disabled={!file || !isValid} // バリデーションとファイル選択の両方を確認
         >
           送信
         </Button>

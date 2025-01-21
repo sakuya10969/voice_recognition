@@ -34,7 +34,6 @@ const Note = ({ content }) => {
         height: "600px",
         padding: 2,
         margin: 2,
-        boxShadow: "0 3px 5px rgba(0, 0, 0)",
         border: "1px solid black",
       }}
     >
