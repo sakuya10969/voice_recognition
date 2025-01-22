@@ -3,12 +3,10 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Send from "@mui/icons-material/Send";
-import CircularProgress from "@mui/material/CircularProgress";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import { useDropzone } from "react-dropzone";
 import { useState, useEffect } from "react";
@@ -74,8 +72,7 @@ const FileUpload = ({
         alignItems: "center",
         borderRadius: "5px",
         p: 5,
-        width: "450px",
-        height: "600px",
+        width: "500px",
       }}
     >
       <TextField
@@ -123,20 +120,19 @@ const FileUpload = ({
           labelId="directory-select-label"
           label="ディレクトリ名"
           defaultValue=""
-          onChange={(e) => onProjectDirectoryChange(e.target.value)}
           {...register("directory", { required: "ディレクトリを選択してください" })}
           MenuProps={{
             PaperProps: {
               style: {
-                maxHeight: 500,
                 width: 400,
+                maxHeight: 500,
                 overflowX: "auto",
               },
             },
         }}
         >
           {directories.map((directory) => (
-            <MenuItem key={directory.id} value={directory.name}>
+            <MenuItem key={directory.id} value={directory.name} onClick={() => onProjectDirectoryChange(directory.name)}>
               {directory.name}
             </MenuItem>
           ))}
@@ -159,8 +155,8 @@ const FileUpload = ({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          width: "90%",
-          height: "400px",
+          width: "430px",
+          height: "330px",
           backgroundColor: isDragActive ? "gainsboro" : "transparent",
           "&:hover": {
             backgroundColor: "whitesmoke",
@@ -179,7 +175,7 @@ const FileUpload = ({
             sx={{
               mb: 2,
               backgroundColor: "black",
-              width: "160px",
+              width: "170px",
             }}
           >
             ファイルの選択

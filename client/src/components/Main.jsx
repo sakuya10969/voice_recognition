@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
+
 import FileUpload from "./FileUpload";
 import Note from "./Note";
-import { handleSendAudio, fetchSites, fetchDirectories } from "../api/Api";
+import { handleSendAudio,useFetchSites, useFetchDirectories } from "../api/Api";
 import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 
 const Main = () => {
-  const [sites, setSites] = useState([]);
-  const [directories, setDirectories] = useState([]);
   const [project, setProject] = useState("");
   const [projectDirectory, setProjectDirectory] = useState("");
   const [file, setFile] = useState(null);
@@ -16,31 +15,12 @@ const Main = () => {
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  useEffect(() => {
-    const loadSites = async () => {
-      try {
-        const data = await fetchSites();
-        setSites(data.value || []);
-      } catch (e) {
-        console.error("Error fetching sites:", e);
-      }
-    };
-    loadSites();
-  }, []);
+  const { sitesData, sitesError, isSitesLoading } = useFetchSites();
+  const { directoriesData, directoriesError, isDirectoriesLoading } = useFetchDirectories(project);
 
   const handleProjectChange = async (site) => {
     setProject(site);
     setProjectDirectory("");
-    setDirectories([]);
-
-    if (site) {
-      try {
-        const data = await fetchDirectories(site);
-        setDirectories(data.value || []);
-      } catch (error) {
-        console.error("Error fetching directories:", error);
-      }
-    }
   };
 
   const handleProjectDirectoryChange = (directory) => {
@@ -52,9 +32,12 @@ const Main = () => {
   };
 
   const handleUpload = async () => {
-    if (!project || !projectDirectory) {
-      alert("プロジェクトとディレクトリを選択してください");
+    if (!project) {
+      alert("プロジェクトを選択してください");
       return;
+    }
+    if (!projectDirectory) {
+      alert("プロジェクトディレクトリを選択してください");
     }
     if (!file) {
       alert("ファイルを選択してください");
@@ -75,6 +58,16 @@ const Main = () => {
     }
   };
 
+  if (sitesError) {
+    return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました。</p>;
+  }
+  if (directoriesError) {
+    return <p style={{ color: "red" }}>ディレクトリデータの取得中にエラーが発生しました。</p>;
+  }
+  if (isSitesLoading || isDirectoriesLoading) {
+    return <p>データを読み込んでいます...</p>;
+  }
+
   return (
     <Box
       sx={{
@@ -86,8 +79,8 @@ const Main = () => {
       }}
     >
       <FileUpload
-        sites={sites}
-        directories={directories}
+        sites={sitesData}
+        directories={directoriesData}
         onFileChange={handleFileChange}
         onSubmit={handleUpload}
         onProjectChange={handleProjectChange}

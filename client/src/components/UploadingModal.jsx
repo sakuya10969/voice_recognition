@@ -3,11 +3,9 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
 import GraphicEqIcon from "@mui/icons-material/GraphicEq";
 
-const UploadingModal = ({ open, onClose }) => {
+const UploadingModal = ({ open }) => {
     const modalStyle = {
     display: "flex",
     flexDirection: "column",
@@ -17,31 +15,17 @@ const UploadingModal = ({ open, onClose }) => {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 350,
-    height: 200,
+    width: 400,
+    height: 250,
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
     position: "relative",
   };
 
-  const closeButtonStyle = {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    color: "black"
-  };
-
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={() => {}}>
       <Box sx={modalStyle}>
-        <IconButton
-          aria-label="close"
-          sx={closeButtonStyle}
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </IconButton>
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Typography
                 variant="h5"
