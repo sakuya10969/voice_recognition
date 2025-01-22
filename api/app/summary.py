@@ -44,7 +44,8 @@ async def fetch_summary(chunk: str, client: AsyncAzureOpenAI, semaphore: asyncio
                     {
                         "role": "user",
                         "content": (
-                            "以下の文章を日本語で要約し、その下に話者にラベルをつけた会話形式で表示してください。\n\n"
+                            "以下の文章を必ず日本語で要約してください。\n\n"
+                            "英語は絶対に含めないでください。"
                             "できる限りわかりやすく丁寧に要約してください。"
                             f"対象の文章:{chunk}\n\n"
                             "フォーマット例:\n\n"
