@@ -5,9 +5,6 @@ from fastapi import HTTPException
 async def create_headers(az_speech_key: str) -> dict:
     """
     Azure Speech Service用のヘッダーを作成。
-
-    :param az_speech_key: Azure Speech Serviceキー
-    :return: ヘッダー辞書
     """
     return {
         "Ocp-Apim-Subscription-Key": az_speech_key,
@@ -91,15 +88,11 @@ async def transcribe_audio(blob_url: str, az_speech_key: str, az_speech_endpoint
     音声ファイルを文字起こしするメイン処理。
     """
     headers = await create_headers(az_speech_key)
-
     # ジョブ作成
     job_url = await create_transcription_job(blob_url, headers, az_speech_endpoint)
-
     # ジョブ進行状況を確認
     file_url = await poll_transcription_status(job_url, headers)
-
     # contentUrl を取得
     content_url = await get_transcription_result(file_url, headers)
-
     # 文字起こし結果を取得
     return await fetch_transcription_display(content_url)

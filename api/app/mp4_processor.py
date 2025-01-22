@@ -13,7 +13,6 @@ async def save_disk_async(file: UploadFile, destination: str):
         while chunk := await file.read(1024 * 1024):  # 非同期で読み込み
             out_file.write(chunk)
 
-
 def convert_wav(input_path: str, output_path: str):
     """
     MP4ファイルをWAVフォーマットに同期的に変換する関数。
@@ -37,7 +36,6 @@ def convert_wav(input_path: str, output_path: str):
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"FFmpeg failed: {e.stderr}")
-
 
 async def mp4_processor(file: UploadFile) -> dict:
     """

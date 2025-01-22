@@ -83,8 +83,8 @@ async def get_sites():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"サイト取得中にエラーが発生しました: {str(e)}")
 
-@app.get("/directories")
-async def get_directories(site_id: str = Query(...)):
+@app.get("/directories/{site_id}")
+async def get_directories(site_id: str):
     """
     指定されたサイトIDのディレクトリ一覧を取得するエンドポイント
     """

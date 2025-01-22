@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import textwrap
 
-async def create_word(summary_text: str) -> str:
+async def create_word(summarized_text: str) -> str:
     """議事録を作成して一時ファイルパスを返す関数"""
     # ファイル名を指定
     file_name = f"議事録_{datetime.now().strftime('%Y%m%d%H%M')}.docx"
@@ -14,7 +14,7 @@ async def create_word(summary_text: str) -> str:
     # Wordファイル作成
     document = Document()
     document.add_heading("議事録", level=1)
-    wrapped_text = textwrap.fill(summary_text, width=50)
+    wrapped_text = textwrap.fill(summarized_text, width=50)
     document.add_paragraph(wrapped_text)
     document.add_paragraph(f"要約\n\n {wrapped_text}")
     document.save(temp_path)
