@@ -9,22 +9,22 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const Note = ({ content }) => {
   const handleDownload = async () => {
-  const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
+    const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
 
-  const paragraphs = content.split('\n').map(line => new Paragraph(line));
+    const paragraphs = content.split('\n').map(line => new Paragraph(line));
 
-  const doc = new Document({
-    sections: [
-      {
-        properties: {},
-        children: paragraphs,
-      },
-    ],
-  });
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: paragraphs,
+        },
+      ],
+    });
 
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, fileName);
-};
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, fileName);
+  };
 
   return (
     <Paper
@@ -33,7 +33,6 @@ const Note = ({ content }) => {
         width: "700px",
         height: "600px",
         padding: 2,
-        margin: 2,
         border: "1px solid black",
       }}
     >
@@ -57,14 +56,14 @@ const Note = ({ content }) => {
             transform: "transLateX(50px)",
             ":disabled": {
               opacity: 0.5,
-            } }}
+            },
+          }}
           onClick={handleDownload}
           disabled={!content || (typeof content === "string" && content.trim() === "")}
         >
           <DownloadIcon sx={{ color: "black" }} />
         </IconButton>
       </Box>
-
       <Box
         sx={{
           overflowY: "auto",

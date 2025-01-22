@@ -41,7 +41,7 @@ export const fetchSites = async () => {
 
 export const fetchDirectories = async (site) => {
     try {
-        const response = await axios.get(`${apiUrl}/directories?site_id=${site.id}`);
+        const response = await axios.get(`${apiUrl}/directories/${site.id}`);
         return response.data;
     } catch (error) {
         alert("ディレクトリの取得に失敗しました");

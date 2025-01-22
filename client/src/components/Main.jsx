@@ -1,24 +1,26 @@
-import { Box } from "@mui/material";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
 import FileUpload from "./FileUpload";
 import Note from "./Note";
 import { handleSendAudio, fetchSites, fetchDirectories } from "../api/Api";
+import UploadingModal from "./UploadingModal";
+import SuccessModal from "./SuccessModal";
 
 const Main = () => {
-  const [sites, setSites] = useState([]); // サイト一覧
-  const [directories, setDirectories] = useState([]); // ディレクトリ一覧
-  const [project, setProject] = useState(""); // 選択されたプロジェクト名
-  const [projectDirectory, setProjectDirectory] = useState(""); // 選択されたディレクトリ名
-  const [file, setFile] = useState(null); // アップロードするファイル
-  const [content, setContent] = useState(""); // アップロード結果
-  const [isUploading, setIsUploading] = useState(false); // アップロード中フラグ
+  const [sites, setSites] = useState([]);
+  const [directories, setDirectories] = useState([]);
+  const [project, setProject] = useState("");
+  const [projectDirectory, setProjectDirectory] = useState("");
+  const [file, setFile] = useState(null);
+  const [content, setContent] = useState("");
+  const [isUploadingModalOpen, setIsUploadingModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  // ページロード時にサイト一覧を取得
   useEffect(() => {
     const loadSites = async () => {
       try {
-        const data = await fetchSites(); // サイト一覧を取得
-        setSites(data.value || []); // サイト一覧を保存
+        const data = await fetchSites();
+        setSites(data.value || []);
       } catch (e) {
         console.error("Error fetching sites:", e);
       }
@@ -26,34 +28,29 @@ const Main = () => {
     loadSites();
   }, []);
 
-  // サイト選択時にディレクトリ一覧を取得
   const handleProjectChange = async (site) => {
-    setProject(site); // 選択されたサイトを保存
-    setProjectDirectory(""); // ディレクトリ選択をリセット
-    setDirectories([]); // ディレクトリ一覧をリセット
+    setProject(site);
+    setProjectDirectory("");
+    setDirectories([]);
 
     if (site) {
       try {
-        const data = await fetchDirectories(site); // サーバーからディレクトリ取得
-        console.log(data.value)
-        setDirectories(data.value || []); // ディレクトリ一覧を保存
+        const data = await fetchDirectories(site);
+        setDirectories(data.value || []);
       } catch (error) {
         console.error("Error fetching directories:", error);
       }
     }
   };
 
-  // ディレクトリ選択時
   const handleProjectDirectoryChange = (directory) => {
-    setProjectDirectory(directory); // 選択されたディレクトリ名を保存
+    setProjectDirectory(directory);
   };
 
-  // ファイル選択時
   const handleFileChange = (file) => {
     setFile(file);
   };
 
-  // アップロード処理
   const handleUpload = async () => {
     if (!project || !projectDirectory) {
       alert("プロジェクトとディレクトリを選択してください");
@@ -63,17 +60,18 @@ const Main = () => {
       alert("ファイルを選択してください");
       return;
     }
-
-    setIsUploading(true);
+    setIsUploadingModalOpen(true);
     try {
       const transcription = await handleSendAudio(project, projectDirectory, file);
-      setContent(transcription); // アップロード結果を保存
+      setContent(transcription);
+      setIsUploadingModalOpen(false);
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("ファイルのアップロード中にエラーが発生しました。");
+      setIsUploadingModalOpen(false);
     } finally {
-      setIsUploading(false);
-      setFile(null); // ファイルをリセット
+      setFile(null);
     }
   };
 
@@ -84,20 +82,22 @@ const Main = () => {
         justifyContent: "space-around",
         alignItems: "center",
         width: "100%",
-        padding: 3, // 修正: "paddng" -> "padding"
+        padding: 3,
       }}
     >
       <FileUpload
-        sites={sites} // サイト一覧を渡す
-        directories={directories} // ディレクトリ一覧を渡す
-        onFileChange={handleFileChange} // ファイル選択処理
-        onSubmit={handleUpload} // アップロード処理
-        onProjectChange={handleProjectChange} // サイト選択処理
-        onProjectDirectoryChange={handleProjectDirectoryChange} // ディレクトリ選択処理
-        file={file} // 選択されたファイル
-        isUploading={isUploading} // アップロード中状態
+        sites={sites}
+        directories={directories}
+        onFileChange={handleFileChange}
+        onSubmit={handleUpload}
+        onProjectChange={handleProjectChange}
+        onProjectDirectoryChange={handleProjectDirectoryChange}
+        file={file}
       />
       <Note content={content} />
+
+      <UploadingModal open={isUploadingModalOpen} onClose={() => setIsUploadingModalOpen(false)} />
+      <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
   );
 };

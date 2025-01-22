@@ -9,8 +9,9 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
+import TextField from "@mui/material/TextField";
 import { useDropzone } from "react-dropzone";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const FileUpload = ({
@@ -21,9 +22,24 @@ const FileUpload = ({
   onProjectChange, // サイト選択処理
   onProjectDirectoryChange, // ディレクトリ選択処理
   file, // 選択されたファイル
-  isUploading, // アップロード中フラグ
 }) => {
   const [errorFileType, setErrorFileType] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredSites, setFilteredSites] = useState(sites);
+
+  // ページの初期レンダリング時にデータを取得、格納する
+  useEffect(() => {
+    setFilteredSites(sites);
+  }, [sites]);
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setFilteredSites(
+        value.trim() === "" ? sites : sites.filter((site) => site.name && site.name.includes(value))
+      );
+  };
+
   const { register, handleSubmit, formState: { errors, isValid } } = useForm({
     mode: "onBlur"
   });
@@ -56,14 +72,22 @@ const FileUpload = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        border: "1px solid black",
         borderRadius: "5px",
-        p: 7,
-        width: "400px",
-        height: "550px",
+        p: 5,
+        width: "450px",
+        height: "600px",
       }}
     >
-      {/* プロジェクト名セレクトボックス */}
+      <TextField
+        label="検索"
+        placeholder="プロジェクトの検索"
+        variant="outlined"
+        size="small"
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearch}
+        sx={{ mb: 3 }}
+        />
       <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.project}>
         <InputLabel id="project-select-label">プロジェクト</InputLabel>
         <Select
@@ -81,7 +105,7 @@ const FileUpload = ({
             },
         }}
         >
-          {sites.map((site) => (
+          {filteredSites.map((site) => (
             <MenuItem key={site.id} value={site} onClick={() => onProjectChange(site)}>
               {site.name}
             </MenuItem>
@@ -93,8 +117,6 @@ const FileUpload = ({
           </Typography>
         )}
       </FormControl>
-
-      {/* ディレクトリ名セレクトボックス */}
       <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.directory}>
         <InputLabel id="directory-select-label">ディレクトリ</InputLabel>
         <Select
@@ -126,7 +148,6 @@ const FileUpload = ({
         )}
       </FormControl>
 
-      {/* ファイルアップロードエリア */}
       <Box
         {...getRootProps()}
         sx={{
@@ -138,8 +159,8 @@ const FileUpload = ({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          width: "80%",
-          height: "350px",
+          width: "90%",
+          height: "400px",
           backgroundColor: isDragActive ? "gainsboro" : "transparent",
           "&:hover": {
             backgroundColor: "whitesmoke",
@@ -176,48 +197,22 @@ const FileUpload = ({
           </Typography>
         )}
       </Box>
-
-      {/* アップロード処理 */}
-      {isUploading ? (
-        <Modal open={isUploading}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 300,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: "8px",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              処理中...
-            </Typography>
-            <CircularProgress />
-          </Box>
-        </Modal>
-      ) : (
-        <Button
-          type="submit"
-          disabled={!file || !isValid}
-          endIcon={<Send />}
-          sx={{
-            color: "white",
-            backgroundColor: "black",
-            borderRadius: "5px",
-            width: "110px",
-            ":disabled": {
-              backgroundColor: "whitesmoke",
-            },
-          }}
-        >
-          送信
-        </Button>
-      )}
+      <Button
+        type="submit"
+        disabled={!file || !isValid}
+        endIcon={<Send />}
+        sx={{
+          color: "white",
+          backgroundColor: "black",
+          borderRadius: "5px",
+          width: "110px",
+          ":disabled": {
+            backgroundColor: "whitesmoke",
+          },
+        }}
+      >
+        送信
+      </Button>
     </Box>
   );
 };
