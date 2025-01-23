@@ -1,4 +1,4 @@
 {
-    "appService.defaultWebAppToDeploy": "/subscriptions/60bfe623-582e-44f7-b65d-d4af74fe87c2/resourceGroups/rg-vr-dev-010/providers/Microsoft.Web/sites/app-vr-dev-011",
+    "appService.defaultWebAppToDeploy": "/subscriptions/60bfe623-582e-44f7-b65d-d4af74fe87c2/resourceGroups/rg-vr-dev-010/providers/Microsoft.Web/sites/app-vr-dev-010",
     "appService.deploySubpath": "."
 }

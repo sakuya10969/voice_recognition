@@ -75,7 +75,7 @@ async def fetch_summary(chunk: str, client: AsyncAzureOpenAI, semaphore: asyncio
             raise HTTPException(status_code=500, detail=f"エラー: {str(e)}")
 
 
-async def summarize_text(text: str) -> list[str]:
+async def summarize_text(text: str) -> str:
     """
     メイン要約関数。
     テキストをチャンク分けし、非同期で要約を取得。
@@ -90,8 +90,6 @@ async def summarize_text(text: str) -> list[str]:
         semaphore = asyncio.Semaphore(15)
         # 各チャンクを非同期で要約取得
         summaries = await asyncio.gather(*(fetch_summary(chunk, client, semaphore) for chunk in chunks))
-        return summaries
+        return "\n".join(summaries)
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to summarize text: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to summarize text: {str(e)}")
