@@ -41,28 +41,28 @@ app.add_middleware(
 # SharePointアクセスクラスの初期化
 sp_access = SharePointAccessClass(CLIENT_ID, CLIENT_SECRET, TENANT_ID)
 # FastAPI側でのモデルを定義
-class Transcribe(BaseModel):
-    project: str
-    project_directory: str
+# class Transcribe(BaseModel):
+#     project: str
+#     project_directory: str
 # クライアントから送信されたフォームデータをjson形式にパースする
-def parse_form(
-    project: str = Form(...),
-    project_directory: str = Form(...)
-) -> Transcribe:
-    return Transcribe(project=project, project_directory=project_directory)
+# def parse_form(
+#     project: str = Form(...),
+#     project_directory: str = Form(...)
+# ) -> Transcribe:
+#     return Transcribe(project=project, project_directory=project_directory)
 
 @app.post("/transcribe")
 async def main(
-    project_data: Transcribe = Depends(parse_form), 
+    # project_data: Transcribe = Depends(parse_form), 
     file: UploadFile = File(...)
     ) -> str:
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
-    project_data_dict = project_data.model_dump()
+    # project_data_dict = project_data.model_dump()
     try:
         # ログ: リクエストデータの受信を記録
-        logger.info(f"Received request with project: {project_data.project}, directory: {project_data.project_directory}")
+        # logger.info(f"Received request with project: {project_data.project}, directory: {project_data.project_directory}")
         # MP4ファイル処理
         response = await mp4_processor(file)
         file_name = response.get("file_name")
@@ -83,15 +83,15 @@ async def main(
             logger.info("Text summarization completed.")
 
             # SharePointにWordファイルをアップロード
-            word_file_path = await create_word(summarized_text)
-            sp_access.upload_file(project_data_dict["project"], project_data_dict["project_directory"], word_file_path)
-            logger.info(f"Uploaded Word file to SharePoint: {word_file_path}")
+            # word_file_path = await create_word(summarized_text)
+            # sp_access.upload_file(project_data_dict["project"], project_data_dict["project_directory"], word_file_path)
+            # logger.info(f"Uploaded Word file to SharePoint: {word_file_path}")
 
             return summarized_text
 
         finally:
             await delete_blob(file_name, CONTAINER_NAME, AZ_BLOB_CONNECTION)
-            await cleanup_file(word_file_path)
+            # await cleanup_file(word_file_path)
 
     except RequestValidationError as ve:
         logger.error("Validation error occurred.")

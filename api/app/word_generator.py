@@ -1,9 +1,10 @@
 from pathlib import Path
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Pt
 import tempfile
 import os
 from datetime import datetime
-import textwrap
 
 async def create_word(summarized_text: str) -> Path:
     """議事録を作成して一時ファイルパスを返す関数"""
@@ -12,14 +13,19 @@ async def create_word(summarized_text: str) -> Path:
     # 一時ディレクトリを取得し、完全なパスを作成
     temp_dir = tempfile.gettempdir()
     temp_path = Path(temp_dir) / file_name
-    # Wordファイル作成
+    # ワードファイルの生成
     document = Document()
     document.add_heading("議事録", level=1)
-    wrapped_text = textwrap.fill(summarized_text, width=50)
-    document.add_paragraph(wrapped_text)
-    document.add_paragraph(f"要約\n\n {wrapped_text}")
-    document.save(temp_path)
+    for idx, text in enumerate(summarized_text, start=1):
+        document.add_heading(f"議題 {idx}", level=2)
+        paragraph = document.add_paragraph(text)
+        paragraph_format = paragraph.paragraph_format
+        paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT  # 左揃え
+        run = paragraph.runs[0]
+        run.font.size = Pt(12)  # フォントサイズを12ポイントに設定
 
+    # 保存
+    document.save(temp_path)
     return temp_path
 
 async def cleanup_file(file_path: str):
