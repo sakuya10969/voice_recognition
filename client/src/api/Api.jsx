@@ -1,8 +1,8 @@
 import axios from "axios";
 import useSWR from "swr";
 
-const apiUrl = "http://127.0.0.1:8000";
-// const apiUrl = "https://app-vr-dev-010-ajfwaffjh6gqchf0.eastasia-01.azurewebsites.net/transcribe";
+// const apiUrl = "http://127.0.0.1:8000";
+const apiUrl = "https://app-vr-dev-010-ajfwaffjh6gqchf0.eastasia-01.azurewebsites.net";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
