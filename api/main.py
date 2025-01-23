@@ -23,7 +23,6 @@ AZ_BLOB_CONNECTION = os.getenv("AZ_BLOB_CONNECTION")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TENANT_ID = os.getenv("TENANT_ID")
-print(CLIENT_ID)
 CONTAINER_NAME = "container-vr-dev"
 
 logger = logging.getLogger("uvicorn.error")
