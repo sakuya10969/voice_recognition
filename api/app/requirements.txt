@@ -2,6 +2,7 @@ aiohttp
 azure_storage-blob
 fastapi
 imageio_ffmpeg
+gunicorn
 msal
 openai
 pydantic
