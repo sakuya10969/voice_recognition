@@ -1,16 +1,16 @@
 import axios from "axios";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "https://app-vr-dev-010-ajfwaffjh6gqchf0.eastasia-01.azurewebsites.net/transcribe";
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export const handleSendAudio = async (project, projectDirectory, file) => {
+export const handleSendAudio = async (file) => {
     try {
         const formData = new FormData();
-        formData.append("project", project.name);
-        formData.append("project_directory", projectDirectory);
+        // formData.append("project", project.name);
+        // formData.append("project_directory", projectDirectory);
         formData.append("file", file);
 
         const response = await axios.post(`${apiUrl}/transcribe`, formData, {
