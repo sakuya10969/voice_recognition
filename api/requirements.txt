@@ -1,13 +1,14 @@
 aiohttp
-azure_storage-blob
+azure-storage-blob
 fastapi
-imageio_ffmpeg
+imageio-ffmpeg
 gunicorn
 msal
 openai
 pydantic
 python-dotenv
-python_docx
+python-docx
+python-multipart
 requests
 tiktoken
 uvicorn

@@ -28,59 +28,8 @@ CONTAINER_NAME = "container-vr-dev"
 
 logger = logging.getLogger("uvicorn.error")
 
-
 # FastAPIアプリケーションの初期化
 app = FastAPI()
-# ログの設定
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    """
-    全てのリクエストとレスポンスをログに記録し、
-    例外発生時に詳細をレスポンスとしてブラウザに返す。
-    """
-    # リクエストの詳細をログ出力
-    logger.info(f"=== Incoming request ===")
-    logger.debug(f"Method: {request.method}")
-    logger.debug(f"URL: {request.url}")
-    logger.debug(f"Headers: {dict(request.headers)}")
-
-    try:
-        # リクエスト処理の実行
-        response = await call_next(request)
-
-        # レスポンスの詳細をログ出力
-        logger.info(f"=== Response status: {response.status_code} ===")
-        logger.debug(f"Response headers: {dict(response.headers)}")
-
-        # レスポンス本文を取得する場合
-        response_body = b""
-        async for chunk in response.body_iterator:
-            response_body += chunk
-        logger.debug(f"Response body: {response_body.decode('utf-8')}")
-        response.body_iterator = iter([response_body])  # レスポンスの内容を再設定
-
-        return response
-
-    except Exception as e:
-        # エラーログ出力
-        logger.error(f"=== Error occurred ===")
-        logger.error(f"Error: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-
-        # エラーの詳細をレスポンスに返却
-        return JSONResponse(
-            status_code=500,
-            content={
-                "message": "Internal Server Error",
-                "error": str(e),
-                "traceback": traceback.format_exc(),
-            },
-        )
-
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
