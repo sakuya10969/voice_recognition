@@ -45,24 +45,19 @@ async def mp4_processor(file: UploadFile) -> dict:
         # ファイル名と拡張子を取得
         sanitized_filename = os.path.basename(file.filename)
         file_extension = os.path.splitext(sanitized_filename)[1].lower()
-
         # WAV形式ならそのまま返す
         if file_extension == ".wav":
             wav_data = await file.read()  # 非同期でデータを読み込む
             return {"file_name": sanitized_filename, "file_data": wav_data}
-
         # 一時ディレクトリを利用
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = os.path.join(tmpdir, sanitized_filename)
             output_filename = os.path.splitext(sanitized_filename)[0] + ".wav"
             output_path = os.path.join(tmpdir, output_filename)
-
             # ファイルをディスクに保存
             await save_disk_async(file, input_path)
-
             # MP4をWAVに変換（同期処理）
             convert_wav(input_path, output_path)
-
             # WAVファイルを読み取る
             with open(output_path, "rb") as f:
                 wav_data = f.read()
