@@ -6,8 +6,8 @@ from fastapi import HTTPException
 class AzOpenAIClient:
     def __init__(
         self,
-        api_key: str,
-        endpoint: str,
+        az_openai_key: str,
+        az_openai_endpoint: str,
         api_version: str = "2024-02-01",
         max_concurrent_requests: int = 15,
     ):
@@ -15,8 +15,8 @@ class AzOpenAIClient:
         OpenAI サマライズ用クラスの初期化。
         """
         self.client = AsyncAzureOpenAI(
-            api_key=api_key,
-            azure_endpoint=endpoint,
+            api_key=az_openai_key,
+            azure_endpoint=az_openai_endpoint,
             api_version=api_version,
         )
         self.encoding = tiktoken.encoding_for_model("gpt-4o")

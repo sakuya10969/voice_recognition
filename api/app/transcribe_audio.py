@@ -25,7 +25,7 @@ class AzTranscriptionClient:
                 "wordLevelTimestampsEnabled": True,
             },
         }
-        transcription_url = f"{self.endpoint}/speechtotext/v3.2/transcriptions"
+        transcription_url = f"{self.az_speech_endpoint}/speechtotext/v3.2/transcriptions"
         async with self.session.post(
             transcription_url, headers=self.headers, json=body
         ) as response:
