@@ -14,7 +14,6 @@ from app.mp4_processor import mp4_processor
 from app.word_generator import create_word, cleanup_file
 from app.sharepoint_processor import SharePointAccessClass
 
-
 # 環境変数をロード
 load_dotenv()
 # 環境変数
@@ -49,31 +48,30 @@ def get_az_openai_client():
     return AzOpenAIClient(AZ_OPENAI_KEY, AZ_OPENAI_ENDPOINT)
 def get_sp_access():
     return SharePointAccessClass(CLIENT_ID, CLIENT_SECRET, TENANT_ID)
-
-
 # FastAPI側でのモデルを定義
-# class Transcribe(BaseModel):
-#     project: str
-#     project_directory: str
+class Transcribe(BaseModel):
+    project: str
+    project_directory: str
 # クライアントから送信されたフォームデータをjson形式にパースする
-# def parse_form(
-#     project: str = Form(...),
-#     project_directory: str = Form(...)
-# ) -> Transcribe:
-#     return Transcribe(project=project, project_directory=project_directory)
+def parse_form(
+    project: str = Form(...),
+    project_directory: str = Form(...)
+) -> Transcribe:
+    return Transcribe(project=project, project_directory=project_directory)
 
 @app.post("/transcribe")
 async def main(
-    # project_data: Transcribe = Depends(parse_form), 
+    project_data: Transcribe = Depends(parse_form), 
     file: UploadFile = File(...),
     az_blob_client: AzBlobClient = Depends(get_az_blob_client),
     az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
-    az_openai_client: AzOpenAIClient = Depends(get_az_openai_client)
+    az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
+    sp_access: SharePointAccessClass = Depends(get_sp_access)
     ) -> str:
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
-    # project_data_dict = project_data.model_dump()
+    project_data_dict = project_data.model_dump()
     try:
         # MP4ファイル処理
         response = await mp4_processor(file)
@@ -86,17 +84,15 @@ async def main(
             transcribed_text = await az_speech_client.transcribe_audio(blob_url)
             # 要約処理
             summarized_text = await az_openai_client.summarize_text(transcribed_text)
-
             # SharePointにWordファイルをアップロード
-            # word_file_path = await create_word(summarized_text)
-            # sp_access.upload_file(project_data_dict["project"], project_data_dict["project_directory"], word_file_path)
-            # logger.info(f"Uploaded Word file to SharePoint: {word_file_path}")
+            word_file_path = await create_word(summarized_text)
+            sp_access.upload_file(project_data_dict["project"], project_data_dict["project_directory"], word_file_path)
 
             return summarized_text
 
         finally:
             await az_blob_client.delete_blob(file_name)
-            # await cleanup_file(word_file_path)
+            await cleanup_file(word_file_path)
     except Exception as e:
         return JSONResponse(
             status_code=500,

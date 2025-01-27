@@ -4,7 +4,6 @@ import subprocess
 import imageio_ffmpeg as ffmpeg
 from fastapi import HTTPException, UploadFile
 
-
 async def save_disk_async(file: UploadFile, destination: str):
     """
     ファイルをディスクに非同期で保存する関数。

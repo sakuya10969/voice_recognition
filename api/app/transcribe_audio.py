@@ -2,14 +2,13 @@ import asyncio
 import aiohttp
 from fastapi import HTTPException
 
-
 class AzTranscriptionClient:
     def __init__(self, session: aiohttp.ClientSession, az_speech_key: str, az_speech_endpoint: str):
         self.headers = {
             "Ocp-Apim-Subscription-Key": az_speech_key,
             "Content-Type": "application/json",
         }
-        self.endpoint = az_speech_endpoint
+        self.az_speech_endpoint = az_speech_endpoint
         self.session = session
 
     async def close(self):
