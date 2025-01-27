@@ -8,11 +8,11 @@ const apiUrl = "https://ca-vr-dev-010--wnjhfc8.graypond-9888a1dd.japaneast.azure
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 
-export const handleSendAudio = async (file) => {
+export const handleSendAudio = async (project, projectDirectory, file) => {
     try {
         const formData = new FormData();
-        // formData.append("project", project.name);
-        // formData.append("project_directory", projectDirectory);
+        formData.append("project", project.name);
+        formData.append("project_directory", projectDirectory);
         formData.append("file", file);
 
         const response = await axios.post(`${apiUrl}/transcribe`, formData, {

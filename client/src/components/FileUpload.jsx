@@ -75,7 +75,7 @@ const FileUpload = ({
         width: "500px",
       }}
     >
-      {/* <TextField
+      <TextField
         label="検索"
         placeholder="プロジェクトの検索"
         variant="outlined"
@@ -142,7 +142,7 @@ const FileUpload = ({
             {errors.directory.message}
           </Typography>
         )}
-      </FormControl> */}
+      </FormControl>
 
       <Box
         {...getRootProps()}
