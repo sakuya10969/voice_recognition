@@ -8,15 +8,15 @@ import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 
 const Main = () => {
-  const [project, setProject] = useState("");
-  const [projectDirectory, setProjectDirectory] = useState("");
+  // const [project, setProject] = useState("");
+  // const [projectDirectory, setProjectDirectory] = useState("");
   const [file, setFile] = useState(null);
   const [content, setContent] = useState("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  const { sitesData, sitesError, isSitesLoading } = useFetchSites();
-  const { directoriesData, directoriesError, isDirectoriesLoading } = useFetchDirectories(project);
+  // const { sitesData, sitesError, isSitesLoading } = useFetchSites();
+  // const { directoriesData, directoriesError, isDirectoriesLoading } = useFetchDirectories(project);
 
   // const handleProjectChange = async (site) => {
   //   setProject(site);
@@ -54,21 +54,21 @@ const Main = () => {
       alert("ファイルのアップロード中にエラーが発生しました。");
       setIsUploadingModalOpen(false);
     } finally {
-      setProject("");
-      setProjectDirectory("");
+      // setProject("");
+      // setProjectDirectory("");
       setFile(null);
     }
   };
 
-  if (sitesError) {
-    return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました。</p>;
-  }
-  if (directoriesError) {
-    return <p style={{ color: "red" }}>ディレクトリデータの取得中にエラーが発生しました。</p>;
-  }
-  if (isSitesLoading || isDirectoriesLoading) {
-    return <p>データを読み込んでいます...</p>;
-  }
+  // if (sitesError) {
+  //   return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました。</p>;
+  // }
+  // if (directoriesError) {
+  //   return <p style={{ color: "red" }}>ディレクトリデータの取得中にエラーが発生しました。</p>;
+  // }
+  // if (isSitesLoading || isDirectoriesLoading) {
+  //   return <p>データを読み込んでいます...</p>;
+  // }
 
   return (
     <Box
@@ -81,8 +81,8 @@ const Main = () => {
       }}
     >
       <FileUpload
-        sites={sitesData}
-        directories={directoriesData}
+        // sites={sitesData}
+        // directories={directoriesData}
         onFileChange={handleFileChange}
         onSubmit={handleUpload}
         // onProjectChange={handleProjectChange}
