@@ -18,27 +18,27 @@ const Main = () => {
   const { sitesData, sitesError, isSitesLoading } = useFetchSites();
   const { directoriesData, directoriesError, isDirectoriesLoading } = useFetchDirectories(project);
 
-  const handleProjectChange = async (site) => {
-    setProject(site);
-    setProjectDirectory("");
-  };
+  // const handleProjectChange = async (site) => {
+  //   setProject(site);
+  //   setProjectDirectory("");
+  // };
 
-  const handleProjectDirectoryChange = (directory) => {
-    setProjectDirectory(directory);
-  };
+  // const handleProjectDirectoryChange = (directory) => {
+  //   setProjectDirectory(directory);
+  // };
 
   const handleFileChange = (file) => {
     setFile(file);
   };
 
   const handleUpload = async () => {
-    if (!project) {
-      alert("プロジェクトを選択してください");
-      return;
-    }
-    if (!projectDirectory) {
-      alert("プロジェクトディレクトリを選択してください");
-    }
+    // if (!project) {
+    //   alert("プロジェクトを選択してください");
+    //   return;
+    // }
+    // if (!projectDirectory) {
+    //   alert("プロジェクトディレクトリを選択してください");
+    // }
     if (!file) {
       alert("ファイルを選択してください");
       return;
@@ -85,8 +85,8 @@ const Main = () => {
         directories={directoriesData}
         onFileChange={handleFileChange}
         onSubmit={handleUpload}
-        onProjectChange={handleProjectChange}
-        onProjectDirectoryChange={handleProjectDirectoryChange}
+        // onProjectChange={handleProjectChange}
+        // onProjectDirectoryChange={handleProjectDirectoryChange}
         file={file}
       />
       <Note content={content} />
