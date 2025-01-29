@@ -75,6 +75,8 @@ class AzTranscriptionClient:
             return content_data["combinedRecognizedPhrases"][0]["display"]
 
     async def transcribe_audio(self, blob_url: str) -> str:
+        if self.session.closed:
+            self.session = aiohttp.ClientSession()
         job_url = await self.create_transcription_job(blob_url)
         file_url = await self.poll_transcription_status(job_url)
         content_url = await self.get_transcription_result(file_url)

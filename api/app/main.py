@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, Request
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, Request, BackgroundTasks, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -42,8 +42,11 @@ def get_az_blob_client():
     return AzBlobClient(AZ_BLOB_CONNECTION, AZ_CONTAINER_NAME)
 async def get_az_speech_client():
     async with aiohttp.ClientSession() as session:
-        client = AzTranscriptionClient(session, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
-        yield client
+        az_speech_client = AzTranscriptionClient(session, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT)
+        try:
+            yield az_speech_client
+        finally:
+            await az_speech_client.close()
 def get_az_openai_client():
     return AzOpenAIClient(AZ_OPENAI_KEY, AZ_OPENAI_ENDPOINT)
 def get_sp_access():
@@ -59,40 +62,51 @@ def parse_form(
 ) -> Transcribe:
     return Transcribe(project=project, project_directory=project_directory)
 
-@app.post("/transcribe")
-async def main(
-    project_data: Transcribe = Depends(parse_form), 
-    file: UploadFile = File(...),
-    az_blob_client: AzBlobClient = Depends(get_az_blob_client),
-    az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
-    az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
-    sp_access: SharePointAccessClass = Depends(get_sp_access)
-    ) -> str:
-    """
-    音声ファイルを文字起こしし、要約を返すエンドポイント。
-    """
-    project_data_dict = project_data.model_dump()
+connections = {}
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await websocket.accept()
+    connections[client_id] = websocket
     try:
-        # MP4ファイル処理
-        response = await mp4_processor(file)
-        file_name = response["file_name"]
-        file_data = response["file_data"]
-        # Azure Blob Storage にアップロード
-        blob_url = await az_blob_client.upload_blob(file_name, file_data)
-        try:
-            # 音声を文字起こし
-            transcribed_text = await az_speech_client.transcribe_audio(blob_url)
-            # 要約処理
-            summarized_text = await az_openai_client.summarize_text(transcribed_text)
-            # SharePointにWordファイルをアップロード
-            word_file_path = await create_word(summarized_text)
-            sp_access.upload_file(project_data_dict["project"], project_data_dict["project_directory"], word_file_path)
+        while True:
+            await websocket.receive_text()
+    except Exception as e:
+        del connections[client_id]
+        raise HTTPException(
+            status_code=500, detail=f"WebSocket通信中にエラーが発生しました: {str(e)}"
+        )
 
-            return summarized_text
+async def process_audio_task(
+    blob_url: str,
+    client_id: str,
+    # project_data_dict: dict,
+    az_blob_client: AzBlobClient,
+    az_speech_client: AzTranscriptionClient,
+    az_openai_client: AzOpenAIClient,
+    # sp_access: SharePointAccessClass
+):
+    """音声処理をバックグラウンドで行い、WebSocketで通知"""
+    try:
+        # 文字起こし
+        transcribed_text = await az_speech_client.transcribe_audio(blob_url)
+        # 要約処理
+        summarized_text = await az_openai_client.summarize_text(transcribed_text)
+        # SharePointにWordファイルをアップロード
+        # word_file_path = await create_word(summarized_text)
+        # sp_access.upload_file(
+        #     project_data_dict["project"],
+        #     project_data_dict["project_directory"],
+        #     word_file_path,
+        # )
 
-        finally:
-            await az_blob_client.delete_blob(file_name)
-            await cleanup_file(word_file_path)
+        # WebSocket通知
+        if client_id in connections:
+            await connections[client_id].send_text(summarized_text)
+        # Blobストレージから削除
+        if blob_url:
+            await az_blob_client.delete_blob(blob_url)
+
     except Exception as e:
         return JSONResponse(
             status_code=500,
@@ -101,9 +115,51 @@ async def main(
                 "traceback": traceback.format_exc(),
             },
         )
-    finally:
-        # 音声処理が終わったらクライアントのリソースを解放
-        await az_speech_client.close()
+
+@app.post("/transcribe")
+async def main(
+    background_tasks: BackgroundTasks,
+    # project_data: Transcribe = Depends(parse_form),
+    file: UploadFile = File(...),
+    client_id: str = Form(...),
+    az_blob_client: AzBlobClient = Depends(get_az_blob_client),
+    az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
+    az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
+    # sp_access: SharePointAccessClass = Depends(get_sp_access)
+    ) -> dict:
+    """
+    音声ファイルを文字起こしし、要約を返すエンドポイント。
+    """
+    # project_data_dict = project_data.model_dump()
+    try:
+        # MP4ファイル処理
+        response = await mp4_processor(file)
+        file_name = response["file_name"]
+        file_data = response["file_data"]
+        # Azure Blob Storage にアップロード
+        blob_url = await az_blob_client.upload_blob(file_name, file_data)
+
+        background_tasks.add_task(
+            process_audio_task,
+            blob_url,
+            client_id,
+            # project_data_dict,
+            az_blob_client,
+            az_speech_client,
+            az_openai_client,
+            # sp_access
+        )
+
+        return {"message": "処理を開始しました"}
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+            },
+        )
 
 @app.get("/sites")
 async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):

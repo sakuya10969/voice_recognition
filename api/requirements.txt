@@ -1,5 +1,6 @@
 aiohttp
 azure-storage-blob
+celery 
 fastapi
 imageio-ffmpeg
 gunicorn
@@ -9,6 +10,7 @@ pydantic
 python-dotenv
 python-docx
 python-multipart
+redis
 requests
 tiktoken
-uvicorn
+uvicorn[standard]
