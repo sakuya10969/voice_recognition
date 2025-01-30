@@ -103,7 +103,7 @@ const FileUpload = ({
         }}
         >
           {filteredSites.map((site) => (
-            <MenuItem key={site.id} value={site} onClick={() => onProjectChange(site)}>
+            <MenuItem key={site.id} value={site.name} onClick={() => onProjectChange(site)}>
               {site.name}
             </MenuItem>
           ))}

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "http://localhost:8000";
-// const apiUrl = "https://ca-vr-dev-010--wnjhfc8.graypond-9888a1dd.japaneast.azurecontainerapps.io/";
+// const apiUrl = "https://ca-vr-dev-011--t94gl0v.gentlebeach-99fe5a4e.eastasia.azurecontainerapps.io/";
 
 const getClientId = () => {
     let clientId = localStorage.getItem("client_id");
