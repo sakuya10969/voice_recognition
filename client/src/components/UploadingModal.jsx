@@ -36,8 +36,8 @@ const UploadingModal = ({ open }) => {
             </Typography>
             <GraphicEqIcon edge="end" color="inherit" size="large" sx={{ ml: 1, mb: 0.6 }} />
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-        <CircularProgress size={50} sx={{ color: "black" }} />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <CircularProgress size={50} sx={{ color: "black" }} />
         </Box>
       </Box>
     </Modal>
