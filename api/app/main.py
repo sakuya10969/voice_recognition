@@ -155,7 +155,6 @@ async def main(
             file_name,
             file_content
         )
-
         return {"message": "処理を開始しました"}
 
     except Exception as e:

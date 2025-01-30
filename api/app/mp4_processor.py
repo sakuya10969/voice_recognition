@@ -58,7 +58,6 @@ async def mp4_processor(file_name: str, file_data: bytes) -> dict:
             # WAVファイルを読み取る
             with open(output_path, "rb") as f:
                 wav_data = f.read()
-
             return {"file_name": output_filename, "file_data": wav_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")

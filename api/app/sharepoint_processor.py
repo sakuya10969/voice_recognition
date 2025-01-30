@@ -1,6 +1,5 @@
 import msal
 import requests
-from pathlib import Path
 from functools import cache
 
 class SharePointAccessClass:
@@ -69,9 +68,7 @@ class SharePointAccessClass:
         """
         Get Sites in SharePoint
         """
-        print("Get Sites in SharePoint")
         endpoints = self.graph_api_get("https://graph.microsoft.com/v1.0/sites")
-        # print(endpoints.json())
         return endpoints.json()
 
     # サイト名からサイトIDを取得する
@@ -79,7 +76,6 @@ class SharePointAccessClass:
         """
         Get Site_id  using the site_name
         """
-        print(f"Get Site_id using the site_name: {site_name}")
         sites = self.get_sites()
         for site in sites['value']:
             if site['name'] == site_name:
@@ -89,7 +85,6 @@ class SharePointAccessClass:
 
     # サイトIDからサイトのフォルダを全て取得する
     def get_folders(self, site_id, folder_id='root'):
-        print(f"Get Subfolders in a folder using the folder_id: {folder_id}")
         folders = self.graph_api_get(
             f'https://graph.microsoft.com/v1.0/sites/{site_id}/drive/items/{folder_id}/children')
         if folders is not None:
@@ -116,10 +111,7 @@ class SharePointAccessClass:
     # 指定されたサイトIDのサイトから、指定されたディレクトリツリーの最下層のフォルダIDを取得する
     def get_folder_id_from_tree(self, site_id, sharepoint_directory, folder_id='root'):
         # 各ディレクトリを上から順に表示
-        print(f"folder_name:= {sharepoint_directory}")
         folder_id = self.get_folder_id(site_id, sharepoint_directory, folder_id)
-
-        print(f"folder_id: {folder_id}")
         return folder_id
 
     # ファイルのアップロード
@@ -127,20 +119,16 @@ class SharePointAccessClass:
         """
         Upload a file to SharePoint using the target_site_name, sharepoint_directory, and object_file_path
         """
-        print("Uploading file...")
-
         # ターゲットサイトのIDを取得
         target_site_id = self.get_site_id(target_site_name)
         # フォルダIDを取得
         folder_id = self.get_folder_id_from_tree(target_site_id, sharepoint_directory, 'root')
-
         if folder_id:
             # アップロードURLを作成
             url = f'https://graph.microsoft.com/v1.0/sites/{target_site_id}/drive/items/{folder_id}:/{object_file_path.name}:/content'
             # ファイルをアップロード
             with open(object_file_path, 'rb') as f:
                 graph_data = self.graph_api_put(url, f)
-
             # アップロード結果を返す
             return graph_data.json()
         else:
