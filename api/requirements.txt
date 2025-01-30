@@ -12,5 +12,6 @@ python-docx
 python-multipart
 redis
 requests
+starlette
 tiktoken
 uvicorn[standard]

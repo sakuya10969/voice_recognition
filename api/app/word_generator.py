@@ -16,14 +16,10 @@ async def create_word(summarized_text: str) -> Path:
     # ワードファイルの生成
     document = Document()
     document.add_heading("議事録", level=1)
-    for idx, text in enumerate(summarized_text, start=1):
-        document.add_heading(f"議題 {idx}", level=2)
-        paragraph = document.add_paragraph(text)
-        paragraph_format = paragraph.paragraph_format
-        paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT  # 左揃え
-        run = paragraph.runs[0]
-        run.font.size = Pt(12)  # フォントサイズを12ポイントに設定
-
+    # **要約を1つのパラグラフとして追加**
+    paragraph = document.add_paragraph(summarized_text)
+    paragraph_format = paragraph.paragraph_format
+    paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT  # 左揃え
     # 保存
     document.save(temp_path)
     return temp_path
