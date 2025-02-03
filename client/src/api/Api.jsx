@@ -1,60 +1,54 @@
 import axios from "axios";
 import useSWR from "swr";
-import { v4 as uuidv4 } from "uuid";
 
-// const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-011--t94gl0v.gentlebeach-99fe5a4e.eastasia.azurecontainerapps.io/";
-
-const getClientId = () => {
-    let clientId = localStorage.getItem("client_id");
-    if (!clientId) {
-        clientId = uuidv4();
-        localStorage.setItem("client_id", clientId);
-    }
-    return clientId;
-}
+const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "http://localhost:8000";
+// const apiUrl = "https://ca-vr-dev-011--t94gl0v.gentlebeach-99fe5a4e.eastasia.azurecontainerapps.io/";
 
 export const handleSendAudio = async (project, projectDirectory, file) => {
-    // Promiseでラップして非同期にデータを取得
-    return new Promise((resolve, reject) => {
-        try {
-            const clientId = getClientId();
-            let formData = new FormData();
-            formData.append("project", project.name);
-            formData.append("project_directory", projectDirectory);
-            formData.append("file", file);
-            formData.append("client_id", clientId);
-
-            // WebSocket接続
-            const wsUrl = apiUrl.replace("http", "ws") + `/ws/${clientId}`;
-            const socket = new WebSocket(wsUrl);
-
-            socket.onopen = async () => {
+    try {
+        let formData = new FormData();
+        formData.append("project", project.name);
+        formData.append("project_directory", projectDirectory);
+        formData.append("file", file);
+        // **1. タスクIDを取得（処理開始）**
+        const response = await axios.post(`${apiUrl}/transcribe`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        const taskId = response.data.task_id;  // タスクIDを取得
+        console.log("処理開始:", response.data.message);
+        // **2. タスクの完了をポーリングでチェック**
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(async () => {
                 try {
-                    await axios.post(`${apiUrl}/transcribe`, formData, {
-                        headers: { "Content-Type": "multipart/form-data" },
-                    });
+                    const statusResponse = await axios.get(`${apiUrl}/transcribe/${taskId}`);
+                    const status = statusResponse.data.status;
+
+                    if (status === "completed") {
+                        console.log("処理完了:", statusResponse.data.result);
+                        clearInterval(interval); // **完了したらポーリング停止**
+                        resolve(statusResponse.data.result);
+                    } else if (status === "failed") {
+                        console.error("処理失敗:", statusResponse.data.result);
+                        clearInterval(interval); // **エラーの場合も停止**
+                        reject(new Error(statusResponse.data.result));
+                    } else if (status === "not found") {
+                        console.error("タスクIDが見つかりません");
+                        clearInterval(interval);
+                        reject(new Error("タスクIDが見つかりません"));
+                    } else {
+                        console.log("現在のステータス:", status);
+                    }
                 } catch (error) {
-                    reject(new Error(error));
-                    socket.close();
+                    console.error("ステータス取得エラー:", error);
                 }
-            };
-
-            socket.onmessage = (e) => {
-                resolve(e.data); // 受信データを返す
-                socket.close();  // 受信後すぐに切断
-            };
-
-            socket.onerror = (error) => {
-                reject(new Error(error));
-                socket.close();
-            };
-            
-        } catch (error) {
-            reject(new Error(error));
-        }
-    });
+            }, 10000);
+        });
+    } catch (error) {
+        throw new Error(error);
+    }
 };
+
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 export const useFetchSites = () => {
