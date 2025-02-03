@@ -159,7 +159,11 @@ async def get_transcription_status(task_id: str):
     """
     status = task_status.get(task_id, "not found")
     if status == "completed":
-        return {"task_id": task_id, "result": task_results[task_id]}
+        return {
+            "task_id": task_id,
+            "status": "completed",
+            "result": task_results[task_id],
+        }
     return {"task_id": task_id, "status": status}
 
 @app.get("/sites")

@@ -1,9 +1,9 @@
 import axios from "axios";
 import useSWR from "swr";
 
-const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "http://localhost:8000";
-// const apiUrl = "https://ca-vr-dev-011--t94gl0v.gentlebeach-99fe5a4e.eastasia.azurecontainerapps.io/";
+const apiUrl = "https://ca-vr-dev-010.yellowpebble-f342eba3.eastasia.azurecontainerapps.io/";
 
 export const handleSendAudio = async (project, projectDirectory, file) => {
     try {
@@ -22,7 +22,9 @@ export const handleSendAudio = async (project, projectDirectory, file) => {
             const interval = setInterval(async () => {
                 try {
                     const statusResponse = await axios.get(`${apiUrl}/transcribe/${taskId}`);
+                    console.log("APIレスポンス:", statusResponse.data); // ← これを入れる
                     const status = statusResponse.data.status;
+                    console.log("現在のステータス:", status);
 
                     if (status === "completed") {
                         console.log("処理完了:", statusResponse.data.result);
@@ -42,13 +44,12 @@ export const handleSendAudio = async (project, projectDirectory, file) => {
                 } catch (error) {
                     console.error("ステータス取得エラー:", error);
                 }
-            }, 10000);
+            }, 5000);
         });
     } catch (error) {
         throw new Error(error);
     }
 };
-
 
 const fetcher = (url) => axios.get(url).then((res) => res.data);
 export const useFetchSites = () => {
