@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, Request, BackgroundTasks, WebSocket
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 import traceback
 from fastapi.responses import JSONResponse
 import aiohttp
-from starlette.websockets import WebSocketDisconnect
 from contextlib import asynccontextmanager
+import uuid
 
 from app.transcribe_audio import AzTranscriptionClient
 from app.summary_text import AzOpenAIClient
@@ -33,11 +33,12 @@ TENANT_ID = os.getenv("TENANT_ID")
 async def lifespan(app: FastAPI):
     session = aiohttp.ClientSession()
     app.state.session = session
-    app.state.connections = {}
     yield
     await session.close()
 # FastAPIアプリケーションの初期化
 app = FastAPI(lifespan=lifespan)
+task_results = {}
+task_status={}
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
@@ -67,31 +68,19 @@ def parse_form(
 ) -> Transcribe:
     return Transcribe(project=project, project_directory=project_directory)
 
-@app.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: str):
-    await websocket.accept()
-    app.state.connections[client_id] = websocket  # クライアントIDを登録
-    try:
-        while True:
-            received_text = (await websocket.receive_text())  # クライアントからのメッセージを受信
-            await websocket.send_text(received_text)  # 受け取ったメッセージをそのまま返す
-    except WebSocketDisconnect:
-        pass  # クライアントが切断した場合は何もしない
-    finally:
-        app.state.connections.pop(client_id, None)
-
 async def process_audio_task(
-    client_id: str,
+    task_id: str,
     project_data_dict: dict,
     az_blob_client: AzBlobClient,
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
     sp_access: SharePointAccessClass,
     file_name: str,
-    file_content: bytes
+    file_content: bytes,
 ):
-    """音声処理をバックグラウンドで行い、WebSocketで通知"""
+    """音声処理をバックグラウンドで行い、タスクIDで管理"""
     try:
+        task_status[task_id] = "processing"
         # MP4ファイル処理
         wav_data = await mp4_processor(file_name, file_content)
         file_name = wav_data["file_name"]
@@ -109,54 +98,51 @@ async def process_audio_task(
             project_data_dict["project_directory"],
             word_file_path,
         )
-        # WebSocket通知（接続がまだあるか確認）
-        if client_id in app.state.connections:
-            await app.state.connections[client_id].send_text(summarized_text)
+        # タスク完了後の処理
+        task_results[task_id] = summarized_text
+        task_status[task_id] = "completed"
         # Blobストレージから削除
         if file_name:
             await az_blob_client.delete_blob(file_name)
     except Exception as e:
-        print(f"Error processing file for client {client_id}: {str(e)}")
+        task_status[task_id] = "failed"
+        task_results[task_id] = f"Error processing file: {str(e)}"
+        print(f"Error processing file for task {task_id}: {str(e)}")
 
 @app.post("/transcribe")
-async def main(
+async def transcribe(
     background_tasks: BackgroundTasks,
     project_data: Transcribe = Depends(parse_form),
     file: UploadFile = File(...),
-    client_id: str = Form(...),
     az_blob_client: AzBlobClient = Depends(get_az_blob_client),
     az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
     az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
-    sp_access: SharePointAccessClass = Depends(get_sp_access)
-    ) -> dict:
+    sp_access: SharePointAccessClass = Depends(get_sp_access),
+) -> dict:
     """
     音声ファイルを文字起こしし、要約を返すエンドポイント。
     """
-    if client_id not in app.state.connections:
-        return JSONResponse(
-            status_code=400,
-            content={
-                "error": "WebSocket が開かれていません。先に /ws/{client_id} を開いてください。"
-            },
-        )
+    # タスクIDを生成
+    task_id = str(uuid.uuid4())
+    task_results[task_id] = None
+    task_status[task_id] = "queued"
     project_data_dict = project_data.model_dump()
     try:
         file_name = file.filename
         file_content = await file.read()
-
+        # バックグラウンドで処理を実行
         background_tasks.add_task(
             process_audio_task,
-            client_id,
+            task_id,
             project_data_dict,
             az_blob_client,
             az_speech_client,
             az_openai_client,
             sp_access,
             file_name,
-            file_content
+            file_content,
         )
-        return {"message": "処理を開始しました"}
-
+        return {"task_id": task_id, "message": "処理を開始しました"}
     except Exception as e:
         return JSONResponse(
             status_code=500,
@@ -166,13 +152,23 @@ async def main(
             },
         )
 
+@app.get("/transcribe/{task_id}")
+async def get_transcription_status(task_id: str):
+    """
+    タスクの進捗状況または結果を取得するエンドポイント。
+    """
+    status = task_status.get(task_id, "not found")
+    if status == "completed":
+        return {"task_id": task_id, "result": task_results[task_id]}
+    return {"task_id": task_id, "status": status}
+
 @app.get("/sites")
 async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):
     """
     サイト一覧を取得するエンドポイント
     """
     try:
-        return sp_access.get_sites()
+        return await sp_access.get_sites()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"サイト取得中にエラーが発生しました: {str(e)}")
 
@@ -182,6 +178,6 @@ async def get_directories(site_id: str, sp_access: SharePointAccessClass = Depen
     指定されたサイトIDのディレクトリ一覧を取得するエンドポイント
     """
     try:
-        return sp_access.get_folders(site_id)
+        return await sp_access.get_folders(site_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ディレクトリ取得中にエラーが発生しました: {str(e)}")

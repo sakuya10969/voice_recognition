@@ -42,7 +42,7 @@ class AzOpenAIClient:
             try:
                 response = await self.client.chat.completions.create(
                     model="gpt-4o",
-                    max_tokens=500,  # 必要な応答トークン数を制限
+                    max_tokens=1000,
                     messages=[
                         {
                             "role": "system",
@@ -50,8 +50,6 @@ class AzOpenAIClient:
                                 "あなたは会議動画を分析し、議事録を作成するプロフェッショナルなアシスタントです。"
                                 "動画の会話内容を正確に捉え、重要な議題、参加者の意見、具体的なアイデア、結論を詳細に記録してください。"
                                 "簡潔すぎる要約は避け、内容の濃さを保ちながら、読みやすい日本語で整理してください。"
-                                "もし入力がすでに適切なフォーマット（例: 「【会議概要】」「【議題】」）で書かれている場合は、そのまま出力してください。"
-                                "もしフォーマットがない場合は、以下のフォーマットで記述してください。"
                             ),
                         },
                         {
@@ -91,18 +89,17 @@ class AzOpenAIClient:
         return results
 
     async def summarize_text(self, text: str, max_tokens_per_chunk: int = 3000) -> str:
-        """
-        テキスト全体を分割し、非同期で要約を取得。
-        """
         try:
             # テキストをチャンクに分割
             chunks = await self.split_chunks(text, max_tokens_per_chunk)
+            print("分割されたチャンク:", chunks)  # チャンクのリストを表示
             # 非同期タスクを生成
             tasks = [self.fetch_summary(chunk) for chunk in chunks]
+            print("処理するタスクの数:", len(tasks))
             # バッチ処理でタスクを実行
             summaries = await self.run_in_batches(tasks, batch_size=15)
+            print("要約のリスト:", summaries)  # 取得された要約を表示
             return "\n".join(summaries)
         except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to summarize text: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to summarize text: {str(e)}")
+
