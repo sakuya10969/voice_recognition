@@ -17,12 +17,18 @@ export const handleSendAudio = async (project, projectDirectory, file) => {
         });
         const taskId = response.data.task_id;  // タスクIDを取得
         console.log("処理開始:", response.data.message);
+        
+        await new Promise(resolve => setTimeout(resolve, 10000));
         // **2. タスクの完了をポーリングでチェック**
         return new Promise((resolve, reject) => {
             const interval = setInterval(async () => {
                 try {
-                    const statusResponse = await axios.get(`${apiUrl}/transcribe/${taskId}`);
-                    console.log("APIレスポンス:", statusResponse.data); // ← これを入れる
+                    const statusResponse = await axios.get(`${apiUrl}/transcribe/${taskId}`, {
+                        headers: {
+                            "Cache-Control": "no-cache, no-store, must-revalidate",
+                        }
+                    });
+                    console.log("APIレスポンス:", statusResponse.data);
                     const status = statusResponse.data.status;
                     console.log("現在のステータス:", status);
 
