@@ -34,11 +34,8 @@ export const handleSendAudio = async (project, projectDirectory, file) => {
                         console.error("処理失敗:", statusResponse.data.result);
                         clearInterval(interval); // **エラーの場合も停止**
                         reject(new Error(statusResponse.data.result));
-                    } else if (status === "not found") {
-                        console.error("タスクIDが見つかりません");
-                        clearInterval(interval);
-                        reject(new Error("タスクIDが見つかりません"));
-                    } else {
+                    } 
+                    else {
                         console.log("現在のステータス:", status);
                     }
                 } catch (error) {

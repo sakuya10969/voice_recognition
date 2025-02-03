@@ -157,7 +157,7 @@ async def get_transcription_status(task_id: str):
     """
     タスクの進捗状況または結果を取得するエンドポイント。
     """
-    status = task_status.get(task_id, "not found")
+    status = task_status[task_id]
     if status == "completed":
         return {
             "task_id": task_id,
