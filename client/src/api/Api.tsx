@@ -1,13 +1,13 @@
 import axios from "axios";
 import useSWR from "swr";
 
-// const apiUrl = "http://127.0.0.1:8000";
+const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "http://localhost:8000";
-const apiUrl = "https://ca-vr-dev-010.calmsky-eb1ed6be.japaneast.azurecontainerapps.io";
+// const apiUrl = "https://ca-vr-dev-010.calmsky-eb1ed6be.japaneast.azurecontainerapps.io";
 
 export const handleSendAudio = async (project: { id: string; name: string }, projectDirectory: string, file: File): Promise<string> => {
     try {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append("project", project.name);
         formData.append("project_directory", projectDirectory);
         formData.append("file", file);

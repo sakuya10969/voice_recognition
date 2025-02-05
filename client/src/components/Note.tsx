@@ -9,10 +9,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 const Note: React.FC<{ content: string }> = ({ content }) => {
   const handleDownload = async () => {
-    const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
-
+    const fileName = `議事録_${new Date().toLocaleString().replace(/[/,:]/g, "-")}.docx`;
     const paragraphs = content.split('\n').map(line => new Paragraph(line));
-
     const doc = new Document({
       sections: [
         {
@@ -21,7 +19,6 @@ const Note: React.FC<{ content: string }> = ({ content }) => {
         },
       ],
     });
-
     const blob = await Packer.toBlob(doc);
     saveAs(blob, fileName);
   };

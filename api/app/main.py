@@ -172,7 +172,7 @@ async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):
     サイト一覧を取得するエンドポイント
     """
     try:
-        return await sp_access.get_sites()
+        return sp_access.get_sites()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"サイト取得中にエラーが発生しました: {str(e)}")
 
@@ -182,6 +182,6 @@ async def get_directories(site_id: str, sp_access: SharePointAccessClass = Depen
     指定されたサイトIDのディレクトリ一覧を取得するエンドポイント
     """
     try:
-        return await sp_access.get_folders(site_id)
+        return sp_access.get_folders(site_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ディレクトリ取得中にエラーが発生しました: {str(e)}")
