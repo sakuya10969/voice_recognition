@@ -1,5 +1,6 @@
-import { CssBaseline, Box } from "@mui/material";
 
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Footer from "./components/Footer";

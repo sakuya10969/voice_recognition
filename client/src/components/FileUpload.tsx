@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -8,11 +9,20 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
-import { useDropzone } from "react-dropzone";
-import { useState, useEffect } from "react";
+import { useDropzone, FileRejection } from "react-dropzone";
 import { useForm } from "react-hook-form";
 
-const FileUpload = ({
+interface FileUploadProps {
+  sites: { id: string; name: string }[];
+  directories: { id: string, name: string }[];
+  onFileChange: (file: File | null) => void;
+  onSubmit: () => void;
+  onProjectChange: (project: { id: string; name: string }) => void;
+  onProjectDirectoryChange: (directory: string) => void;
+  file: File | null;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({
   sites, // プロジェクト一覧
   directories, // ディレクトリ一覧
   onFileChange, // ファイル選択処理
@@ -28,9 +38,9 @@ const FileUpload = ({
   // ページの初期レンダリング時にデータを取得、格納する
   useEffect(() => {
     setFilteredSites(sites);
-  }, [sites]);
+  }, []);
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     setFilteredSites(
@@ -42,7 +52,7 @@ const FileUpload = ({
     mode: "onBlur"
   });
 
-  const onDrop = (acceptedFiles, fileRejections) => {
+  const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
       setErrorFileType(true);
       return;
@@ -90,7 +100,6 @@ const FileUpload = ({
         <Select
           labelId="project-select-label"
           label="プロジェクト"
-          defaultValue=""
           {...register("project", { required: "プロジェクトを選択してください" })}
           MenuProps={{
             PaperProps: {
@@ -102,7 +111,7 @@ const FileUpload = ({
             },
         }}
         >
-          {filteredSites.map((site) => (
+          {filteredSites.map((site: { id: string; name: string; }) => (
             <MenuItem key={site.id} value={site.name} onClick={() => onProjectChange(site)}>
               {site.name}
             </MenuItem>
@@ -110,7 +119,7 @@ const FileUpload = ({
         </Select>
         {errors.project && (
           <Typography variant="body2" color="error">
-            {errors.project.message}
+            {typeof errors.project === 'string' ? errors.project : ""}
           </Typography>
         )}
       </FormControl>
@@ -119,7 +128,6 @@ const FileUpload = ({
         <Select
           labelId="directory-select-label"
           label="ディレクトリ名"
-          defaultValue=""
           {...register("directory", { required: "ディレクトリを選択してください" })}
           MenuProps={{
             PaperProps: {
@@ -139,7 +147,7 @@ const FileUpload = ({
         </Select>
         {errors.directory && (
           <Typography variant="body2" color="error">
-            {errors.directory.message}
+            {typeof errors.directory === 'string' ? errors.directory : ""}
           </Typography>
         )}
       </FormControl>
@@ -165,7 +173,11 @@ const FileUpload = ({
       >
         <input
           {...getInputProps()}
-          onChange={(e) => onFileChange(e.target.files[0])}
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              onFileChange(e.target.files[0]);
+            }
+          }}
         />
         <label htmlFor="file-input">
           <Button

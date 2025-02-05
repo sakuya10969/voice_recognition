@@ -7,7 +7,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import Box from "@mui/material/Box";
 
 
-const Header = () => {
+const Header: React.FC = () => {
   return (
     <AppBar position="static" sx={{ backgroundColor: "white", color: "black" }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

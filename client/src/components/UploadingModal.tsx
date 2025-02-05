@@ -2,10 +2,10 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import Button from "@mui/material/Button";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CircularProgress from "@mui/material/CircularProgress";
+import GraphicEqIcon from "@mui/icons-material/GraphicEq";
 
-const SuccessModal = ({ open, onClose }) => {
+const UploadingModal: React.FC<{ open: boolean }> = ({ open }) => {
     const modalStyle = {
     display: "flex",
     flexDirection: "column",
@@ -20,35 +20,27 @@ const SuccessModal = ({ open, onClose }) => {
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
-    position: "relative",
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={() => {}}>
       <Box sx={modalStyle}>
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Typography
-                variant="h6"
+                variant="h5"
                 component="h2"
                 textAlign="center"
                   >
-                音声処理に成功しました
+                処理中
             </Typography>
-            <CheckCircleIcon edge="end" size="large" color="success" sx={{ ml: 1, mb: 0.5 }} />
+            <GraphicEqIcon color="inherit" fontSize="large" sx={{ ml: 1, mb: 0.6 }} />
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button 
-                variant="contained"
-                color="success"
-                onClick={onClose}
-                sx={{ fontSize: 16 }}
-            >
-                OK
-            </Button>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <CircularProgress size={50} sx={{ color: "black" }} />
         </Box>
       </Box>
     </Modal>
   );
 };
 
-export default SuccessModal;
+export default UploadingModal;

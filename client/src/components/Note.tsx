@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
 
-const Note = ({ content }) => {
+const Note: React.FC<{ content: string }> = ({ content }) => {
   const handleDownload = async () => {
     const fileName = `議事録_${new Date().toLocaleString().replace(/[/:\,]/g, "-")}.docx`;
 

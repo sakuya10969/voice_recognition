@@ -5,7 +5,7 @@ import useSWR from "swr";
 // const apiUrl = "http://localhost:8000";
 const apiUrl = "https://ca-vr-dev-010.calmsky-eb1ed6be.japaneast.azurecontainerapps.io";
 
-export const handleSendAudio = async (project, projectDirectory, file) => {
+export const handleSendAudio = async (project: { id: string; name: string }, projectDirectory: string, file: File): Promise<string> => {
     try {
         let formData = new FormData();
         formData.append("project", project.name);
@@ -50,17 +50,17 @@ export const handleSendAudio = async (project, projectDirectory, file) => {
             }, 5000);
         });
     } catch (error) {
-        throw new Error(error);
+        throw new Error(error as string);
     }
 };
 
-const fetcher = (url) => axios.get(url).then((res) => res.data);
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export const useFetchSites = () => {
     const { data, error, isLoading } = useSWR(`${apiUrl}/sites`, fetcher);
     return { sitesData: data?.value || [], sitesError: error, isSitesLoading: isLoading };
 }
 
-export const useFetchDirectories = (site) => {
-    const { data, error, isloading } = useSWR(`${apiUrl}/directories/${site.id}`, fetcher);
-    return { directoriesData: data?.value || [], directoriesError: error, IsDirectoriesLoading: isloading };
+export const useFetchDirectories = (site: { id: string, name: string } | null) => {
+    const { data, error } = useSWR(`${apiUrl}/directories/${site?.id}`, fetcher);
+    return { directoriesData: data?.value || [], directoriesError: error };
 }

@@ -2,10 +2,15 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import CircularProgress from "@mui/material/CircularProgress";
-import GraphicEqIcon from "@mui/icons-material/GraphicEq";
+import Button from "@mui/material/Button";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-const UploadingModal = ({ open }) => {
+interface SuccessModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const SuccessModal: React.FC<SuccessModalProps> = ({ open, onClose }) => {
     const modalStyle = {
     display: "flex",
     flexDirection: "column",
@@ -20,28 +25,34 @@ const UploadingModal = ({ open }) => {
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
-    position: "relative",
   };
 
   return (
-    <Modal open={open} onClose={() => {}}>
+    <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle}>
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <Typography
-                variant="h5"
+                variant="h6"
                 component="h2"
                 textAlign="center"
                   >
-                処理中
+                音声処理に成功しました
             </Typography>
-            <GraphicEqIcon edge="end" color="inherit" size="large" sx={{ ml: 1, mb: 0.6 }} />
+            <CheckCircleIcon fontSize="large" color="success" sx={{ ml: 1, mb: 0.5 }} />
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <CircularProgress size={50} sx={{ color: "black" }} />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <Button 
+                variant="contained"
+                color="success"
+                onClick={onClose}
+                sx={{ fontSize: 16 }}
+            >
+                OK
+            </Button>
         </Box>
       </Box>
     </Modal>
   );
 };
 
-export default UploadingModal;
+export default SuccessModal;

@@ -3,55 +3,62 @@ import Box from "@mui/material/Box";
 
 import FileUpload from "./FileUpload";
 import Note from "./Note";
-import { handleSendAudio,useFetchSites, useFetchDirectories } from "../api/Api";
+import { handleSendAudio, useFetchSites, useFetchDirectories } from "../api/Api";
 import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 
-const Main = () => {
-  const [project, setProject] = useState("");
-  const [projectDirectory, setProjectDirectory] = useState("");
-  const [file, setFile] = useState(null);
-  const [content, setContent] = useState("");
-  const [isUploadingModalOpen, setIsUploadingModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const { sitesData, sitesError, isSitesLoading } = useFetchSites();
-  const { directoriesData, directoriesError, isDirectoriesLoading } = useFetchDirectories(project);
+const Main: React.FC = () => {
+  const [project, setProject] = useState<{ id: string; name: string } | null>(null);
+  const [projectDirectory, setProjectDirectory] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
+  const [content, setContent] = useState<string>("");
+  const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
-  const handleProjectChange = async (site) => {
+  const { sitesData, sitesError, isSitesLoading } = useFetchSites();
+  const { directoriesData, directoriesError } = useFetchDirectories(project);
+
+  // プロジェクト変更処理
+  const handleProjectChange = (site: { id: string; name: string } | null): void => {
     setProject(site);
   };
 
-  const handleProjectDirectoryChange = (directory) => {
+  // プロジェクトディレクトリ変更処理
+  const handleProjectDirectoryChange = (directory: string): void => {
     setProjectDirectory(directory);
   };
 
-  const handleFileChange = (file) => {
+  // ファイル変更処理
+  const handleFileChange = (file: File | null): void => {
     setFile(file);
   };
 
-  const handleUpload = async () => {
+  // アップロード処理
+  const handleUpload = async (): Promise<void> => {
     if (!project) {
       alert("プロジェクトを選択してください");
       return;
     }
     if (!projectDirectory) {
       alert("プロジェクトディレクトリを選択してください");
+      return;
     }
     if (!file) {
       alert("ファイルを選択してください");
+      return;
     }
+
     setIsUploadingModalOpen(true);
     try {
       const transcription = await handleSendAudio(project, projectDirectory, file);
       setContent(transcription);
-      setIsUploadingModalOpen(false);
       setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("ファイルのアップロード中にエラーが発生しました。");
-      setIsUploadingModalOpen(false);
     } finally {
-      setProject("");
+      setIsUploadingModalOpen(false);
+      setProject(null);
       setProjectDirectory("");
       setFile(null);
     }
@@ -63,8 +70,8 @@ const Main = () => {
   if (directoriesError) {
     return <p style={{ color: "red" }}>ディレクトリデータの取得中にエラーが発生しました。</p>;
   }
-  if (isSitesLoading || isDirectoriesLoading) {
-    return <p>データを読み込んでいます...</p>;
+  if (isSitesLoading) {
+    return <p>プロジェクトを読み込んでいます...</p>;
   }
 
   return (
@@ -87,7 +94,7 @@ const Main = () => {
         file={file}
       />
       <Note content={content} />
-      <UploadingModal open={isUploadingModalOpen} onClose={() => setIsUploadingModalOpen(false)} />
+      <UploadingModal open={isUploadingModalOpen} />
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
   );
