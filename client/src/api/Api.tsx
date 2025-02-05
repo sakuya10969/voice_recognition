@@ -1,9 +1,9 @@
 import axios from "axios";
 import useSWR from "swr";
 
-const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "http://localhost:8000";
-// const apiUrl = "https://ca-vr-dev-010.calmsky-eb1ed6be.japaneast.azurecontainerapps.io";
+const apiUrl = "https://ca-vr-dev-010.thankfulwater-1883e242.eastasia.azurecontainerapps.io/";
 
 export const handleSendAudio = async (project: { id: string; name: string }, projectDirectory: string, file: File): Promise<string> => {
     try {
@@ -16,7 +16,7 @@ export const handleSendAudio = async (project: { id: string; name: string }, pro
             headers: { "Content-Type": "multipart/form-data" },
         });
         const taskId = response.data.task_id;  // タスクIDを取得
-        console.log("処理開始:", response.data.message);
+        console.log(response.data.message);
         
         await new Promise(resolve => setTimeout(resolve, 10000));
         // **2. タスクの完了をポーリングでチェック**
@@ -47,7 +47,7 @@ export const handleSendAudio = async (project: { id: string; name: string }, pro
                 } catch (error) {
                     console.error("ステータス取得エラー:", error);
                 }
-            }, 5000);
+            }, 10000);
         });
     } catch (error) {
         throw new Error(error as string);
