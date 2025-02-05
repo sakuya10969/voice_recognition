@@ -18,6 +18,7 @@ import aiohttp
 from contextlib import asynccontextmanager
 import uuid
 import logging
+import multiprocessing
 
 from app.transcribe_audio import AzTranscriptionClient
 from app.summary_text import AzOpenAIClient
@@ -44,15 +45,18 @@ TENANT_ID = os.getenv("TENANT_ID")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# タスク管理用の辞書
-task_results = {}
-task_status = {}
+# ワーカー間で共有できる辞書を作成
+manager = multiprocessing.Manager()
+global_task_status = manager.dict()
+global_task_results = manager.dict()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """アプリのライフサイクル管理（セッションの作成・破棄）"""
     session = aiohttp.ClientSession()
     app.state.session = session
+    app.state.task_status = global_task_status
+    app.state.task_results = global_task_results
     yield
     await session.close()
 
@@ -106,7 +110,7 @@ async def process_audio_task(
 ):
     """音声処理をバックグラウンドで実行"""
     try:
-        task_status[task_id] = "processing"
+        app.state.task_status[task_id] = "processing"
         # MP4ファイル処理
         wav_data = await mp4_processor(file_name, file_content)
         if not wav_data:
@@ -129,14 +133,14 @@ async def process_audio_task(
             word_file_path,
         )
         # タスク結果を保存
-        task_results[task_id] = summarized_text
-        task_status[task_id] = "completed"
+        app.state.task_results[task_id] = summarized_text
+        app.state.task_status[task_id] = "completed"
         # Blobストレージから削除
         await az_blob_client.delete_blob(file_name)
 
     except Exception as e:
-        task_status[task_id] = "failed"
-        task_results[task_id] = f"エラー: {str(e)}"
+        app.state.task_status[task_id] = "failed"
+        app.state.task_results[task_id] = f"エラー: {str(e)}"
         logger.error(f"タスク {task_id} の処理中にエラー: {str(e)}")
         logger.error(traceback.format_exc())
 
@@ -152,8 +156,8 @@ async def transcribe(
 ):
     """音声ファイルの文字起こし & 要約をバックグラウンドで処理"""
     task_id = str(uuid.uuid4())
-    task_results[task_id] = None
-    task_status[task_id] = "queued"
+    app.state.task_status[task_id] = "processing"
+    app.state.task_results[task_id] = None
 
     try:
         file_content = await file.read()
@@ -180,12 +184,12 @@ async def transcribe(
 @app.get("/transcribe/{task_id}")
 async def get_transcription_status(task_id: str):
     """タスクの進捗状況を取得"""
-    if task_id not in task_status:
+    if task_id not in app.state.task_status:
         raise HTTPException(status_code=404, detail="タスクIDが存在しません")
     return {
         "task_id": task_id,
-        "status": task_status[task_id],
-        "result": task_results.get(task_id),
+        "status": app.state.task_status[task_id],
+        "result": app.state.task_results[task_id],
     }
 
 @app.get("/sites")
@@ -207,3 +211,10 @@ async def get_directories(site_id: str, sp_access: SharePointAccessClass = Depen
         return sp_access.get_folders(site_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ディレクトリ取得中にエラーが発生しました: {str(e)}")
+    
+@app.get("/directories/{site_id}/{directory_id}")
+async def get_subdirectories(site_id: str, directory_id: str, sp_access: SharePointAccessClass = Depends(get_sp_access)):
+    try:
+        return sp_access.get_subfolders(site_id, directory_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"サブディレクトリ取得中にエラーが発生しました: {str(e)}")

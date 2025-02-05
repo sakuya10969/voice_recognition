@@ -10,25 +10,29 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 
 interface FileUploadProps {
   sites: { id: string; name: string }[];
   directories: { id: string, name: string }[];
+  subDirectories: { id: string, name: string }[];
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
   onProjectChange: (project: { id: string; name: string }) => void;
-  onProjectDirectoryChange: (directory: string) => void;
+  onProjectDirectoryChange: (directory: {  id: string; name: string }) => void;
+  onProjectSubDirectoryChange: (subDirectory: { id: string, name: string }) => void;
   file: File | null;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
   sites, // プロジェクト一覧
   directories, // ディレクトリ一覧
+  subDirectories, // サブディレクトリ一覧
   onFileChange, // ファイル選択処理
   onSubmit, // アップロード処理
   onProjectChange, // サイト選択処理
   onProjectDirectoryChange, // ディレクトリ選択処理
+  onProjectSubDirectoryChange,
   file, // 選択されたファイル
 }) => {
   const [errorFileType, setErrorFileType] = useState(false);
@@ -104,8 +108,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
           MenuProps={{
             PaperProps: {
               style: {
-                maxHeight: 500,
                 width: 400,
+                maxHeight: 450,
                 overflowX: "auto"
               },
             },
@@ -117,9 +121,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
             </MenuItem>
           ))}
         </Select>
-        {errors.project && (
+        {errors.project?.message && (
           <Typography variant="body2" color="error">
-            {typeof errors.project === 'string' ? errors.project : ""}
+            {(errors.project as FieldError | undefined)?.message ?? ""}
           </Typography>
         )}
       </FormControl>
@@ -133,23 +137,46 @@ const FileUpload: React.FC<FileUploadProps> = ({
             PaperProps: {
               style: {
                 width: 400,
-                maxHeight: 500,
+                maxHeight: 450,
                 overflowX: "auto",
               },
             },
         }}
         >
-          {directories.map((directory) => (
-            <MenuItem key={directory.id} value={directory.name} onClick={() => onProjectDirectoryChange(directory.name)}>
+          {directories.map((directory: { id: string; name: string }) => (
+            <MenuItem key={directory.id} value={directory.name} onClick={() => onProjectDirectoryChange(directory)}>
               {directory.name}
             </MenuItem>
           ))}
         </Select>
-        {errors.directory && (
+        {errors.directory?.message && (
           <Typography variant="body2" color="error">
-            {typeof errors.directory === 'string' ? errors.directory : ""}
+            {(errors.directory as FieldError | undefined)?.message ?? ""}
           </Typography>
         )}
+      </FormControl>
+      <FormControl fullWidth sx={{ mb: 3 }} size="small">
+        <InputLabel id="directory-select-label">サブディレクトリ</InputLabel>
+        <Select
+          labelId="directory-select-label"
+          label="サブディレクトリ名"
+          {...register("directory")}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                width: 400,
+                maxHeight: 450,
+                overflowX: "auto",
+              },
+            },
+        }}
+        >
+          {subDirectories.map((subDirectory: { id: string; name: string }) => (
+            <MenuItem key={subDirectory.id} value={subDirectory.name} onClick={() => onProjectSubDirectoryChange(subDirectory)}>
+              {subDirectory.name}
+            </MenuItem>
+          ))}
+        </Select>
       </FormControl>
 
       <Box
@@ -164,7 +191,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           justifyContent: "center",
           alignItems: "center",
           width: "430px",
-          height: "330px",
+          height: "250px",
           backgroundColor: isDragActive ? "gainsboro" : "transparent",
           "&:hover": {
             backgroundColor: "whitesmoke",
