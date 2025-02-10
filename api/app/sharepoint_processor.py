@@ -91,10 +91,13 @@ class SharePointAccessClass:
         folders = self.graph_api_get(
             f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/items/{folder_id}/children"
         )
-        if folders is not None:
-            return folders.json()
-        else:
+        if folders is None:
             return None
+        data = folders.json()
+        if "value" not in data:
+            return data
+        data["value"] = [item for item in data["value"] if "folder" in item]
+        return data
 
     # サイトIDからサイトのフォルダIdを取得する
     def get_folder_id(self, site_id, folder_name, folder_id="root"):
@@ -119,22 +122,19 @@ class SharePointAccessClass:
         return folder_id
 
     # 指定フォルダ内のフォルダ一覧のみ取得
-    def get_subfolders(self, site_id: str, folder_id: str = "root"):
-        """
-        指定フォルダ内のフォルダのみ取得 (site_id と folder_id で指定)
-        """
-        if not site_id or not folder_id:
-            return []
-
-        response = self.graph_api_get(
+    def get_subfolders(self, site_id: str, folder_id: str):
+        subfolders = self.graph_api_get(
             f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/items/{folder_id}/children"
         )
 
-        if not response or response.status_code != 200:
-            return []
+        if subfolders is None:
+            return None
 
-        return [item for item in response.json().get("value", []) if "folder" in item]
-
+        data = subfolders.json()
+        if "value" not in data:
+            return data
+        data["value"] = [item for item in data["value"] if "folder" in item]
+        return data
 
     # ファイルのアップロード
     def upload_file(self, target_site_name, sharepoint_directory, object_file_path):

@@ -7,6 +7,7 @@ from fastapi import (
     Depends,
     Request,
     BackgroundTasks,
+    Query
 )
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -89,18 +90,18 @@ def get_sp_access():
 
 # モデルの定義
 class Transcribe(BaseModel):
-    project: str
-    project_directory: str
+    site: str
+    directory: str
 
 # フォームデータのパース
 def parse_form(
-    project: str = Form(...), project_directory: str = Form(...)
+    site: str = Form(...), directory: str = Form(...)
 ) -> Transcribe:
-    return Transcribe(project=project, project_directory=project_directory)
+    return Transcribe(site=site, directory=directory)
 
 async def process_audio_task(
     task_id: str,
-    project_data_dict: dict,
+    site_data_dict: dict,
     az_blob_client: AzBlobClient,
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
@@ -128,8 +129,8 @@ async def process_audio_task(
         # SharePointにWordファイルをアップロード
         word_file_path = await create_word(summarized_text)
         sp_access.upload_file(
-            project_data_dict["project"],
-            project_data_dict["project_directory"],
+            site_data_dict["site"],
+            site_data_dict["directory"],
             word_file_path,
         )
         # タスク結果を保存
@@ -147,7 +148,7 @@ async def process_audio_task(
 @app.post("/transcribe")
 async def transcribe(
     background_tasks: BackgroundTasks,
-    project_data: Transcribe = Depends(parse_form),
+    site_data: Transcribe = Depends(parse_form),
     file: UploadFile = File(...),
     az_blob_client: AzBlobClient = Depends(get_az_blob_client),
     az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
@@ -167,7 +168,7 @@ async def transcribe(
         background_tasks.add_task(
             process_audio_task,
             task_id,
-            project_data.model_dump(),
+            site_data.model_dump(),
             az_blob_client,
             az_speech_client,
             az_openai_client,
@@ -202,8 +203,8 @@ async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"サイト取得中にエラーが発生しました: {str(e)}")
 
-@app.get("/directories/{site_id}")
-async def get_directories(site_id: str, sp_access: SharePointAccessClass = Depends(get_sp_access)):
+@app.get("/directories")
+async def get_directories(site_id: str = Query(default=None), sp_access: SharePointAccessClass = Depends(get_sp_access)):
     """
     指定されたサイトIDのディレクトリ一覧を取得するエンドポイント
     """
@@ -212,8 +213,8 @@ async def get_directories(site_id: str, sp_access: SharePointAccessClass = Depen
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ディレクトリ取得中にエラーが発生しました: {str(e)}")
     
-@app.get("/directories/{site_id}/{directory_id}")
-async def get_subdirectories(site_id: str, directory_id: str, sp_access: SharePointAccessClass = Depends(get_sp_access)):
+@app.get("/subdirectories")
+async def get_subdirectories(site_id: str = Query(default=None), directory_id: str = Query(default=None), sp_access: SharePointAccessClass = Depends(get_sp_access)):
     try:
         return sp_access.get_subfolders(site_id, directory_id)
     except Exception as e:
