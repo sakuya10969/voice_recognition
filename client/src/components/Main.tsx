@@ -8,31 +8,31 @@ import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 
 const Main: React.FC = () => {
-  const [project, setProject] = useState<{ id: string; name: string } | null>(null);
-  const [projectDirectory, setProjectDirectory] = useState<{ id: string; name: string } | null>(null);
-  const [projectSubDirectory, setProjectSubDirectory] = useState<{ id: string; name: string } | null>(null);
+  const [site, setSite] = useState<{ id: string; name: string } | null>(null);
+  const [directory, setDirectory] = useState<{ id: string; name: string } | null>(null);
+  const [subDirectory, setSubDirectory] = useState<{ id: string; name: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [content, setContent] = useState<string>("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
   const { sitesData, sitesError, isSitesLoading } = useFetchSites();
-  const { directoriesData, directoriesError } = useFetchDirectories(project);
-  const { subDirectoriesData, subDirectoriesError } = useFetchSubDirectories(project, projectDirectory);
+  const { directoriesData, directoriesError } = useFetchDirectories(site?.id ?? "");
+  const { subDirectoriesData, subDirectoriesError } = useFetchSubDirectories(site?.id ?? "", directory?.id ?? "");
 
   // プロジェクト変更処理
-  const handleProjectChange = (site: { id: string; name: string } | null): void => {
-    setProject(site);
+  const handleSiteChange = (site: { id: string; name: string } | null): void => {
+    setSite(site);
   };
 
   // プロジェクトディレクトリ変更処理
-  const handleProjectDirectoryChange = (directory: { id: string; name: string } | null): void => {
-    setProjectDirectory(directory);
+  const handleDirectoryChange = (directory: { id: string; name: string } | null): void => {
+    setDirectory(directory);
   };
 
   // プロジェクトサブディレクトリ変更処理
-  const handleProjectSubDirectoryChange = (subDirectory: { id: string, name: string } | null): void => {
-    setProjectSubDirectory(subDirectory);
+  const handleSubDirectoryChange = (subDirectory: { id: string, name: string } | null): void => {
+    setSubDirectory(subDirectory);
   }
 
   // ファイル変更処理
@@ -42,11 +42,11 @@ const Main: React.FC = () => {
 
   // アップロード処理
   const handleUpload = async (): Promise<void> => {
-    if (!project) {
+    if (!site) {
       alert("プロジェクトを選択してください");
       return;
     }
-    if (!projectDirectory) {
+    if (!directory) {
       alert("ディレクトリを選択してください");
       return;
     }
@@ -57,7 +57,7 @@ const Main: React.FC = () => {
 
     setIsUploadingModalOpen(true);
     try {
-      const transcription = await handleSendAudio(project, projectDirectory, projectSubDirectory, file);
+      const transcription = await handleSendAudio(site, directory,subDirectory, file);
       setContent(transcription);
       setIsSuccessModalOpen(true);
     } catch (error) {
@@ -65,8 +65,8 @@ const Main: React.FC = () => {
       alert("ファイルのアップロード中にエラーが発生しました。");
     } finally {
       setIsUploadingModalOpen(false);
-      setProject(null);
-      setProjectDirectory(null);
+      setSite(null);
+      setDirectory(null);
       setFile(null);
     }
   };
@@ -75,7 +75,7 @@ const Main: React.FC = () => {
     return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました。</p>;
   }
   if (isSitesLoading) {
-    return <p>プロジェクトを読み込んでいます...</p>;
+    return <p>サイトを読み込んでいます...</p>;
   }
   if (directoriesError) {
     return <p style={{ color: "red" }}>ディレクトリデータの取得中にエラーが発生しました。</p>;
@@ -100,9 +100,9 @@ const Main: React.FC = () => {
         subDirectories={subDirectoriesData}
         onFileChange={handleFileChange}
         onSubmit={handleUpload}
-        onProjectChange={handleProjectChange}
-        onProjectDirectoryChange={handleProjectDirectoryChange}
-        onProjectSubDirectoryChange={handleProjectSubDirectoryChange}
+        onSiteChange={handleSiteChange}
+        onDirectoryChange={handleDirectoryChange}
+        onSubDirectoryChange={handleSubDirectoryChange}
         file={file}
       />
       <Note content={content} />

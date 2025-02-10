@@ -1,21 +1,22 @@
 import axios from "axios";
 import useSWR from "swr";
+import { useCallback } from "react";
 
 const apiUrl = "http://127.0.0.1:8000";
 // const apiUrl = "https://ca-vr-dev-010.icyhill-49e2b6a8.japaneast.azurecontainerapps.io/";
 
 export const handleSendAudio = async (
-    project: { id: string; name: string },
-    projectDirectory: { id: string; name: string },
-    projectSubDirectory: { id: string, name: string } | null,
+    site: { id: string; name: string },
+    directory: { id: string; name: string },
+    subDirectory: { id: string, name: string } | null,
     file: File): Promise<string> => {
     try {
         const formData = new FormData();
-        formData.append("project", project.name);
-        if (projectSubDirectory) {
-            formData.append("project_directory", projectSubDirectory.name);
+        formData.append("site", site.name);
+        if (subDirectory) {
+            formData.append("directory", subDirectory.name);
         } else {
-            formData.append("project_directory", projectDirectory.name);
+            formData.append("directory", directory.name);
         }
         formData.append("file", file);
         // **1. タスクIDを取得（処理開始）**
@@ -67,21 +68,27 @@ export const useFetchSites = () => {
     return { sitesData: data?.value || [], sitesError: error, isSitesLoading: isLoading };
 }
 
-export const useFetchDirectories = (site: { id: string; name: string } | null) => {
+export const useFetchDirectories = (siteId: string) => {
     // site が null の場合は SWR を発火させない
-    const shouldFetch = !!site;
-    const { data, error } = useSWR(shouldFetch ? `${apiUrl}/directories/${site?.id}` : null, fetcher);
+    const shouldFetch = !!siteId;
+    const fetchDirectories = useCallback(() => {
+        return shouldFetch ? `${apiUrl}/directories?site_id=${encodeURIComponent(siteId)}` : null;
+    }, [siteId]);
+    const { data, error } = useSWR(fetchDirectories(), fetcher);
     return { directoriesData: data?.value || [], directoriesError: error };
 };
 
 export const useFetchSubDirectories = (
-    site: { id: string; name: string } | null, 
-    projectDirectory: { id: string; name: string } | null
+    siteId: string,
+    directoryId: string
 ) => {
-    const shouldFetch = !!site && !!projectDirectory;
-    const { data, error } = useSWR(
-        shouldFetch ? `${apiUrl}/directories/${site?.id}/${projectDirectory?.id}` : null, 
-        fetcher
-    );
+    const shouldFetch = !!siteId && !!directoryId;
+    const fetchSubDirectories = useCallback(() => {
+        return shouldFetch
+            ? `${apiUrl}/subdirectories?site_id=${encodeURIComponent(siteId)}&directory_id=${encodeURIComponent(directoryId)}`
+            : null;
+    }, [siteId, directoryId]);
+    const { data, error } = useSWR(fetchSubDirectories(), fetcher);
+    console.log(data)
     return { subDirectoriesData: shouldFetch ? data?.value || [] : [], subDirectoriesError: shouldFetch ? error : null };
 };

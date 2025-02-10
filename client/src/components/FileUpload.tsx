@@ -9,8 +9,11 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
+import { ThemeProvider } from "@mui/material/styles";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { useForm, FieldError } from "react-hook-form";
+
+import { theme } from "../theme/theme";
 
 interface FileUploadProps {
   sites: { id: string; name: string }[];
@@ -18,9 +21,9 @@ interface FileUploadProps {
   subDirectories: { id: string, name: string }[];
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
-  onProjectChange: (project: { id: string; name: string }) => void;
-  onProjectDirectoryChange: (directory: {  id: string; name: string }) => void;
-  onProjectSubDirectoryChange: (subDirectory: { id: string, name: string }) => void;
+  onSiteChange: (site: { id: string; name: string }) => void;
+  onDirectoryChange: (directory: { id: string; name: string }) => void;
+  onSubDirectoryChange: (subDirectory: { id: string, name: string }) => void;
   file: File | null;
 }
 
@@ -30,19 +33,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
   subDirectories, // サブディレクトリ一覧
   onFileChange, // ファイル選択処理
   onSubmit, // アップロード処理
-  onProjectChange, // サイト選択処理
-  onProjectDirectoryChange, // ディレクトリ選択処理
-  onProjectSubDirectoryChange,
+  onSiteChange, // サイト選択処理
+  onDirectoryChange, // ディレクトリ選択処理
+  onSubDirectoryChange,
   file, // 選択されたファイル
 }) => {
   const [errorFileType, setErrorFileType] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredSites, setFilteredSites] = useState(sites);
+  const [selectedSite, setSelectedSite] = useState<string>("");
+  const [selectedDirectory, setSelectedDirectory] = useState<string>("");
+  const [selectedSubDirectory, setSelectedSubDirectory] = useState<string>("");
 
   // ページの初期レンダリング時にデータを取得、格納する
   useEffect(() => {
     setFilteredSites(sites);
-  }, []);
+  }, [sites]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -89,49 +95,65 @@ const FileUpload: React.FC<FileUploadProps> = ({
         width: "500px",
       }}
     >
-      <TextField
+      <ThemeProvider theme={theme}>
+        <TextField
         label="検索"
-        placeholder="プロジェクトの検索"
+        placeholder="サイトの検索"
         variant="outlined"
         size="small"
         fullWidth
         value={searchTerm}
         onChange={handleSearch}
-        sx={{ mb: 3 }}
-        />
-      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.project}>
-        <InputLabel id="project-select-label">プロジェクト</InputLabel>
-        <Select
-          labelId="project-select-label"
-          label="プロジェクト"
-          {...register("project", { required: "プロジェクトを選択してください" })}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                width: 400,
-                maxHeight: 450,
-                overflowX: "auto"
-              },
-            },
+        sx={{
+          mb: 3,
         }}
-        >
-          {filteredSites.map((site: { id: string; name: string; }) => (
-            <MenuItem key={site.id} value={site.name} onClick={() => onProjectChange(site)}>
-              {site.name}
-            </MenuItem>
-          ))}
-        </Select>
-        {errors.project?.message && (
+      />
+      </ThemeProvider>
+
+      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.site}>
+        <InputLabel id="site-select-label">サイト</InputLabel>
+        <ThemeProvider theme={theme}>
+          <Select
+            labelId="site-select-label"
+            label="サイト"
+            value={selectedSite}
+            {...register("site", { required: "サイトを選択してください" })}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  width: 400,
+                  maxHeight: 450,
+                  overflowX: "auto"
+                },
+              },
+            }}
+          >
+            {filteredSites.map((site: { id: string; name: string; }) => (
+              <MenuItem
+                key={site.id}
+                value={site.id || ""}
+                onClick={() => {
+                setSelectedSite(site.id || "");
+                onSiteChange(site);
+              }}>
+                {site.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </ThemeProvider>
+        {errors.site?.message && (
           <Typography variant="body2" color="error">
-            {(errors.project as FieldError | undefined)?.message ?? ""}
+            {(errors.site as FieldError | undefined)?.message ?? ""}
           </Typography>
         )}
       </FormControl>
       <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.directory}>
         <InputLabel id="directory-select-label">ディレクトリ</InputLabel>
-        <Select
+        <ThemeProvider theme={theme}>
+          <Select
           labelId="directory-select-label"
-          label="ディレクトリ名"
+          label="ディレクトリ"
+          value={selectedDirectory}
           {...register("directory", { required: "ディレクトリを選択してください" })}
           MenuProps={{
             PaperProps: {
@@ -141,14 +163,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 overflowX: "auto",
               },
             },
-        }}
-        >
-          {directories.map((directory: { id: string; name: string }) => (
-            <MenuItem key={directory.id} value={directory.name} onClick={() => onProjectDirectoryChange(directory)}>
-              {directory.name}
-            </MenuItem>
-          ))}
-        </Select>
+          }}
+          >
+            {directories.map((directory: { id: string; name: string }) => (
+              <MenuItem
+                key={directory.id}
+                value={directory.id || ""}
+                onClick={() => {
+                  setSelectedDirectory(directory.id || "");
+                  onDirectoryChange(directory);
+                }}>
+                {directory.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </ThemeProvider>
         {errors.directory?.message && (
           <Typography variant="body2" color="error">
             {(errors.directory as FieldError | undefined)?.message ?? ""}
@@ -157,10 +186,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
       </FormControl>
       <FormControl fullWidth sx={{ mb: 3 }} size="small">
         <InputLabel id="directory-select-label">サブディレクトリ</InputLabel>
-        <Select
+        <ThemeProvider theme={theme}>
+          <Select
           labelId="directory-select-label"
-          label="サブディレクトリ名"
-          {...register("directory")}
+          label="サブディレクトリ"
+          value={selectedSubDirectory}
+          {...register("subDirectory")}
           MenuProps={{
             PaperProps: {
               style: {
@@ -169,14 +200,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 overflowX: "auto",
               },
             },
-        }}
-        >
-          {subDirectories.map((subDirectory: { id: string; name: string }) => (
-            <MenuItem key={subDirectory.id} value={subDirectory.name} onClick={() => onProjectSubDirectoryChange(subDirectory)}>
-              {subDirectory.name}
-            </MenuItem>
-          ))}
-        </Select>
+          }}
+          >
+            {subDirectories.map((subDirectory: { id: string; name: string }) => (
+              <MenuItem
+                key={subDirectory.id}
+                value={subDirectory.id || ""}
+                onClick={() => {
+                  setSelectedSubDirectory(subDirectory.id)
+                  onSubDirectoryChange(subDirectory);
+                }}>
+                {subDirectory.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </ThemeProvider>
       </FormControl>
 
       <Box
