@@ -136,17 +136,31 @@ class SharePointAccessClass:
         data["value"] = [item for item in data["value"] if "folder" in item]
         return data
 
-    # ファイルのアップロード
-    def upload_file(self, target_site_name, sharepoint_directory, object_file_path):
-        """
-        Upload a file to SharePoint using the target_site_name, sharepoint_directory, and object_file_path
-        """
+    # SharePoint上のフォルダの作成
+    def create_folder(self, target_site_name, sharepoint_directory, folder_name="議事録"):
         # ターゲットサイトのIDを取得
         target_site_id = self.get_site_id(target_site_name)
         # フォルダIDを取得
         folder_id = self.get_folder_id_from_tree(
             target_site_id, sharepoint_directory, "root"
         )
+
+        if folder_id:
+            url = f"https://graph.microsoft.com/v1.0/sites/{target_site_id}/drive/items/{folder_id}/children"
+
+            # フォルダを作成
+            data = {
+                "name": folder_name,
+                "folder": {},
+                "@microsoft.graph.conflictBehavior": "rename",
+            }
+            graph_data = self.graph_api_post(url, data).json()
+            return graph_data
+        else:
+            return "Folder not found"
+
+    # ファイルのアップロード
+    def upload_file(self, target_site_id, folder_id, object_file_path):
         if folder_id:
             # アップロードURLを作成
             url = f"https://graph.microsoft.com/v1.0/sites/{target_site_id}/drive/items/{folder_id}:/{object_file_path.name}:/content"

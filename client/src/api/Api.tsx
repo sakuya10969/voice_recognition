@@ -12,11 +12,11 @@ export const handleSendAudio = async (
     file: File): Promise<string> => {
     try {
         const formData = new FormData();
-        formData.append("site", site.name);
+        formData.append("site", site.id);
         if (subDirectory) {
-            formData.append("directory", subDirectory.name);
+            formData.append("directory", subDirectory.id);
         } else {
-            formData.append("directory", directory.name);
+            formData.append("directory", directory.id);
         }
         formData.append("file", file);
         // **1. タスクIDを取得（処理開始）**
