@@ -10,7 +10,7 @@ async def create_word(summarized_text: str) -> Path:
     """議事録を作成して一時ファイルパスを返す関数"""
     try:
         # ファイル名を指定
-        file_name = f"議事録_{datetime.now().strftime('%Y%m%d%H%M')}.docx"
+        file_name = f"議事録_{datetime.now().strftime('%Y_%m%d_%H%M')}.docx"
         # 一時ディレクトリを取得し、完全なパスを作成
         temp_dir = tempfile.gettempdir()
         temp_path = Path(temp_dir) / file_name
@@ -26,7 +26,7 @@ async def create_word(summarized_text: str) -> Path:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create word file: {str(e)}")
 
-async def cleanup_file(file_path: str):
+async def cleanup_word(file_path: str):
     """一時ファイルを削除"""
     try:
         if os.path.exists(file_path):

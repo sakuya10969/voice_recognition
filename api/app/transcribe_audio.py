@@ -37,22 +37,24 @@ class AzTranscriptionClient:
             return (await response.json())["self"]
 
     async def poll_transcription_status(
-        self, job_url: str, max_attempts=30, initial_interval=2
-    ) -> str:
+    self, job_url: str, max_attempts=240, initial_interval=30  # 最大2時間
+) -> str:
         interval = initial_interval
         for _ in range(max_attempts):
             async with self.session.get(job_url, headers=self.headers) as response:
+                if response.status != 200:
+                    raise HTTPException(response.status, f"ステータス取得失敗: {await response.text()}")
                 status_data = await response.json()
+
                 if status_data["status"] == "Succeeded":
                     return status_data["links"]["files"]
-                elif status_data["status"] in ["Failed", "Cancelled"]:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"ジョブの進行に失敗しました: {status_data['status']}",
-                    )
+                if status_data["status"] in ["Failed", "Cancelled"]:
+                    raise HTTPException(500, f"ジョブ失敗: {status_data['status']}")
+
             await asyncio.sleep(interval)
-            interval = min(interval * 2, 10)  # 最大10秒まで間隔を増加
-        raise HTTPException(status_code=500, detail="ジョブのタイムアウト")
+            interval = min(interval * 2, 60)  # 最大60秒
+
+        raise HTTPException(500, "ジョブのタイムアウト (2時間超過)")
 
     async def get_transcription_result(self, file_url: str) -> str:
         async with self.session.get(file_url, headers=self.headers) as response:

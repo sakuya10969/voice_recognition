@@ -106,6 +106,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onChange={handleSearch}
         sx={{
           mb: 3,
+          "& input": {
+            backgroundColor: "white"
+          }
         }}
       />
       </ThemeProvider>

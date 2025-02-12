@@ -2,15 +2,18 @@ import os
 import tempfile
 import subprocess
 import imageio_ffmpeg as ffmpeg
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 
-async def save_disk_async(file_data: bytes, destination: str):
+def save_disk(file: UploadFile) -> str:
     """
-    バイナリデータをディスクに非同期で保存する関数。
+    UploadFile をローカルの一時ディレクトリに保存し、ファイルパスを返す関数。
     """
     try:
-        with open(destination, "wb") as out_file:
-            out_file.write(file_data)  # 直接bytesを書き込む
+        temp_dir = tempfile.mkdtemp()  # 一時ディレクトリを作成
+        temp_path = os.path.join(temp_dir, file.filename)  # 保存パスを決定
+        with open(temp_path, "wb") as out_file:
+            out_file.write(file.file.read())  # ファイルを保存
+        return temp_path  # 保存したファイルのパスを返す
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
@@ -36,28 +39,45 @@ def convert_wav(input_path: str, output_path: str):
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"FFmpeg failed: {e.stderr}")
 
-async def mp4_processor(file_name: str, file_data: bytes) -> dict:
+async def mp4_processor(file_path: str) -> dict:
     """
-    MP4ファイルを処理し、WAVファイルに変換する関数。
+    ローカルに保存された MP4 ファイルを処理し、WAV ファイルに変換する関数。
+    変換後、一時ディレクトリ内のMP4ファイルを削除する。
     """
     try:
-        sanitized_filename = os.path.basename(file_name)
+        sanitized_filename = os.path.basename(file_path)
         file_extension = os.path.splitext(sanitized_filename)[1].lower()
         # WAVファイルならそのまま返す
         if file_extension == ".wav":
+            with open(file_path, "rb") as f:
+                file_data = f.read()
             return {"file_name": sanitized_filename, "file_data": file_data}
-        # 一時ディレクトリを利用
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, sanitized_filename)
-            output_filename = os.path.splitext(sanitized_filename)[0] + ".wav"
-            output_path = os.path.join(tmpdir, output_filename)
-            # bytes` データをディスクに保存
-            await save_disk_async(file_data, input_path)
-            # MP4をWAVに変換（同期処理）
-            convert_wav(input_path, output_path)
-            # WAVファイルを読み取る
-            with open(output_path, "rb") as f:
-                wav_data = f.read()
-            return {"file_name": output_filename, "file_data": wav_data}
+        # 一時ディレクトリのパスを取得
+        tmpdir = os.path.dirname(file_path)
+        output_filename = os.path.splitext(sanitized_filename)[0] + ".wav"
+        output_path = os.path.join(tmpdir, output_filename)
+        # MP4をWAVに変換
+        convert_wav(file_path, output_path)
+        # 変換後のMP4ファイルを削除
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to delete original MP4 file: {str(e)}"
+            )
+        # 一時ディレクトリ内のMP4ファイルをすべて削除
+        try:
+            for filename in os.listdir(tmpdir):
+                file_path = os.path.join(tmpdir, filename)
+                if file_path.endswith(".mp4"):
+                    os.remove(file_path)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to clean up temp directory: {str(e)}"
+            )
+        # 変換したWAVファイルを読み取る
+        with open(output_path, "rb") as f:
+            wav_data = f.read()
+        return {"file_name": output_filename, "file_data": wav_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")

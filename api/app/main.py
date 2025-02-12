@@ -20,12 +20,13 @@ from contextlib import asynccontextmanager
 import uuid
 import logging
 import multiprocessing
+from starlette.requests import Request
 
 from app.transcribe_audio import AzTranscriptionClient
 from app.summary_text import AzOpenAIClient
 from app.blob_processor import AzBlobClient
-from app.mp4_processor import mp4_processor
-from app.word_generator import create_word, cleanup_file
+from app.mp4_processor import save_disk, mp4_processor
+from app.word_generator import create_word, cleanup_word
 from app.sharepoint_processor import SharePointAccessClass
 
 # 環境変数をロード
@@ -106,14 +107,13 @@ async def process_audio_task(
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
     sp_access: SharePointAccessClass,
-    file_name: str,
-    file_content: bytes,
+    file_path: str
 ):
     """音声処理をバックグラウンドで実行"""
     try:
         app.state.task_status[task_id] = "processing"
         # MP4ファイル処理
-        wav_data = await mp4_processor(file_name, file_content)
+        wav_data = await mp4_processor(file_path)
         if not wav_data:
             raise ValueError("MP4ファイルの処理に失敗しました")
         file_name = wav_data["file_name"]
@@ -138,6 +138,7 @@ async def process_audio_task(
         app.state.task_status[task_id] = "completed"
         # Blobストレージから削除
         await az_blob_client.delete_blob(file_name)
+        await cleanup_word(word_file_path)
 
     except Exception as e:
         app.state.task_status[task_id] = "failed"
@@ -161,10 +162,7 @@ async def transcribe(
     app.state.task_results[task_id] = None
 
     try:
-        file_content = await file.read()
-        if not file_content:
-            raise HTTPException(status_code=400, detail="ファイルが空です")
-
+        file_path = save_disk(file)
         background_tasks.add_task(
             process_audio_task,
             task_id,
@@ -173,11 +171,9 @@ async def transcribe(
             az_speech_client,
             az_openai_client,
             sp_access,
-            file.filename,
-            file_content,
+            file_path,
         )
         return {"task_id": task_id, "message": "処理を開始しました"}
-
     except Exception as e:
         logger.error(f"音声処理エンドポイントでエラー: {str(e)}")
         return JSONResponse(status_code=500, content={"error": str(e)})
