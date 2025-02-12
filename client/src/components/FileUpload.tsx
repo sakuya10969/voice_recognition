@@ -253,6 +253,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
               mb: 2,
               backgroundColor: "black",
               width: "170px",
+              "&:hover": {
+                backgroundColor: "black"
+              }
             }}
           >
             ファイルの選択
@@ -280,8 +283,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
           borderRadius: "5px",
           width: "110px",
           ":disabled": {
-            backgroundColor: "whitesmoke",
+            backgroundColor: "whitesmoke"
           },
+          "&:hover": {
+                backgroundColor: "black"
+              }
         }}
       >
         送信
