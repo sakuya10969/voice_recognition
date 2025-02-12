@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { useCallback } from "react";
 
 // const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.icyhill-49e2b6a8.japaneast.azurecontainerapps.io/";
+const apiUrl = "https://ca-vr-dev-010.purplewave-4065561a.eastasia.azurecontainerapps.io";
 
 export const handleSendAudio = async (
     site: { id: string; name: string },
