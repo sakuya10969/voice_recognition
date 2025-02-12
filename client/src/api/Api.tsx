@@ -67,9 +67,8 @@ export const useFetchSites = () => {
 
 export const useFetchDirectories = (siteId: string) => {
     // site が null の場合は SWR を発火させない
-    const shouldFetch = !!siteId;
     const fetchDirectories = useCallback(() => {
-        return shouldFetch ? `${apiUrl}/directories?site_id=${encodeURIComponent(siteId)}` : null;
+        return siteId ? `${apiUrl}/directories?site_id=${encodeURIComponent(siteId)}` : null;
     }, [siteId]);
     const { data, error } = useSWR(fetchDirectories(), fetcher);
     return { directoriesData: data?.value || [], directoriesError: error };
@@ -79,13 +78,12 @@ export const useFetchSubDirectories = (
     siteId: string,
     directoryId: string
 ) => {
-    const shouldFetch = !!siteId && !!directoryId;
     const fetchSubDirectories = useCallback(() => {
-        return shouldFetch
+        return siteId && directoryId
             ? `${apiUrl}/subdirectories?site_id=${encodeURIComponent(siteId)}&directory_id=${encodeURIComponent(directoryId)}`
             : null;
     }, [siteId, directoryId]);
     const { data, error } = useSWR(fetchSubDirectories(), fetcher);
     console.log(data)
-    return { subDirectoriesData: shouldFetch ? data?.value || [] : [], subDirectoriesError: shouldFetch ? error : null };
+    return { subDirectoriesData: data?.value || [], subDirectoriesError: error };
 };
