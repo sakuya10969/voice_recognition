@@ -2,8 +2,8 @@ import axios from "axios";
 import useSWR from "swr";
 import { useCallback } from "react";
 
-const apiUrl = "http://127.0.0.1:8000";
-// const apiUrl = "https://ca-vr-dev-010.icyhill-49e2b6a8.japaneast.azurecontainerapps.io/";
+// const apiUrl = "http://127.0.0.1:8000";
+const apiUrl = "https://ca-vr-dev-010.icyhill-49e2b6a8.japaneast.azurecontainerapps.io/";
 
 export const handleSendAudio = async (
     site: { id: string; name: string },
@@ -49,9 +49,6 @@ export const handleSendAudio = async (
                         clearInterval(interval); // **エラーの場合も停止**
                         reject(new Error(statusResponse.data.result));
                     } 
-                    else {
-                        console.log("現在のステータス:", status);
-                    }
                 } catch (error) {
                     console.error("ステータス取得エラー:", error);
                 }
