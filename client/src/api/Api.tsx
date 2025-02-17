@@ -2,7 +2,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 // const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.mangoplant-b55ba380.japaneast.azurecontainerapps.io";
+const apiUrl = "https://ca-vr-dev-010.thankfulisland-0bc44ce1.japaneast.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -54,7 +54,7 @@ export const handleSendAudio = async (
                     clearInterval(interval); // **エラー発生時もポーリング停止**
                     reject(new Error("Failed to fetch transcription status"));
                 }
-            }, 20000);
+            }, 60000);
         });
     } catch (error) {
         throw new Error(error as string);
@@ -65,7 +65,7 @@ export const handleSendAudio = async (
 export const useFetchSites = () => {
     const { data, error, isLoading } = useSWR(`${apiUrl}/sites`, fetcher, {
         revalidateOnFocus: false,  // **フォーカス時に再取得しない**
-        dedupingInterval: 30000,   // **30秒間キャッシュを使う**
+        dedupingInterval: 60000,   // **30秒間キャッシュを使う**
     });
     return { sitesData: data?.value || [], sitesError: error, isSitesLoading: isLoading };
 };
@@ -77,7 +77,7 @@ export const useFetchDirectories = (siteId: string | null) => {
         fetcher,
         {
             revalidateOnFocus: false,
-            dedupingInterval: 30000,
+            dedupingInterval: 60000,
         }
     );
     return { directoriesData: data?.value || [], directoriesError: error };
