@@ -24,27 +24,17 @@ class AzOpenAIClient:
         self.encoding = tiktoken.encoding_for_model("gpt-4o")
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
 
-    def split_chunks(self, text: str, max_tokens: int = 7500) -> list:
+    def split_chunks(self, text: str, max_tokens: int = 6000) -> list:
         """
-        テキストをトークン数で分割し、最大トークン数を超えないようにする。
+        トークン単位で分割し、最大トークン数を超えないようにする。
         """
-        words = text.split()
+        tokens = self.encoding.encode(text)  # **全文を一括でエンコード**
         chunks = []
-        current_chunk = []
-        current_tokens = 0
-        for word in words:
-            word_tokens = len(self.encoding.encode(word))
-
-            if current_tokens + word_tokens > max_tokens:
-                if current_chunk:
-                    chunks.append(" ".join(current_chunk))
-                current_chunk = [word]
-                current_tokens = word_tokens
-            else:
-                current_chunk.append(word)
-                current_tokens += word_tokens
-        if current_chunk:
-            chunks.append(" ".join(current_chunk))
+        # **max_tokens ごとにスライスして分割**
+        for i in range(0, len(tokens), max_tokens):
+            chunk_tokens = tokens[i : i + max_tokens]
+            chunk_text = self.encoding.decode(chunk_tokens)  # **トークンを文字列に戻す**
+            chunks.append(chunk_text)
         return chunks
 
     async def fetch_summary(self, chunk: str) -> str:
@@ -55,7 +45,7 @@ class AzOpenAIClient:
             try:
                 response = await self.client.chat.completions.create(
                     model="gpt-4o",
-                    max_tokens=4000,
+                    max_tokens=3000,
                     messages=[
                         {
                             "role": "system",

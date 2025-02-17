@@ -1,8 +1,8 @@
 import axios from "axios";
 import useSWR from "swr";
 
-const apiUrl = "http://127.0.0.1:8000";
-// const apiUrl = "https://ca-vr-dev-010.purplewave-4065561a.eastasia.azurecontainerapps.io";
+// const apiUrl = "http://127.0.0.1:8000";
+const apiUrl = "https://ca-vr-dev-010.icysky-649f27b1.japaneast.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
