@@ -25,7 +25,7 @@ export const handleSendAudio = async (
         const taskId = response.data.task_id;  // タスクIDを取得
         console.log(response.data.message);
 
-        await new Promise(resolve => setTimeout(resolve, 10000)); // 10秒待機
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 10秒待機
 
         // **2. タスクの完了をポーリングでチェック**
         return new Promise((resolve, reject) => {

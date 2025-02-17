@@ -11,7 +11,7 @@ class AzOpenAIClient:
         az_openai_key: str,
         az_openai_endpoint: str,
         api_version: str = "2024-02-01",
-        max_concurrent_requests: int = 15,
+        max_concurrent_requests: int = 10,
     ):
         """
         OpenAI サマライズ用クラスの初期化。
@@ -24,24 +24,27 @@ class AzOpenAIClient:
         self.encoding = tiktoken.encoding_for_model("gpt-4o")
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
 
-    def split_chunks(self, text: str, max_tokens: int = 3000) -> list:
+    def split_chunks(self, text: str, max_tokens: int = 7500) -> list:
         """
-        テキストを段落ごとに分割し、最大トークン数を超えないようにする。
+        テキストをトークン数で分割し、最大トークン数を超えないようにする。
         """
-        paragraphs = re.split(r"\n+", text.strip())  # 段落単位で分割
+        words = text.split()
         chunks = []
-        current_chunk = ""
+        current_chunk = []
+        current_tokens = 0
+        for word in words:
+            word_tokens = len(self.encoding.encode(word))
 
-        for paragraph in paragraphs:
-            if len(self.encoding.encode(current_chunk + paragraph)) > max_tokens:
-                chunks.append(current_chunk.strip())  # 既存のチャンクを保存
-                current_chunk = paragraph  # 新しいチャンク開始
+            if current_tokens + word_tokens > max_tokens:
+                if current_chunk:
+                    chunks.append(" ".join(current_chunk))
+                current_chunk = [word]
+                current_tokens = word_tokens
             else:
-                current_chunk += "\n" + paragraph  # チャンクに追加
-
+                current_chunk.append(word)
+                current_tokens += word_tokens
         if current_chunk:
-            chunks.append(current_chunk.strip())  # 最後のチャンクを追加
-
+            chunks.append(" ".join(current_chunk))
         return chunks
 
     async def fetch_summary(self, chunk: str) -> str:
@@ -52,34 +55,31 @@ class AzOpenAIClient:
             try:
                 response = await self.client.chat.completions.create(
                     model="gpt-4o",
-                    max_tokens=1000,
+                    max_tokens=4000,
                     messages=[
                         {
                             "role": "system",
                             "content": (
-                                "あなたは会議の議事録を作成するプロフェッショナルなアシスタントです。"
-                                "重複した情報を省略し、重要な議題、参加者の意見、具体的なアイデア、結論を詳細に記録してください。"
-                                "過去のチャンクと重複する内容がある場合、簡潔に記載し、繰り返しを避けてください。"
+                                "あなたは、会議の議事録を作成するプロフェッショナルなアシスタントです。\n\n"
+                                "あなたの役割は、ユーザーが提供した音声の文字起こし結果を適切に要約し、"
+                                "わかりやすく整理された文章を生成することです。\n\n"
+                                "以下のフォーマットで出力してください。\n"
+                                "[文字起こし結果]\n"
+                                f"{chunk}\n"
+                                "[要約結果]\n"
+                                "- （要約された内容）\n"
+                                "- （補足情報があれば適宜記載）\n"
                             ),
                         },
                         {
                             "role": "user",
                             "content": (
-                                "あなたは会議の議事録を作成するプロフェッショナルなアシスタントです。\n\n"
-                                "以下の文章を要約してください。ただし、単なる短縮ではなく、できる限り詳細な情報を保持し、"
-                                "議論の流れや具体的な発言を正確に記録してください。\n\n"
-                                "【要件】\n"
-                                "- 重要なポイントや意見を漏らさずに記録し、詳細な文脈を維持する。\n"
-                                "- 単なる箇条書きではなく、読みやすく自然な文章にする。\n"
-                                "- 具体的な提案・アイデア・数値・発言があれば、それを正確に残す。\n"
-                                "- 重複する情報は適切に整理し、過剰な繰り返しを避ける。\n"
-                                "- 会話の流れが分かるように、前後関係を意識して書く。\n"
-                                "- もし明確な結論や次のアクションが示された場合、それを分かりやすくまとめる。\n\n"
-                                f"対象の文章:\n{chunk}\n\n"
-                                "【出力の指示】\n"
-                                "- フォーマットは自由。ただし、会議の流れを分かりやすくするため、自然な文章で記述。\n"
-                                "- 必要に応じて、発言者の意見や重要なポイントを適宜整理。\n"
-                                "- 要約ではあるが、可能な限り詳細に。\n"
+                                f"以下の文章を要約してください。\n\n{chunk}\n\n"
+                                "以下のフォーマットで出力してください。\n\n"
+                                "[文字起こし結果]\n"
+                                f"{chunk}\n\n"
+                                "[要約結果]\n"
+                                "-（要約された内容）\n"
                             ),
                         },
                     ],
@@ -95,31 +95,31 @@ class AzOpenAIClient:
         results = []
         for i in range(0, len(tasks), batch_size):
             batch = tasks[i : i + batch_size]
-            results.extend(await asyncio.gather(*batch))
+            batch_results = await asyncio.gather(*batch, return_exceptions=True)
+
+            for result in batch_results:
+                if isinstance(result, Exception):
+                    print(f"エラー発生: {result}")  # エラーハンドリング
+                    continue
+                results.append(result)
         return results
 
-    async def summarize_text(self, text: str, max_tokens_per_chunk: int = 3000) -> str:
+    async def summarize_text(
+        self, text: str, max_tokens_per_chunk: int = 7500
+    ) -> str:
         """
         文章を要約し、最終的に統合して整理する。
+        フロントエンドには「要約済みの1つのテキスト」を返す。
         """
         try:
-            # チャンクに分割
+            # **チャンク分割**
             chunks = self.split_chunks(text, max_tokens_per_chunk)
-            print("分割されたチャンク:", chunks)
-
-            # 非同期タスクを生成
+            # **並列で要約を取得**
             tasks = [self.fetch_summary(chunk) for chunk in chunks]
-            print("処理するタスクの数:", len(tasks))
-
-            # バッチ処理でタスクを実行
-            summaries = await self.run_in_batches(tasks, batch_size=15)
-            print("個別の要約:", summaries)
-
-            # **最終統合処理**
+            summaries = await self.run_in_batches(tasks, batch_size=5)
+            # **要約を統合（最終要約）**
             final_summary = await self.fetch_summary("\n".join(summaries))
-            print("最終要約:", final_summary)
-
-            return final_summary
+            return final_summary  # **フロントエンドには統合後の1つのテキストを返す**
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Failed to summarize text: {str(e)}"
