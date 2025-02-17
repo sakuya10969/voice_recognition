@@ -58,13 +58,13 @@ class AzOpenAIClient:
                         {
                             "role": "user",
                             "content": (
-                                f"以下の文章を要約してください。\n\n{chunk}\n\n"
+                                f"以下の文章を要約してください。\n\n{chunk}\n\n\n"
                                 "必ず文字起こし結果と要約結果を出力してください。\n"
-                                "文字起こし結果には渡されたテキストをそのまま出力してください。\n"
-                                "要約結果は詳細に出力してください。"
-                                "必ず以下のフォーマットで出力してください。\n"
+                                "文字起こし結果では話者識別を行い、出力してください。\n"
+                                "要約結果は詳細に出力してください。\n"
+                                "必ず以下のフォーマットで出力してください。\n\n"
                                 "[文字起こし結果]\n"
-                                f"{chunk}\n"
+                                f"{chunk}\n\n\n"
                                 "[要約結果]\n"
                                 "要約された内容\n"
                             ),
@@ -83,7 +83,6 @@ class AzOpenAIClient:
         for i in range(0, len(tasks), batch_size):
             batch = tasks[i : i + batch_size]
             batch_results = await asyncio.gather(*batch, return_exceptions=True)
-
             for result in batch_results:
                 if isinstance(result, Exception):
                     print(f"エラー発生: {result}")  # エラーハンドリング
