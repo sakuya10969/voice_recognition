@@ -81,19 +81,27 @@ const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
           height: "90%",
         }}
       >
-        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
-          [要約結果]
-        </Typography>
-        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", mb: 2 }}>
-          {summarizedText}
-        </Typography>
+        {summarizedText && (
+          <>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
+              [要約結果]
+            </Typography>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", mb: 2 }}>
+              {summarizedText}
+            </Typography>
+          </>
+        )}
 
-        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
-          [文字起こし結果]
-        </Typography>
-        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-          {transcribedText}
-        </Typography>
+        {transcribedText && (
+          <>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
+              [文字起こし結果]
+            </Typography>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+              {transcribedText}
+            </Typography>
+          </>
+        )}
       </Box>
     </Paper>
   );
