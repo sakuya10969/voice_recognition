@@ -122,7 +122,7 @@ async def process_audio_task(
         # 要約処理
         summarized_text = await az_openai_client.summarize_text(transcribed_text)
         # SharePointにWordファイルをアップロード
-        word_file_path = await create_word(summarized_text)
+        word_file_path = await create_word(transcribed_text, summarized_text)
         sp_access.upload_file(
             site_data_dict["site"],
             site_data_dict["directory"],

@@ -9,7 +9,7 @@ interface TranscriptionResponse {
 }
 
 // const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.livelyplant-c1c0aa0b.japaneast.azurecontainerapps.io";
+const apiUrl = "https://ca-vr-dev-010.yellowrock-173f000c.eastasia.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
