@@ -8,8 +8,8 @@ interface TranscriptionResponse {
     summarized_text?: string;
 }
 
-const apiUrl = "http://127.0.0.1:8000";
-// const apiUrl = "https://ca-vr-dev-010.graytree-f08985ca.koreacentral.azurecontainerapps.io";
+// const apiUrl = "http://127.0.0.1:8000";
+const apiUrl = "https://ca-vr-dev-010.livelyplant-c1c0aa0b.japaneast.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
