@@ -52,7 +52,8 @@ async def lifespan(app: FastAPI):
     session = aiohttp.ClientSession()
     app.state.session = session
     app.state.task_status = {}
-    app.state.task_results = {}
+    app.state.task_transcribed_text = {}
+    app.state.task_summarized_text = {}
     yield
     await session.close()
 
@@ -128,7 +129,8 @@ async def process_audio_task(
             word_file_path,
         )
         # タスク結果を保存
-        app.state.task_results[task_id] = summarized_text
+        app.state.task_transcribed_text[task_id] = transcribed_text
+        app.state.task_summarized_text[task_id] = summarized_text
         app.state.task_status[task_id] = "completed"
         # Blobストレージから削除
         await az_blob_client.delete_blob(file_name)
@@ -136,7 +138,8 @@ async def process_audio_task(
 
     except Exception as e:
         app.state.task_status[task_id] = "failed"
-        app.state.task_results[task_id] = f"エラー: {str(e)}"
+        app.state.task_transcribed_text[task_id] = f"エラー: {str(e)}"
+        app.state.task_summarized_text[task_id] = f"エラー: {str(e)}"
         logger.error(f"タスク {task_id} の処理中にエラー: {str(e)}")
         logger.error(traceback.format_exc())
 
@@ -153,7 +156,8 @@ async def transcribe(
     """音声ファイルの文字起こし & 要約をバックグラウンドで処理"""
     task_id = str(uuid.uuid4())
     app.state.task_status[task_id] = "processing"
-    app.state.task_results[task_id] = None
+    app.state.task_transcribed_text[task_id] = None
+    app.state.task_summarized_text[task_id] = None
 
     try:
         file_path = save_disk(file)
@@ -180,7 +184,8 @@ async def get_transcription_status(task_id: str):
     return {
         "task_id": task_id,
         "status": app.state.task_status[task_id],
-        "result": app.state.task_results[task_id],
+        "transcribed_text": app.state.task_transcribed_text[task_id],
+        "summarized_text": app.state.task_summarized_text[task_id]
     }
 
 @app.get("/sites")

@@ -12,7 +12,8 @@ const Main: React.FC = () => {
   const [directory, setDirectory] = useState<{ id: string; name: string } | null>(null);
   const [subDirectory, setSubDirectory] = useState<{ id: string; name: string } | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [content, setContent] = useState<string>("");
+  const [summarizedText, setSummarizedText] = useState<string>("");
+  const [transcribedText, setTranscribedText] = useState<string>("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
@@ -57,8 +58,9 @@ const Main: React.FC = () => {
 
     setIsUploadingModalOpen(true);
     try {
-      const transcription = await handleSendAudio(site, directory,subDirectory, file);
-      setContent(transcription);
+      const transcription = await handleSendAudio(site, directory, subDirectory, file);
+      setTranscribedText(transcription.transcribed_text);
+      setSummarizedText(transcription.summarized_text);
       setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -105,7 +107,7 @@ const Main: React.FC = () => {
         onSubDirectoryChange={handleSubDirectoryChange}
         file={file}
       />
-      <Note content={content} />
+      <Note transcribedText={transcribedText} summarizedText={summarizedText} />
       <UploadingModal open={isUploadingModalOpen} />
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>

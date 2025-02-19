@@ -1,24 +1,37 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import { Document, Packer, Paragraph } from "docx";
+import { Paper, Box, Typography, IconButton } from "@mui/material";
+import { Download as DownloadIcon } from "@mui/icons-material";
 import { saveAs } from "file-saver";
-import IconButton from "@mui/material/IconButton";
-import DownloadIcon from "@mui/icons-material/Download";
+import { Document, Packer, Paragraph } from "docx";
 
-const Note: React.FC<{ content: string }> = ({ content }) => {
+interface NoteProps {
+  summarizedText: string;
+  transcribedText: string;
+}
+
+const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
   const handleDownload = async () => {
-    const fileName = `議事録_${new Date().toLocaleString().replace(/[/,:]/g, "-")}.docx`;
-    const paragraphs = content.split('\n').map(line => new Paragraph(line));
+    const fileName = `議事録_${new Date()
+      .toLocaleString()
+      .replace(/[/,:]/g, "-")}.docx`;
+
+    const docContent = [
+      new Paragraph("[要約]"),
+      ...summarizedText.split("\n").map((line) => new Paragraph(line)),
+      new Paragraph(""),
+      new Paragraph("[文字起こし]"),
+      ...transcribedText.split("\n").map((line) => new Paragraph(line)),
+    ];
+
     const doc = new Document({
       sections: [
         {
           properties: {},
-          children: paragraphs,
+          children: docContent,
         },
       ],
     });
+
     const blob = await Packer.toBlob(doc);
     saveAs(blob, fileName);
   };
@@ -50,13 +63,13 @@ const Note: React.FC<{ content: string }> = ({ content }) => {
         </Typography>
         <IconButton
           sx={{
-            transform: "transLateX(50px)",
+            transform: "translateX(50px)",
             ":disabled": {
               opacity: 0.5,
             },
           }}
           onClick={handleDownload}
-          disabled={!content || (typeof content === "string" && content.trim() === "")}
+          disabled={!summarizedText.trim() && !transcribedText.trim()}
         >
           <DownloadIcon sx={{ color: "black" }} />
         </IconButton>
@@ -68,8 +81,18 @@ const Note: React.FC<{ content: string }> = ({ content }) => {
           height: "90%",
         }}
       >
+        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
+          [要約結果]
+        </Typography>
+        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", mb: 2 }}>
+          {summarizedText}
+        </Typography>
+
+        <Typography variant="body1" sx={{ whiteSpace: "pre-wrap", fontWeight: "bold" }}>
+          [文字起こし結果]
+        </Typography>
         <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-          {content}
+          {transcribedText}
         </Typography>
       </Box>
     </Paper>

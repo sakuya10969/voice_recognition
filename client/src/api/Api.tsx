@@ -1,8 +1,15 @@
 import axios from "axios";
 import useSWR from "swr";
 
-// const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.graytree-f08985ca.koreacentral.azurecontainerapps.io";
+interface TranscriptionResponse {
+    task_id: string;
+    status: string;
+    transcribed_text?: string;
+    summarized_text?: string;
+}
+
+const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "https://ca-vr-dev-010.graytree-f08985ca.koreacentral.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -11,54 +18,63 @@ export const handleSendAudio = async (
     directory: { id: string; name: string },
     subDirectory: { id: string, name: string } | null,
     file: File
-): Promise<string> => {
+): Promise<{ transcribed_text: string; summarized_text: string }> => {
     try {
         const formData = new FormData();
         formData.append("site", site.id);
         formData.append("directory", subDirectory ? subDirectory.id : directory.id);
         formData.append("file", file);
-
         // **1. タスクIDを取得（処理開始）**
-        const response = await axios.post(`${apiUrl}/transcribe`, formData, {
+        const response = await axios.post<{ task_id: string; message: string }>(`${apiUrl}/transcribe`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
-        const taskId = response.data.task_id;  // タスクIDを取得
+        const taskId = response.data.task_id;
         console.log(response.data.message);
-
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 10秒待機
-
+        // 5秒待機（初期処理の安定化）
+        await new Promise(resolve => setTimeout(resolve, 5000));
         // **2. タスクの完了をポーリングでチェック**
-        return new Promise((resolve, reject) => {
-            const interval = setInterval(async () => {
-                try {
-                    const statusResponse = await axios.get(`${apiUrl}/transcribe/${taskId}`, {
-                        headers: {
-                            "Cache-Control": "no-cache, no-store, must-revalidate",
-                        }
-                    });
-                    console.log("APIレスポンス:", statusResponse.data);
-                    const status = statusResponse.data.status;
-                    console.log("現在のステータス:", status);
-
-                    if (status === "completed") {
-                        console.log("処理完了:", statusResponse.data.result);
-                        clearInterval(interval); // **完了したらポーリング停止**
-                        resolve(statusResponse.data.result);
-                    } else if (status === "failed") {
-                        console.error("処理失敗:", statusResponse.data.result);
-                        clearInterval(interval); // **エラーの場合も停止**
-                        reject(new Error(statusResponse.data.result));
-                    } 
-                } catch (error) {
-                    console.error("ステータス取得エラー:", error);
-                    clearInterval(interval); // **エラー発生時もポーリング停止**
-                    reject(new Error("Failed to fetch transcription status"));
-                }
-            }, 60000);
-        });
+        return await pollTranscriptionStatus(taskId);
     } catch (error) {
-        throw new Error(error as string);
+        console.error("音声送信エラー:", error);
+        throw new Error(error instanceof Error ? error.message : "Failed to send audio");
     }
+};
+// **ポーリング処理**
+const pollTranscriptionStatus = async (taskId: string): Promise<{ transcribed_text: string; summarized_text: string }> => {
+    const pollingInterval = 40000;
+    return new Promise((resolve, reject) => {
+        const interval = setInterval(async () => {
+            try {
+                const statusResponse = await axios.get<TranscriptionResponse>(`${apiUrl}/transcribe/${taskId}`, {
+                    headers: {
+                        "Cache-Control": "no-cache, no-store, must-revalidate",
+                    }
+                });
+                console.log("APIレスポンス:", statusResponse.data);
+                const { status, transcribed_text, summarized_text } = statusResponse.data;
+                console.log("現在のステータス:", status);
+                if (status === "completed") {
+                    if (transcribed_text && summarized_text) {
+                        console.log("処理完了:", { transcribed_text, summarized_text });
+                        clearInterval(interval);
+                        resolve({ transcribed_text, summarized_text });
+                    } else {
+                        console.warn("処理は完了したが、データが不足している可能性あり。");
+                        clearInterval(interval);
+                        reject(new Error("Missing transcription or summary data"));
+                    }
+                } else if (status === "failed") {
+                    console.error("処理失敗:", statusResponse.data);
+                    clearInterval(interval);
+                    reject(new Error("Transcription process failed"));
+                }
+            } catch (error) {
+                console.error("ステータス取得エラー:", error);
+                clearInterval(interval);
+                reject(new Error(error instanceof Error ? error.message : "Failed to fetch transcription status"));
+            }
+        }, pollingInterval);
+    });
 };
 
 // **サイト一覧の取得**
