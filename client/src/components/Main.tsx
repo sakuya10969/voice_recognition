@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
+import { useAtom } from "jotai";
 
 import FileUpload from "./FileUpload";
 import Note from "./Note";
 import { handleSendAudio, useFetchSites, useFetchDirectories, useFetchSubDirectories } from "../api/Api";
 import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
+import { searchValueAtom } from "../store/atoms";
 
 const Main: React.FC = () => {
   const [site, setSite] = useState<{ id: string; name: string } | null>(null);
@@ -16,6 +18,7 @@ const Main: React.FC = () => {
   const [transcribedText, setTranscribedText] = useState<string>("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+  const [, setSearchValue] = useAtom<string>(searchValueAtom);
 
   const { sitesData, sitesError, isSitesLoading } = useFetchSites();
   const { directoriesData, directoriesError } = useFetchDirectories(site?.id ?? "");
@@ -44,7 +47,7 @@ const Main: React.FC = () => {
   // アップロード処理
   const handleUpload = async (): Promise<void> => {
     if (!site) {
-      alert("プロジェクトを選択してください");
+      alert("サイトを選択してください");
       return;
     }
     if (!directory) {
@@ -67,6 +70,7 @@ const Main: React.FC = () => {
       alert("ファイルのアップロード中にエラーが発生しました。");
     } finally {
       setIsUploadingModalOpen(false);
+      setSearchValue("");
       setSite(null);
       setDirectory(null);
       setFile(null);

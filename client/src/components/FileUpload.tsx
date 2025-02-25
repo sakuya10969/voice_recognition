@@ -12,8 +12,10 @@ import TextField from "@mui/material/TextField";
 import { ThemeProvider } from "@mui/material/styles";
 import { useDropzone, FileRejection } from "react-dropzone";
 import { useForm, FieldError } from "react-hook-form";
+import { useAtom } from "jotai";
 
 import { theme } from "../theme/theme";
+import { searchValueAtom } from "../store/atoms";
 
 interface FileUploadProps {
   sites: { id: string; name: string }[];
@@ -28,22 +30,22 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
-  sites, // プロジェクト一覧
+  sites, // サイト一覧
   directories, // ディレクトリ一覧
   subDirectories, // サブディレクトリ一覧
   onFileChange, // ファイル選択処理
   onSubmit, // アップロード処理
   onSiteChange, // サイト選択処理
   onDirectoryChange, // ディレクトリ選択処理
-  onSubDirectoryChange,
+  onSubDirectoryChange, // サブディレクトリ選択処理
   file, // 選択されたファイル
 }) => {
-  const [errorFileType, setErrorFileType] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [errorFileType, setErrorFileType] = useState<boolean>(false);
   const [filteredSites, setFilteredSites] = useState(sites);
   const [selectedSite, setSelectedSite] = useState<string>("");
   const [selectedDirectory, setSelectedDirectory] = useState<string>("");
   const [selectedSubDirectory, setSelectedSubDirectory] = useState<string>("");
+  const [searchValue, setSearchValue] = useAtom<string>(searchValueAtom);
 
   // ページの初期レンダリング時にデータを取得、格納する
   useEffect(() => {
@@ -52,7 +54,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
+    setSearchValue(value);
     setFilteredSites(
         value.trim() === "" ? sites : sites.filter((site) => site.name && site.name.includes(value))
       );
@@ -97,12 +99,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
     >
       <ThemeProvider theme={theme}>
         <TextField
-        label="検索"
-        placeholder="サイトの検索"
+        label="サイトの検索"
         variant="outlined"
         size="small"
         fullWidth
-        value={searchTerm}
+        value={searchValue}
         onChange={handleSearch}
         sx={{
           mb: 3,
