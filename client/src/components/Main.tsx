@@ -24,26 +24,22 @@ const Main: React.FC = () => {
   const { directoriesData, directoriesError } = useFetchDirectories(site?.id ?? "");
   const { subDirectoriesData, subDirectoriesError } = useFetchSubDirectories(site?.id ?? "", directory?.id ?? "");
 
-  // プロジェクト変更処理
+  // サイト変更処理
   const handleSiteChange = (site: { id: string; name: string } | null): void => {
     setSite(site);
   };
-
-  // プロジェクトディレクトリ変更処理
+  // ディレクトリ変更処理
   const handleDirectoryChange = (directory: { id: string; name: string } | null): void => {
     setDirectory(directory);
   };
-
-  // プロジェクトサブディレクトリ変更処理
+  // サブディレクトリ変更処理
   const handleSubDirectoryChange = (subDirectory: { id: string, name: string } | null): void => {
     setSubDirectory(subDirectory);
   }
-
   // ファイル変更処理
   const handleFileChange = (file: File | null): void => {
     setFile(file);
   };
-
   // アップロード処理
   const handleUpload = async (): Promise<void> => {
     if (!site) {

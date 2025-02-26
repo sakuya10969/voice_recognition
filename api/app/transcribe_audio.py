@@ -34,6 +34,7 @@ class AzTranscriptionClient:
                     status_code=response.status,
                     detail=f"ジョブの作成に失敗しました: {await response.text()}",
                 )
+            print(response.json())
             return (await response.json())["self"]
 
     async def poll_transcription_status(

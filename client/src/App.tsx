@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Header from "./components/Header";
@@ -7,7 +8,7 @@ import Footer from "./components/Footer";
 
 function App() {
   return (
-    <>
+    <Router>
       <CssBaseline />
       <Box
         sx={{
@@ -21,10 +22,12 @@ function App() {
         }}
       >
         <Header />
-        <Main />
+        <Routes>
+          <Route path="/" element={<Main />} />
+        </Routes>
         <Footer />
       </Box>
-    </>
+    </Router>
   );
 }
 
