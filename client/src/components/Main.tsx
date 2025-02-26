@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import { handleSendAudio, useFetchSites, useFetchDirectories, useFetchSubDirecto
 import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 import { searchValueAtom } from "../store/atoms";
-import LinkCopyButton from "./LinkCopyButton"; // 追加！
+import LinkCopyButton from "./LinkCopyButton";
 
 const Main: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,8 +55,16 @@ const Main: React.FC = () => {
         }
       });
       return newParams;
-    });
+    }, { replace: true });
   };
+
+  useEffect(() => {
+  const navEntries = performance.getEntriesByType("navigation");
+  if (navEntries.length > 0 && navEntries[0].type === "reload") {
+    updateQueryParams({ site: null, directory: null, subdirectory: null });
+  }
+}, []);
+
 
   const handleSiteChange = (site: { id: string; name: string } | null) => {
     updateQueryParams({ site: site?.id ?? "", directory: "", subdirectory: "" });
@@ -99,7 +107,7 @@ const Main: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", padding: 3, gap: 2 }}>
-      {selectedSubDirectory && (
+      {selectedDirectory && (
         <Box>
           <LinkCopyButton />
         </Box>
