@@ -11,7 +11,6 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { ThemeProvider } from "@mui/material/styles";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { useForm, FieldError } from "react-hook-form";
 import { useAtom } from "jotai";
 
 import { theme } from "../theme/theme";
@@ -19,35 +18,37 @@ import { searchValueAtom } from "../store/atoms";
 
 interface FileUploadProps {
   sites: { id: string; name: string }[];
-  directories: { id: string, name: string }[];
-  subDirectories: { id: string, name: string }[];
+  directories: { id: string; name: string }[];
+  subDirectories: { id: string; name: string }[];
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
   onSiteChange: (site: { id: string; name: string }) => void;
   onDirectoryChange: (directory: { id: string; name: string }) => void;
-  onSubDirectoryChange: (subDirectory: { id: string, name: string }) => void;
+  onSubDirectoryChange: (subDirectory: { id: string; name: string }) => void;
   file: File | null;
+  selectedSiteId: string;
+  selectedDirectoryId: string;
+  selectedSubDirectoryId: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
-  sites, // サイト一覧
-  directories, // ディレクトリ一覧
-  subDirectories, // サブディレクトリ一覧
-  onFileChange, // ファイル選択処理
-  onSubmit, // アップロード処理
-  onSiteChange, // サイト選択処理
-  onDirectoryChange, // ディレクトリ選択処理
-  onSubDirectoryChange, // サブディレクトリ選択処理
-  file, // 選択されたファイル
+  sites,
+  directories,
+  subDirectories,
+  onFileChange,
+  onSubmit,
+  onSiteChange,
+  onDirectoryChange,
+  onSubDirectoryChange,
+  file,
+  selectedSiteId,
+  selectedDirectoryId,
+  selectedSubDirectoryId,
 }) => {
   const [errorFileType, setErrorFileType] = useState<boolean>(false);
   const [filteredSites, setFilteredSites] = useState(sites);
-  const [selectedSite, setSelectedSite] = useState<string>("");
-  const [selectedDirectory, setSelectedDirectory] = useState<string>("");
-  const [selectedSubDirectory, setSelectedSubDirectory] = useState<string>("");
   const [searchValue, setSearchValue] = useAtom<string>(searchValueAtom);
 
-  // ページの初期レンダリング時にデータを取得、格納する
   useEffect(() => {
     setFilteredSites(sites);
   }, [sites]);
@@ -56,27 +57,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
     const value = e.target.value;
     setSearchValue(value);
     setFilteredSites(
-        value.trim() === "" ? sites : sites.filter((site) => site.name && site.name.includes(value))
-      );
-  };
-
-  const { register, handleSubmit, formState: { errors, isValid } } = useForm({
-    mode: "onBlur"
-  });
-
-  const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-    if (fileRejections.length > 0) {
-      setErrorFileType(true);
-      return;
-    }
-    setErrorFileType(false);
-    if (acceptedFiles.length > 0) {
-      onFileChange(acceptedFiles[0]);
-    }
+      value.trim() === ""
+        ? sites
+        : sites.filter((site) => (site.name || "").includes(value))
+    );
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      if (fileRejections.length > 0) {
+        setErrorFileType(true);
+        return;
+      }
+      setErrorFileType(false);
+      if (acceptedFiles.length > 0) {
+        onFileChange(acceptedFiles[0]);
+      }
+    },
     multiple: false,
     accept: {
       "video/mp4": [],
@@ -87,7 +84,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -99,121 +99,110 @@ const FileUpload: React.FC<FileUploadProps> = ({
     >
       <ThemeProvider theme={theme}>
         <TextField
-        label="サイトの検索"
-        variant="outlined"
-        size="small"
-        fullWidth
-        value={searchValue}
-        onChange={handleSearch}
-        sx={{
-          mb: 3,
-          "& input": {
-            backgroundColor: "white"
-          }
-        }}
-      />
+          label="サイトの検索"
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={searchValue}
+          onChange={handleSearch}
+          sx={{
+            mb: 3,
+            "& input": {
+              backgroundColor: "white",
+            },
+          }}
+        />
       </ThemeProvider>
 
-      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.site}>
+      <FormControl fullWidth sx={{ mb: 3 }} size="small">
         <InputLabel id="site-select-label">サイト</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
             labelId="site-select-label"
             label="サイト"
-            value={selectedSite}
-            {...register("site", { required: "サイトを選択してください" })}
+            value={selectedSiteId}
             MenuProps={{
               PaperProps: {
                 style: {
                   width: 400,
                   maxHeight: 450,
-                  overflowX: "auto"
+                  overflowX: "auto",
                 },
               },
             }}
           >
-            {filteredSites.map((site: { id: string; name: string; }) => (
+            {filteredSites.map((site) => (
               <MenuItem
                 key={site.id}
-                value={site.id || ""}
+                value={site.id}
                 onClick={() => {
-                setSelectedSite(site.id || "");
-                onSiteChange(site);
-              }}>
+                  onSiteChange(site);
+                }}
+              >
                 {site.name}
               </MenuItem>
             ))}
           </Select>
         </ThemeProvider>
-        {errors.site?.message && (
-          <Typography variant="body2" color="error">
-            {(errors.site as FieldError | undefined)?.message ?? ""}
-          </Typography>
-        )}
       </FormControl>
-      <FormControl fullWidth sx={{ mb: 3 }} size="small" error={!!errors.directory}>
+
+      <FormControl fullWidth sx={{ mb: 3 }} size="small">
         <InputLabel id="directory-select-label">ディレクトリ</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
-          labelId="directory-select-label"
-          label="ディレクトリ"
-          value={selectedDirectory}
-          {...register("directory", { required: "ディレクトリを選択してください" })}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                width: 400,
-                maxHeight: 450,
-                overflowX: "auto",
+            labelId="directory-select-label"
+            label="ディレクトリ"
+            value={selectedDirectoryId}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  width: 400,
+                  maxHeight: 450,
+                  overflowX: "auto",
+                },
               },
-            },
-          }}
+            }}
           >
-            {directories.map((directory: { id: string; name: string }) => (
+            {directories.map((directory) => (
               <MenuItem
                 key={directory.id}
-                value={directory.id || ""}
+                value={directory.id}
                 onClick={() => {
-                  setSelectedDirectory(directory.id || "");
                   onDirectoryChange(directory);
-                }}>
+                }}
+              >
                 {directory.name}
               </MenuItem>
             ))}
           </Select>
         </ThemeProvider>
-        {errors.directory?.message && (
-          <Typography variant="body2" color="error">
-            {(errors.directory as FieldError | undefined)?.message ?? ""}
-          </Typography>
-        )}
       </FormControl>
+
       <FormControl fullWidth sx={{ mb: 3 }} size="small">
-        <InputLabel id="directory-select-label">サブディレクトリ</InputLabel>
+        <InputLabel id="subdirectory-select-label">サブディレクトリ</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
-          labelId="directory-select-label"
-          label="サブディレクトリ"
-          value={selectedSubDirectory}
-          {...register("subDirectory")}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                width: 400,
-                maxHeight: 450,
-                overflowX: "auto",
+            labelId="subdirectory-select-label"
+            label="サブディレクトリ"
+            value={selectedSubDirectoryId}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  width: 400,
+                  maxHeight: 450,
+                  overflowX: "auto",
+                },
               },
-            },
-          }}
+            }}
           >
-            {subDirectories.map((subDirectory: { id: string; name: string }) => (
+            {subDirectories.map((subDirectory) => (
               <MenuItem
                 key={subDirectory.id}
-                value={subDirectory.id || ""}
+                value={subDirectory.id}
                 onClick={() => {
-                  setSelectedSubDirectory(subDirectory.id)
                   onSubDirectoryChange(subDirectory);
-                }}>
+                }}
+              >
                 {subDirectory.name}
               </MenuItem>
             ))}
@@ -258,8 +247,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
               backgroundColor: "black",
               width: "170px",
               "&:hover": {
-                backgroundColor: "black"
-              }
+                backgroundColor: "black",
+              },
             }}
           >
             ファイルの選択
@@ -279,7 +268,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       </Box>
       <Button
         type="submit"
-        disabled={!file || !isValid}
+        disabled={!file}
         endIcon={<Send />}
         sx={{
           color: "white",
@@ -287,11 +276,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
           borderRadius: "5px",
           width: "110px",
           ":disabled": {
-            backgroundColor: "whitesmoke"
+            backgroundColor: "whitesmoke",
           },
           "&:hover": {
-                backgroundColor: "black"
-              }
+            backgroundColor: "black",
+          },
         }}
       >
         送信
