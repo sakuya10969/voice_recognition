@@ -92,14 +92,14 @@ class Transcribe(BaseModel):
 
 # フォームデータのパース
 def parse_form(
-    site: str = Form(...), directory: str = Form(...)
+    site: Optional[str] = Form(None), directory: Optional[str] = Form(None)
 ) -> Transcribe:
-    return Transcribe(site=site, directory=directory)
+    return Transcribe(site=site or "", directory=directory or "")
 
 
 async def process_audio_task(
     task_id: str,
-    site_data_dict: Optional[dict],  # site_data_dictをOptionalに変更
+    site_data_dict: Optional[dict],
     az_blob_client: AzBlobClient,
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
@@ -124,11 +124,15 @@ async def process_audio_task(
         # 要約処理
         summarized_text = await az_openai_client.summarize_text(transcribed_text)
         # site_data_dictがある場合のみSharePointにアップロード
-        if site_data_dict:
+        if (
+            site_data_dict
+            and "site" in site_data_dict
+            and "directory" in site_data_dict
+        ):
             word_file_path = await create_word(transcribed_text, summarized_text)
             sp_access.upload_file(
-                site_data_dict.get("site"),
-                site_data_dict.get("directory"),
+                site_data_dict["site"],
+                site_data_dict["directory"],
                 word_file_path,
             )
             await cleanup_word(word_file_path)
@@ -160,13 +164,14 @@ async def transcribe(
     app.state.task_status[task_id] = "processing"
     app.state.task_transcribed_text[task_id] = None
     app.state.task_summarized_text[task_id] = None
+    site_data_dict = site_data.model_dump() if site_data else {}
 
     try:
         file_path = save_disk(file)
         background_tasks.add_task(
             process_audio_task,
             task_id,
-            site_data.model_dump() if site_data else None,
+            site_data_dict,
             az_blob_client,
             az_speech_client,
             az_openai_client,

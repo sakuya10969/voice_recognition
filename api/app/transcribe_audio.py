@@ -7,6 +7,9 @@ class AzTranscriptionClient:
         self.headers = {
             "Ocp-Apim-Subscription-Key": az_speech_key,
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Accept-Language": "ja-JP",
+            "X-Japan-Force": "True",
         }
         self.az_speech_endpoint = az_speech_endpoint
         self.session = session
@@ -17,14 +20,17 @@ class AzTranscriptionClient:
     async def create_transcription_job(self, blob_url: str) -> str:
         body = {
             "displayName": "Transcription",
-            "locale": "ja-jp",
+            "locale": "ja-JP",
             "contentUrls": [blob_url],
             "properties": {
+                "audioLocale": "ja-JP",
+                "defaultLanguageCode": "ja-JP",
                 "diarizationEnabled": True,
                 "punctuationMode": "DictatedAndAutomatic",
                 "wordLevelTimestampsEnabled": True,
             },
         }
+        print(body)
         transcription_url = f"{self.az_speech_endpoint}/speechtotext/v3.2/transcriptions"
         async with self.session.post(
             transcription_url, headers=self.headers, json=body
@@ -34,11 +40,10 @@ class AzTranscriptionClient:
                     status_code=response.status,
                     detail=f"ジョブの作成に失敗しました: {await response.text()}",
                 )
-            print(response.json())
             return (await response.json())["self"]
 
     async def poll_transcription_status(
-    self, job_url: str, max_attempts=240, initial_interval=30  # 最大2時間
+    self, job_url: str, max_attempts=240, initial_interval=30
 ) -> str:
         interval = initial_interval
         for _ in range(max_attempts):
