@@ -82,8 +82,8 @@ const Main: React.FC = () => {
   const handleFileChange = (file: File | null) => setFile(file);
 
   const handleUpload = async () => {
-    if (!selectedSite || !selectedDirectory || !file) {
-      alert("サイト・ディレクトリ・ファイルを選択してください");
+    if (!file) {
+      alert("ファイルを選択してください");
       return;
     }
     setIsUploadingModalOpen(true);
