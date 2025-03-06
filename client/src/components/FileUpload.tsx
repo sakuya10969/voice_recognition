@@ -97,16 +97,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
         width: "500px",
       }}
     >
+      <Typography fontWeight="bold" align="left" sx={{ fontSize: "x-large", mb: 2 }}>
+        議事録ファイル出力先
+      </Typography>
       <ThemeProvider theme={theme}>
         <TextField
-          label="サイトの検索"
+          label="SPOサイトキーワード"
           variant="outlined"
           size="small"
           fullWidth
           value={searchValue}
           onChange={handleSearch}
           sx={{
-            mb: 3,
+            mb: 2,
             "& input": {
               backgroundColor: "white",
             },
@@ -114,12 +117,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
         />
       </ThemeProvider>
 
-      <FormControl fullWidth sx={{ mb: 3 }} size="small">
-        <InputLabel id="site-select-label">サイト</InputLabel>
+      <FormControl fullWidth sx={{ mb: 2 }} size="small">
+        <InputLabel id="site-select-label">SPOサイト</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
             labelId="site-select-label"
-            label="サイト"
+            label="SPOサイト"
             value={selectedSiteId}
             MenuProps={{
               PaperProps: {
@@ -146,7 +149,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         </ThemeProvider>
       </FormControl>
 
-      <FormControl fullWidth sx={{ mb: 3 }} size="small">
+      <FormControl fullWidth sx={{ mb: 2 }} size="small">
         <InputLabel id="directory-select-label">ディレクトリ</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
@@ -178,7 +181,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         </ThemeProvider>
       </FormControl>
 
-      <FormControl fullWidth sx={{ mb: 3 }} size="small">
+      <FormControl fullWidth sx={{ mb: 2 }} size="small">
         <InputLabel id="subdirectory-select-label">サブディレクトリ</InputLabel>
         <ThemeProvider theme={theme}>
           <Select
@@ -216,7 +219,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           border: "1px dashed black",
           borderRadius: "5px",
           p: 3,
-          mb: 3,
+          mb: 2,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",

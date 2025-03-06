@@ -8,22 +8,39 @@ interface TranscriptionResponse {
     summarized_text?: string;
 }
 
-// const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.ambitioushill-29fa19d8.japaneast.azurecontainerapps.io";
+const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "https://ca-vr-dev-010.ambitioushill-29fa19d8.japaneast.azurecontainerapps.io";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export const handleSendAudio = async (
-    site: { id: string; name: string },
-    directory: { id: string; name: string },
+    site: { id: string; name: string } | null,
+    directory: { id: string; name: string } | null,
     subDirectory: { id: string, name: string } | null,
     file: File
 ): Promise<{ transcribed_text: string; summarized_text: string }> => {
     try {
         const formData = new FormData();
-        formData.append("site", site.id);
-        formData.append("directory", subDirectory ? subDirectory.id : directory.id);
-        formData.append("file", file);
+        // **すべてがnullの場合は送信する**
+        if (!site && !directory && !subDirectory) {
+            formData.append("file", file);
+        } else {
+            // **siteがある場合、directoryも必須**
+            if (site && !directory) {
+                throw new Error("サイトを選択した場合、ディレクトリの選択が必要です");
+            }
+            // **siteがある場合は送信**
+            if (site) {
+                formData.append("site", site.id);
+            }
+            // **subDirectoryがあればそれを送信、なければdirectoryを送信**
+            if (subDirectory) {
+                formData.append("directory", subDirectory.id);
+            } else if (directory) {
+                formData.append("directory", directory.id);
+            }
+            formData.append("file", file);
+        }
         // **1. タスクIDを取得（処理開始）**
         const response = await axios.post<{ task_id: string; message: string }>(`${apiUrl}/transcribe`, formData, {
             headers: { "Content-Type": "multipart/form-data" },

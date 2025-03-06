@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
+import CssBaseline from "@mui/material/CssBaseline"
 
 import FileUpload from "./FileUpload";
 import Note from "./Note";
@@ -107,6 +108,7 @@ const Main: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", padding: 3, gap: 2 }}>
+      <CssBaseline />
       {selectedDirectory && (
         <Box>
           <LinkCopyButton />
