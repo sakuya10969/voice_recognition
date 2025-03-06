@@ -20,6 +20,7 @@ from contextlib import asynccontextmanager
 import uuid
 import logging
 from starlette.requests import Request
+from typing import Optional
 
 from app.transcribe_audio import AzTranscriptionClient
 from app.summary_text import AzOpenAIClient
@@ -95,14 +96,15 @@ def parse_form(
 ) -> Transcribe:
     return Transcribe(site=site, directory=directory)
 
+
 async def process_audio_task(
     task_id: str,
-    site_data_dict: dict,
+    site_data_dict: Optional[dict],  # site_data_dictをOptionalに変更
     az_blob_client: AzBlobClient,
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
     sp_access: SharePointAccessClass,
-    file_path: str
+    file_path: str,
 ):
     """音声処理をバックグラウンドで実行"""
     try:
@@ -121,21 +123,21 @@ async def process_audio_task(
             raise ValueError("文字起こしに失敗しました")
         # 要約処理
         summarized_text = await az_openai_client.summarize_text(transcribed_text)
-        # SharePointにWordファイルをアップロード
-        word_file_path = await create_word(transcribed_text, summarized_text)
-        sp_access.upload_file(
-            site_data_dict["site"],
-            site_data_dict["directory"],
-            word_file_path,
-        )
+        # site_data_dictがある場合のみSharePointにアップロード
+        if site_data_dict:
+            word_file_path = await create_word(transcribed_text, summarized_text)
+            sp_access.upload_file(
+                site_data_dict.get("site"),
+                site_data_dict.get("directory"),
+                word_file_path,
+            )
+            await cleanup_word(word_file_path)
         # タスク結果を保存
         app.state.task_transcribed_text[task_id] = transcribed_text
         app.state.task_summarized_text[task_id] = summarized_text
         app.state.task_status[task_id] = "completed"
         # Blobストレージから削除
         await az_blob_client.delete_blob(file_name)
-        await cleanup_word(word_file_path)
-
     except Exception as e:
         app.state.task_status[task_id] = "failed"
         app.state.task_transcribed_text[task_id] = f"エラー: {str(e)}"
@@ -146,7 +148,7 @@ async def process_audio_task(
 @app.post("/transcribe")
 async def transcribe(
     background_tasks: BackgroundTasks,
-    site_data: Transcribe = Depends(parse_form),
+    site_data: Optional[Transcribe] = Depends(parse_form),
     file: UploadFile = File(...),
     az_blob_client: AzBlobClient = Depends(get_az_blob_client),
     az_speech_client: AzTranscriptionClient = Depends(get_az_speech_client),
@@ -164,7 +166,7 @@ async def transcribe(
         background_tasks.add_task(
             process_audio_task,
             task_id,
-            site_data.model_dump(),
+            site_data.model_dump() if site_data else None,
             az_blob_client,
             az_speech_client,
             az_openai_client,
@@ -175,6 +177,7 @@ async def transcribe(
     except Exception as e:
         logger.error(f"音声処理エンドポイントでエラー: {str(e)}")
         return JSONResponse(status_code=500, content={"error": str(e)})
+
 
 @app.get("/transcribe/{task_id}")
 async def get_transcription_status(task_id: str):
