@@ -1,32 +1,83 @@
 # 議事録作成ツール
-本ツールは、キャプチャーされた会議録画を音声解析し、効率的な議事録作成をサポートするツールです。<br>
-mp4あるいはwav形式の音声データをアップロードするだけで、自動的に文字起こしを行い、要約やフォーマット整形された議事録を生成します。　
 
-## 主な機能
-- **音声文字起こし**: Azure Speech Serviceで音声ファイルを文字起こしをします。
-- **要約機能**: 文字起こしされたデータをAzure OpenAIに渡し、プロンプトを投げ要約の生成を行います。
-- **要約された議事録の保存**: 要約された議事録をワードファイルとして保存することが可能です。
+会議録画の音声を解析し、議事録作成を支援するツールです。
+**mp4またはwav形式のファイルをアップロードするだけで、要約された議事録を生成してくれます。**
 
-## 使用技術
-- **フロントエンド**: React(Material UI)
-- **バックエンド**: FastAPI
-- **クラウドサービス**: Azure Speech Service, Azure OpenAI
-- **ストレージ**: Azure Blob Storage
+---
 
-## インストール方法
-以下の手順で環境構築を行ってください。
+## 特徴
 
-1. **リポジトリをクローン**
-   ```bash
-   git clone https://github.com/sakuya10969/voice_recognition.git
-   cd voice_recognition
-   ```
+- **高精度な音声文字起こし**  
+  Azure Speech Serviceを活用し、録音ファイルからテキストデータを生成してくれます。
 
-2. **依存関係のインストール**
-   ```
-   cd client
-   npm install
-   cd ..
-   cd api
-   pip install -r requirements.txt
-   ```
+- **AIによるスマートな要約機能**  
+  Azure OpenAIのを利用して、わかりやすい要約を提供します。
+
+- **議事録の簡単出力**  
+  要約された議事録はワードファイル形式で簡単にダウンロードすることができます。
+  また、本ツールでは生成された議事録ファイルをSharepointへ格納することもできます。
+
+---
+
+## 🛠 使用技術スタック
+
+| 分類 | 技術・ツール |
+|------|-------------|
+| フロントエンド | React（Material UI） |
+| バックエンド | FastAPI |
+| クラウドサービス | Azure Speech Service, Azure OpenAI |
+| ストレージ | Azure Blob Storage |
+| コンテナ技術 | Docker（docker-compose） |
+
+---
+
+## 環境構築ガイド
+
+### 1. リポジトリをクローン
+
+```bash
+git clone https://github.com/sakuya10969/voice_recognition.git
+cd voice_recognition
+```
+
+### 2. 依存関係のセットアップ
+
+**フロントエンド (React)**
+
+```bash
+cd client
+yarn install
+```
+
+**バックエンド (FastAPI)**
+
+```bash
+cd ../api
+docker-compose up -d --build
+```
+
+---
+
+## アプリケーションの起動と使用方法
+
+1. フロントエンドを起動します。
+
+```bash
+cd client
+yarn start
+```
+
+2. ブラウザで以下のURLにアクセスし、音声ファイルをアップロードしてください。
+
+```
+http://localhost:3000
+```
+
+3. 議事録の生成後、ワードファイルとしてダウンロードできます。会議後すぐに活用できます。
+
+---
+
+## ⚠注意事項と前提条件
+- 本ツールのご利用には、AzureアカウントおよびAPIキーが必要です。
+- APIキーや環境変数の設定方法については、各サービスの公式ドキュメントを参照してください。
+
