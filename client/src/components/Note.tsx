@@ -2,7 +2,7 @@ import React from "react";
 import { Paper, Box, Typography, IconButton } from "@mui/material";
 import { Download as DownloadIcon } from "@mui/icons-material";
 import { saveAs } from "file-saver";
-import { Document, Packer, Paragraph } from "docx";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 
 interface NoteProps {
   summarizedText: string;
@@ -11,30 +11,55 @@ interface NoteProps {
 
 const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
   const handleDownload = async () => {
-    const fileName = `議事録_${new Date()
-      .toLocaleString()
-      .replace(/[/,:]/g, "-")}.docx`;
+  const now = new Date();
+  const formattedDate = now.toISOString().replace(/T/, "_").replace(/\..+/, "").replace(/:/g, "-"); 
+  const fileName = `議事録_${formattedDate}.docx`;
 
-    const docContent = [
-      new Paragraph("[要約]"),
-      ...summarizedText.split("\n").map((line) => new Paragraph(line)),
-      new Paragraph(""),
-      new Paragraph("[文字起こし]"),
-      ...transcribedText.split("\n").map((line) => new Paragraph(line)),
-    ];
-
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: docContent,
-        },
-      ],
-    });
-
-    const blob = await Packer.toBlob(doc);
-    saveAs(blob, fileName);
-  };
+  const docContent = [
+    // [要約] タイトル（太字 & サイズ大）
+    new Paragraph({
+      children: [new TextRun({ text: "[要約]", bold: true, size: 32 })],
+      spacing: { after: 200 },
+    }),
+    // [要約] 本文
+    ...summarizedText
+      .split("\n")
+      .map(
+        (line) =>
+          new Paragraph({
+            children: [new TextRun({ text: line, size: 24 })],
+            spacing: { after: 100 },
+          })
+      ),
+    // 空行
+    new Paragraph({ spacing: { after: 200 } }),
+    // [文字起こし] タイトル
+    new Paragraph({
+      children: [new TextRun({ text: "[文字起こし]", bold: true, size: 32 })],
+      spacing: { before: 200, after: 200 },
+    }),
+    // [文字起こし] 本文
+    ...transcribedText
+      .split("\n")
+      .map(
+        (line) =>
+          new Paragraph({
+            children: [new TextRun({ text: line, size: 24 })],
+            spacing: { after: 100 },
+          })
+      ),
+  ];
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: docContent,
+      },
+    ],
+  });
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, fileName);
+};
 
   return (
     <Paper
