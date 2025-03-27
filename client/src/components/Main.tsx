@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
-import CssBaseline from "@mui/material/CssBaseline";
+import CssBaseline from "@mui/material/CssBaseline"
 
 import FileUpload from "./FileUpload";
 import Note from "./Note";
@@ -45,8 +45,8 @@ const Main: React.FC = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [, setSearchValue] = useAtom<string>(searchValueAtom);
 
-  const updateQueryParams = useCallback((updates: Record<string, string | null>) => {
-    setSearchParams((prevParams) => {
+  const updateQueryParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prevParams => {
       const newParams = new URLSearchParams(prevParams);
       Object.entries(updates).forEach(([key, value]) => {
         if (value) {
@@ -57,30 +57,31 @@ const Main: React.FC = () => {
       });
       return newParams;
     }, { replace: true });
-  }, [setSearchParams]);
+  };
 
   useEffect(() => {
-    const navEntries = performance.getEntriesByType("navigation");
-    if (navEntries.length > 0 && navEntries[0].type === "reload") {
-      updateQueryParams({ site: null, directory: null, subdirectory: null });
-    }
-  }, [updateQueryParams]);
+  const navEntries = performance.getEntriesByType("navigation");
+  if (navEntries.length > 0 && navEntries[0].type === "reload") {
+    updateQueryParams({ site: null, directory: null, subdirectory: null });
+  }
+}, []);
 
-  const handleSiteChange = useCallback((site: { id: string; name: string } | null) => {
+
+  const handleSiteChange = (site: { id: string; name: string } | null) => {
     updateQueryParams({ site: site?.id ?? "", directory: "", subdirectory: "" });
-  }, [updateQueryParams]);
+  };
 
-  const handleDirectoryChange = useCallback((directory: { id: string; name: string } | null) => {
+  const handleDirectoryChange = (directory: { id: string; name: string } | null) => {
     updateQueryParams({ directory: directory?.id ?? "", subdirectory: "" });
-  }, [updateQueryParams]);
+  };
 
-  const handleSubDirectoryChange = useCallback((subDirectory: { id: string; name: string } | null) => {
+  const handleSubDirectoryChange = (subDirectory: { id: string; name: string } | null) => {
     updateQueryParams({ subdirectory: subDirectory?.id ?? "" });
-  }, [updateQueryParams]);
+  };
 
-  const handleFileChange = useCallback((file: File | null) => setFile(file), []);
+  const handleFileChange = (file: File | null) => setFile(file);
 
-  const handleUpload = useCallback(async () => {
+  const handleUpload = async () => {
     if (!file) {
       alert("ファイルを選択してください");
       return;
@@ -100,7 +101,7 @@ const Main: React.FC = () => {
       updateQueryParams({ site: null, directory: null, subdirectory: null });
       setFile(null);
     }
-  }, [file, selectedSite, selectedDirectory, selectedSubDirectory, setSearchValue, updateQueryParams]);
+  };
 
   if (sitesError) return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました</p>;
   if (isSitesLoading) return <p>サイトを読み込んでいます...</p>;
