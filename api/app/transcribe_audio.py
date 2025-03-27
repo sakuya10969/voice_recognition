@@ -15,7 +15,26 @@ class AzTranscriptionClient:
         self.session = session
 
     async def close(self):
-        await self.session.close()
+        if not self.session.closed:
+            await self.session.close()
+
+    async def _post_request(self, url: str, json_body: dict) -> dict:
+        async with self.session.post(url, headers=self.headers, json=json_body) as response:
+            if response.status != 201:
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"ジョブの作成に失敗しました: {await response.text()}",
+                )
+            return await response.json()
+
+    async def _get_request(self, url: str) -> dict:
+        async with self.session.get(url, headers=self.headers) as response:
+            if response.status != 200:
+                raise HTTPException(
+                    status_code=response.status,
+                    detail=f"リクエストに失敗しました: {await response.text()}",
+                )
+            return await response.json()
 
     async def create_transcription_job(self, blob_url: str) -> str:
         body = {
@@ -30,57 +49,29 @@ class AzTranscriptionClient:
                 "wordLevelTimestampsEnabled": True,
             },
         }
-        print(body)
         transcription_url = f"{self.az_speech_endpoint}/speechtotext/v3.2/transcriptions"
-        async with self.session.post(
-            transcription_url, headers=self.headers, json=body
-        ) as response:
-            if response.status != 201:
-                raise HTTPException(
-                    status_code=response.status,
-                    detail=f"ジョブの作成に失敗しました: {await response.text()}",
-                )
-            return (await response.json())["self"]
+        response_data = await self._post_request(transcription_url, body)
+        return response_data["self"]
 
-    async def poll_transcription_status(
-    self, job_url: str, max_attempts=240, initial_interval=30
-) -> str:
+    async def poll_transcription_status(self, job_url: str, max_attempts=240, initial_interval=30) -> str:
         interval = initial_interval
         for _ in range(max_attempts):
-            async with self.session.get(job_url, headers=self.headers) as response:
-                if response.status != 200:
-                    raise HTTPException(response.status, f"ステータス取得失敗: {await response.text()}")
-                status_data = await response.json()
-
-                if status_data["status"] == "Succeeded":
-                    return status_data["links"]["files"]
-                if status_data["status"] in ["Failed", "Cancelled"]:
-                    raise HTTPException(500, f"ジョブ失敗: {status_data['status']}")
-
+            status_data = await self._get_request(job_url)
+            if status_data["status"] == "Succeeded":
+                return status_data["links"]["files"]
+            if status_data["status"] in ["Failed", "Cancelled"]:
+                raise HTTPException(500, f"ジョブ失敗: {status_data['status']}")
             await asyncio.sleep(interval)
-            interval = min(interval * 2, 60)  # 最大60秒
-
+            interval = min(interval * 2, 60)
         raise HTTPException(500, "ジョブのタイムアウト (2時間超過)")
 
     async def get_transcription_result(self, file_url: str) -> str:
-        async with self.session.get(file_url, headers=self.headers) as response:
-            if response.status != 200:
-                raise HTTPException(
-                    status_code=response.status,
-                    detail=f"結果の取得に失敗しました: {await response.text()}",
-                )
-            files_data = await response.json()
-            return files_data["values"][0]["links"]["contentUrl"]
+        files_data = await self._get_request(file_url)
+        return files_data["values"][0]["links"]["contentUrl"]
 
     async def fetch_transcription_display(self, content_url: str) -> str:
-        async with self.session.get(content_url) as response:
-            if response.status != 200:
-                raise HTTPException(
-                    status_code=response.status,
-                    detail=f"contentUrl の取得に失敗しました: {await response.text()}",
-                )
-            content_data = await response.json()
-            return content_data["combinedRecognizedPhrases"][0]["display"]
+        content_data = await self._get_request(content_url)
+        return content_data["combinedRecognizedPhrases"][0]["display"]
 
     async def transcribe_audio(self, blob_url: str) -> str:
         if self.session.closed:

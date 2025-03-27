@@ -20,7 +20,7 @@ from contextlib import asynccontextmanager
 import uuid
 import logging
 from starlette.requests import Request
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from app.transcribe_audio import AzTranscriptionClient
 from app.summary_text import AzOpenAIClient
@@ -71,18 +71,19 @@ app.add_middleware(
 )
 
 # クラスの依存性を定義する関数
-def get_az_blob_client():
+def get_az_blob_client() -> AzBlobClient:
     return AzBlobClient(AZ_BLOB_CONNECTION, AZ_CONTAINER_NAME)
 
-def get_az_speech_client(request: Request):
+def get_az_speech_client(request: Request) -> AzTranscriptionClient:
+    
     return AzTranscriptionClient(
         request.app.state.session, AZ_SPEECH_KEY, AZ_SPEECH_ENDPOINT
     )
 
-def get_az_openai_client():
+def get_az_openai_client() -> AzOpenAIClient:
     return AzOpenAIClient(AZ_OPENAI_KEY, AZ_OPENAI_ENDPOINT)
 
-def get_sp_access():
+def get_sp_access() -> SharePointAccessClass:
     return SharePointAccessClass(CLIENT_ID, CLIENT_SECRET, TENANT_ID)
 
 # モデルの定義
@@ -99,7 +100,7 @@ def parse_form(
 
 async def process_audio_task(
     task_id: str,
-    site_data_dict: Optional[dict],
+    site_data_dict: Optional[Dict[str, Any]],
     az_blob_client: AzBlobClient,
     az_speech_client: AzTranscriptionClient,
     az_openai_client: AzOpenAIClient,
@@ -218,6 +219,9 @@ async def get_directories(site_id: str = Query(default=None), sp_access: SharePo
 
 @app.get("/subdirectories")
 async def get_subdirectories(site_id: str = Query(default=None), directory_id: str = Query(default=None), sp_access: SharePointAccessClass = Depends(get_sp_access)):
+    """
+    指定されたディレクトリIDのサブディレクトリ一覧を取得するエンドポイント
+    """
     try:
         return sp_access.get_subfolders(site_id, directory_id)
     except Exception as e:

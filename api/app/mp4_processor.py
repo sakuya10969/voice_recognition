@@ -35,9 +35,9 @@ def convert_wav(input_path: str, output_path: str):
             "s16",  # サンプルフォーマット（16-bit PCM）
             output_path,
         ]
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"FFmpeg failed: {e.stderr}")
+        raise HTTPException(status_code=500, detail=f"FFmpeg failed: {e.stderr.decode()}")
 
 async def mp4_processor(file_path: str) -> dict:
     """
@@ -49,35 +49,36 @@ async def mp4_processor(file_path: str) -> dict:
         file_extension = os.path.splitext(sanitized_filename)[1].lower()
         # WAVファイルならそのまま返す
         if file_extension == ".wav":
-            with open(file_path, "rb") as f:
-                file_data = f.read()
-            return {"file_name": sanitized_filename, "file_data": file_data}
-        # 一時ディレクトリのパスを取得
+            return _read_file(file_path, sanitized_filename)
+        
         tmpdir = os.path.dirname(file_path)
         output_filename = os.path.splitext(sanitized_filename)[0] + ".wav"
         output_path = os.path.join(tmpdir, output_filename)
         # MP4をWAVに変換
         convert_wav(file_path, output_path)
-        # 変換後のMP4ファイルを削除
-        try:
-            os.remove(file_path)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to delete original MP4 file: {str(e)}"
-            )
         # 一時ディレクトリ内のMP4ファイルをすべて削除
-        try:
-            for filename in os.listdir(tmpdir):
-                file_path = os.path.join(tmpdir, filename)
-                if file_path.endswith(".mp4"):
-                    os.remove(file_path)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to clean up temp directory: {str(e)}"
-            )
+        _cleanup_file(file_path, ".mp4", tmpdir)
         # 変換したWAVファイルを読み取る
-        with open(output_path, "rb") as f:
-            wav_data = f.read()
-        return {"file_name": output_filename, "file_data": wav_data}
+        return _read_file(output_path, output_filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
+
+def _read_file(file_path: str, filename: str) -> dict:
+    """
+    ファイルを読み取り、ファイル名とデータを含む辞書を返す。
+    """
+    with open(file_path, "rb") as f:
+        file_data = f.read()
+    return {"file_name": filename, "file_data": file_data}
+
+def _cleanup_file(file_path: str, extension: str, directory: str):
+    """
+    指定されたファイルとディレクトリ内の特定の拡張子を持つファイルを削除する。
+    """
+    try:
+        os.remove(file_path)
+        for filename in os.listdir(directory):
+            if filename.endswith(extension):
+                os.remove(os.path.join(directory, filename))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clean up files: {str(e)}")
