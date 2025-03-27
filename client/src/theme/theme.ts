@@ -1,15 +1,26 @@
 import { createTheme } from "@mui/material/styles";
 
+const commonStyles = {
+  backgroundColor: "white",
+  "&.Mui-focused": {
+    backgroundColor: "white",
+  },
+};
+
+const commonLabelStyles = {
+  color: "black",
+  "&.Mui-focused": {
+    color: "black",
+  },
+};
+
 export const theme = createTheme({
   components: {
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: "white", // フィールドの背景を白にする
+          ...commonStyles,
           "&:hover": {
-            backgroundColor: "white",
-          },
-          "&.Mui-focused": {
             backgroundColor: "white",
           },
           "& input": {
@@ -20,13 +31,13 @@ export const theme = createTheme({
             WebkitBoxShadow: "0 0 0px 1000px white inset !important",
           },
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black", // 通常時の枠線を黒に
+            borderColor: "black",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black", // ホバー時の枠線を黒に
+            borderColor: "black",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black", // フォーカス時の枠線を黒に
+            borderColor: "black",
           },
         },
       },
@@ -34,41 +45,33 @@ export const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "black", // 通常時のラベルの色
-          "&.Mui-focused": {
-            color: "black", // フォーカス時のラベルの色を強制的に黒に
-          },
+          ...commonLabelStyles,
         },
       },
     },
     MuiFormLabel: {
       styleOverrides: {
         root: {
-          color: "black", // 通常時のラベル色
-          "&.Mui-focused": {
-            color: "black", // フォーカス時のラベル色を強制的に黒に
-          },
+          ...commonLabelStyles,
         },
       },
     },
     MuiSelect: {
       styleOverrides: {
         root: {
-          backgroundColor: "white", // 選択エリアの背景を白に
+          ...commonStyles,
           "&.Mui-focused": {
-            color: "black", // フォーカス時の選択された値の色を黒に
-            backgroundColor: "white",
+            color: "black",
           },
         },
         select: {
-          backgroundColor: "white",
+          ...commonStyles,
           "&.Mui-focused": {
-            color: "black", // フォーカス時の選択した値の色
-            backgroundColor: "white",
+            color: "black",
           },
         },
         icon: {
-          color: "black", // ドロップダウンの矢印の色を黒に
+          color: "black",
         },
       },
     },
@@ -76,12 +79,11 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiInputLabel-root": {
-            color: "black", // 通常時のラベルの色
+            color: "black",
           },
-          "& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused":
-            {
-              color: "black", // フォーカス時のラベルの色を強制的に黒に
-            },
+          "& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused": {
+            color: "black",
+          },
         },
       },
     },
