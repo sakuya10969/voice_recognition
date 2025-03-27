@@ -290,7 +290,7 @@ async def get_transcription_status(task_id: str):
         "summarized_text": app.state.task_manager.summarized_text[task_id]
     }
 
-@app.get("/sites", response_model=List[Dict[str, Any]])
+@app.get("/sites")
 async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):
     """サイト一覧を取得"""
     try:
@@ -301,7 +301,7 @@ async def get_sites(sp_access: SharePointAccessClass = Depends(get_sp_access)):
             detail=f"サイト取得中にエラーが発生しました: {str(e)}"
         )
 
-@app.get("/directories", response_model=List[Dict[str, Any]])
+@app.get("/directories")
 async def get_directories(
     site_id: str = Query(...),
     sp_access: SharePointAccessClass = Depends(get_sp_access)
@@ -315,7 +315,7 @@ async def get_directories(
             detail=f"ディレクトリ取得中にエラーが発生しました: {str(e)}"
         )
 
-@app.get("/subdirectories", response_model=List[Dict[str, Any]])
+@app.get("/subdirectories")
 async def get_subdirectories(
     site_id: str = Query(...),
     directory_id: str = Query(...),
