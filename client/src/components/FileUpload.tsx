@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -53,7 +53,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     setFilteredSites(sites);
   }, [sites]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
     setFilteredSites(
@@ -61,19 +61,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ? sites
         : sites.filter((site) => (site.name || "").includes(value))
     );
-  };
+  }, [sites, setSearchValue]);
+
+  const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
+    if (fileRejections.length > 0) {
+      setErrorFileType(true);
+      return;
+    }
+    setErrorFileType(false);
+    if (acceptedFiles.length > 0) {
+      onFileChange(acceptedFiles[0]);
+    }
+  }, [onFileChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      if (fileRejections.length > 0) {
-        setErrorFileType(true);
-        return;
-      }
-      setErrorFileType(false);
-      if (acceptedFiles.length > 0) {
-        onFileChange(acceptedFiles[0]);
-      }
-    },
+    onDrop,
     multiple: false,
     accept: {
       "video/mp4": [],
@@ -138,9 +140,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <MenuItem
                 key={site.id}
                 value={site.id}
-                onClick={() => {
-                  onSiteChange(site);
-                }}
+                onClick={() => onSiteChange(site)}
               >
                 {site.name}
               </MenuItem>
@@ -170,9 +170,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <MenuItem
                 key={directory.id}
                 value={directory.id}
-                onClick={() => {
-                  onDirectoryChange(directory);
-                }}
+                onClick={() => onDirectoryChange(directory)}
               >
                 {directory.name}
               </MenuItem>
@@ -202,9 +200,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <MenuItem
                 key={subDirectory.id}
                 value={subDirectory.id}
-                onClick={() => {
-                  onSubDirectoryChange(subDirectory);
-                }}
+                onClick={() => onSubDirectoryChange(subDirectory)}
               >
                 {subDirectory.name}
               </MenuItem>
