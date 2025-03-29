@@ -15,7 +15,7 @@ class TranscribeAudioService:
         content_url = await self._extract_first_content_url(file_url)
         return await self._extract_display_text(content_url)
 
-    async def _extract_first_content_url(self, file_url: str) -> str:
+    async def _extract_content_url(self, file_url: str) -> str:
         files_data = await self._client.get(file_url)
         try:
             return files_data["values"][0]["links"]["contentUrl"]
