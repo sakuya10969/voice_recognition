@@ -21,7 +21,7 @@ from contextlib import asynccontextmanager
 import uuid
 import logging
 from starlette.requests import Request
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from enum import Enum
 
 from app.transcribe_audio import AzTranscriptionClient
