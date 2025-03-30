@@ -13,13 +13,13 @@ class AudioProcessorService:
     
     def __init__(
         self,
-        speech_client: AzSpeechClient,
-        blob_client: AzBlobClient,
+        az_speech_client: AzSpeechClient,
+        az_blob_client: AzBlobClient,
         mp4_processor: MP4ProcessorService,
         transcription_service: TranscribeAudioService
     ):
-        self.speech_client = speech_client
-        self.blob_client = blob_client
+        self.az_speech_client = az_speech_client
+        self.az_blob_client = az_blob_client
         self.mp4_processor = mp4_processor
         self.transcription_service = transcription_service
 
@@ -30,7 +30,7 @@ class AudioProcessorService:
             processed_data = await self.mp4_processor.process_mp4(file_path)
             
             # Blobへのアップロード
-            blob_url = await self.blob_client.upload_blob(
+            blob_url = await self.az_blob_client.upload_blob(
                 processed_data["file_name"],
                 processed_data["file_data"]
             )
@@ -69,7 +69,7 @@ class AudioProcessorService:
             transcribed_text = await self.transcribe_audio(audio_data["blob_url"])
             
             # 文字起こし完了後、Blobを削除
-            await self.blob_client.delete_blob(audio_data["file_name"])
+            await self.az_blob_client.delete_blob(audio_data["file_name"])
             
             return transcribed_text
 

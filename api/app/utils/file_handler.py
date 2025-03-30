@@ -9,21 +9,24 @@ logger = logging.getLogger(__name__)
 async def save_file_temporarily(file: UploadFile) -> str:
     """アップロードされたファイルを一時的に保存する"""
     try:
-        # 一時ディレクトリの作成
-        temp_dir = Path(tempfile.gettempdir()) / "voice_recognition"
-        temp_dir.mkdir(exist_ok=True)
-        
-        # 一時ファイルのパスを生成
-        temp_file_path = temp_dir / file.filename
-        
-        # ファイルの保存
-        content = await file.read()
-        with open(temp_file_path, "wb") as f:
-            f.write(content)
-            
-        logger.info(f"一時ファイルを保存: {temp_file_path}")
-        return str(temp_file_path)
-        
+        suffix = Path(file.filename).suffix
+        temp_file = _create_temp_file(suffix)
+        await _write_file_content(file, temp_file)
+        return temp_file.name
     except Exception as e:
-        logger.error(f"ファイルの保存に失敗: {str(e)}")
-        raise Exception(f"ファイルの保存に失敗しました: {str(e)}") 
+        _handle_save_error(e)
+
+def _create_temp_file(suffix: str) -> tempfile._TemporaryFileWrapper:
+    """一時ファイルを作成する"""
+    return tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+
+async def _write_file_content(file: UploadFile, temp_file: tempfile._TemporaryFileWrapper) -> None:
+    """ファイルの内容を書き込む"""
+    content = await file.read()
+    temp_file.write(content)
+
+def _handle_save_error(e: Exception) -> None:
+    """エラーハンドリング"""
+    error_msg = f"ファイルの保存に失敗: {str(e)}"
+    logger.error(error_msg)
+    raise Exception(f"ファイルの保存に失敗しました: {str(e)}")

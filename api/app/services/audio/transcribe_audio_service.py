@@ -9,18 +9,18 @@ logger = logging.getLogger(__name__)
 class TranscrbeAudioService:
     """音声文字起こしを行うサービス"""
     
-    def __init__(self, speech_client: AzSpeechClient):
-        self.speech_client = speech_client
+    def __init__(self, az_speech_client: AzSpeechClient):
+        self.az_speech_client = az_speech_client
     
     async def transcribe(self, blob_url: str) -> str:
         """音声ファイルを文字起こしする"""
         try:
             # 文字起こしジョブの作成
-            job_id = await self.speech_client.create_transcription_job(blob_url)
+            job_id = await self.az_speech_client.create_transcription_job(blob_url)
             
             # ジョブの完了を待機
             while True:
-                status = await self.speech_client.get_transcription_status(job_id)
+                status = await self.az_speech_client.get_transcription_status(job_id)
                 if status == "Succeeded":
                     break
                 elif status == "Failed":
@@ -31,7 +31,7 @@ class TranscrbeAudioService:
                 await asyncio.sleep(5)  # 5秒待機
             
             # 結果の取得
-            result = await self.speech_client.get_transcription_result(job_id)
+            result = await self.az_speech_client.get_transcription_result(job_id)
             
             # 結果の解析
             content_url = self._extract_content_url(result)
@@ -59,7 +59,7 @@ class TranscrbeAudioService:
     async def _extract_display_text(self, content_url: str) -> str:
         """コンテンツURLから表示テキストを抽出する"""
         try:
-            content = await self.speech_client.get_content(content_url)
+            content = await self.az_speech_client.get_content(content_url)
             return content["displayText"]
         except Exception as e:
             raise HTTPException(

@@ -1,11 +1,11 @@
 import logging
-from typing import Optional
 from pathlib import Path
 import tempfile
 import os
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +23,12 @@ class WordGeneratorService:
             temp_dir = Path(tempfile.gettempdir()) / "voice_recognition"
             temp_dir.mkdir(exist_ok=True)
             
+            # 現在時刻からファイル名を生成
+            now = datetime.now()
+            filename = f"{now.year}_{now.month:02d}{now.day:02d}_{now.hour:02d}{now.minute:02d}_議事録.docx"
+            
             # 一時ファイルのパスを生成
-            temp_file_path = temp_dir / "transcription.docx"
+            temp_file_path = temp_dir / filename
             
             # Word文書の作成
             doc = Document()

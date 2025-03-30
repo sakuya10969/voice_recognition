@@ -6,8 +6,8 @@ from utils.chunk_splitter import split_token
 from utils.create_prompt import create_prompt
 
 class SummarizeTextService:
-    def __init__(self, client: AzOpenAIClient, max_tokens: int = 7500, batch_size: int = 5):
-        self._client = client
+    def __init__(self, az_openai_client: AzOpenAIClient, max_tokens: int = 7500, batch_size: int = 5):
+        self._az_openai_client = az_openai_client
         self.max_tokens = max_tokens
         self.batch_size = batch_size
 
@@ -19,7 +19,7 @@ class SummarizeTextService:
 
     def _split_text_chunks(self, text: str) -> List[str]:
         """テキストをトークン数に基づいてチャンクに分割する"""
-        chunks = split_token(text, max_tokens=self._max_tokens)
+        chunks = split_token(text, max_tokens=self.max_tokens)
         if not chunks:
             raise ValueError("入力テキストが空です")
         return chunks
@@ -40,7 +40,7 @@ class SummarizeTextService:
 
     async def _process_batch(self, batch: List[List[dict]]) -> List[str]:
         """バッチ単位で要約を実行する"""
-        tasks = [self._client.fetch_summary(prompt) for prompt in batch]
+        tasks = [self._az_openai_client.fetch_summary(prompt) for prompt in batch]
         results = await asyncio.gather(*tasks, return_exceptions=True)
         return [r for r in results if isinstance(r, str)]
 
@@ -48,4 +48,4 @@ class SummarizeTextService:
         """チャンク要約を結合して最終的な要約を生成する"""
         combined_text = "\n".join(chunk_summaries)
         final_prompt = create_prompt(combined_text)
-        return await self._client.fetch_summary(final_prompt)
+        return await self._az_openai_client.fetch_summary(final_prompt)

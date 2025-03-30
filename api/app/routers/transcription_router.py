@@ -6,7 +6,7 @@ import logging
 
 from app.dependencies.az_client import (
     get_az_blob_client,
-    get_az_speech_client, 
+    get_az_speech_client,
     get_az_openai_client,
     get_sp_access
 )
@@ -17,7 +17,7 @@ from app.infrastructure.ms_sharepoint import MsSharePointClient
 from app.services.task_manager_service import TaskManager
 from app.services.audio.mp4_processor_service import MP4ProcessorService
 from app.services.word_generator_service import WordGeneratorService
-from api.app.usecases.transcribe_audio_usecase import TranscribeAudioUseCase
+from api.app.usecases.audio_processor_usecase import TranscribeAudioUseCase
 from api.app.models.transcription import Transcribe
 from app.utils.file_handler import save_file_temporarily
 
@@ -51,12 +51,11 @@ async def transcribe(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     site_data: Optional[Transcribe] = None,
-    request: Request = None,
     usecase: TranscribeAudioUseCase = Depends(get_transcribe_usecase),
 ):
     """音声ファイルの文字起こしと要約を非同期で実行するエンドポイント"""
     task_id = str(uuid.uuid4())
-    site_data_dict = site_data.model_dump() if site_data else {}
+    site_data_dict = site_data.model_dump() if site_data else None
 
     try:
         temp_file_path = await save_file_temporarily(file)
@@ -64,7 +63,7 @@ async def transcribe(
             usecase.execute,
             task_id=task_id,
             site_data=site_data_dict,
-            file_path=temp_file_path,
+            file_path=temp_file_path
         )
         return {
             "task_id": task_id,
@@ -72,15 +71,18 @@ async def transcribe(
         }
     except Exception as e:
         logger.error(f"音声処理の開始に失敗: {str(e)}")
-        return JSONResponse(
+        raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"error": f"処理の開始に失敗しました: {str(e)}"}
+            detail=f"処理の開始に失敗しました: {str(e)}"
         )
 
 @router.get("/{task_id}")
-async def get_transcription_status(task_id: str, request: Request):
+async def get_transcription_status(
+    task_id: str,
+    usecase: TranscribeAudioUseCase = Depends(get_transcribe_usecase)
+):
     """タスクの処理状態と結果を取得するエンドポイント"""
-    task_manager: TaskManager = request.app.state.task_manager
+    task_manager = usecase.task_manager
     
     if task_id not in task_manager.status:
         raise HTTPException(
