@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from app.service.summarize_text_service import SummarizeTextService
+from app.services.summarize_text_service import SummarizeTextService
 
 class SummarizeTextUseCase:
     def __init__(self, service: SummarizeTextService):
