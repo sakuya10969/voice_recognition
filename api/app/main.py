@@ -11,22 +11,27 @@ from app.routers import transcription_router, sharepoint_router
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
 )
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    config = get_config()
+    """アプリケーションのライフサイクル管理"""
     session = aiohttp.ClientSession()
-    az_client_factory = AzClientFactory(config=config, session=session)
-
-    app.state.config = config
-    app.state.session = session
-    app.state.task_manager = TaskManager()
-    app.state.az_client_factory = az_client_factory
-
-    yield
-    await session.close()
+    try:
+        app.state.config = get_config()
+        app.state.session = session
+        app.state.task_manager = TaskManager()
+        app.state.az_client_factory = AzClientFactory(
+            config=app.state.config,
+            session=session
+        )
+        yield
+    finally:
+        await session.close()
 
 app = FastAPI(lifespan=lifespan)
 

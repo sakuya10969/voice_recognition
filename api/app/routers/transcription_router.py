@@ -22,7 +22,7 @@ class TranscriptionRouter:
     """音声文字起こし関連のルーティングを管理するクラス"""
 
     @staticmethod
-    def get_transcription_usecase(request: Request,) -> TranscribeAudioUseCase:
+    def get_transcription_usecase(request: Request) -> TranscribeAudioUseCase:
         """TranscribeAudioUseCaseのインスタンスを生成"""
         task_manager: TaskManager = request.app.state.task_manager
         az_blob_client: AzBlobClient = request.app.state.az_client_factory.create_az_blob_client()
