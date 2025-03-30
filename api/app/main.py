@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from app.core.config import get_config
-from app.dependencies.az_client_factory import AzClientFactory
+from app.infrastructure.az_client_factory import AzClientFactory
 from app.services.task_manager_service import TaskManager
 from app.routers import transcription_router, sharepoint_router
 

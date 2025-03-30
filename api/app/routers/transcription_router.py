@@ -11,8 +11,8 @@ from app.infrastructure.ms_sharepoint import MsSharePointClient
 from app.services.task_manager_service import TaskManager
 from app.services.audio.mp4_processor_service import MP4ProcessorService
 from app.services.word_generator_service import WordGeneratorService
-from api.app.usecases.audio_processor_usecase import TranscribeAudioUseCase
-from api.app.models.transcription import Transcription
+from app.usecases.audio_processor_usecase import TranscribeAudioUseCase
+from app.models.transcription import Transcription
 from app.utils.file_handler import save_file_temporarily
 
 router = APIRouter()

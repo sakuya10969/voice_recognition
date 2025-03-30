@@ -1,5 +1,5 @@
 from typing import Dict, Optional
-from api.app.models.transcription import TaskStatus
+from app.models.transcription import TaskStatus
 
 class TaskManager:
     """

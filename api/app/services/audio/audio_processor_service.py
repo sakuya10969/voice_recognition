@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from app.infrastructure.az_speech import AzSpeechClient
 from app.infrastructure.az_blob import AzBlobClient
 from app.services.audio.mp4_processor_service import MP4ProcessorService
-from api.app.services.audio.transcribe_audio_service import TranscribeAudioService
+from app.services.audio.transcribe_audio_service import TranscribeAudioService
 
 logger = logging.getLogger(__name__)
 

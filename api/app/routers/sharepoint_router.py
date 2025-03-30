@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from typing import Dict, Any
 import logging
 from app.infrastructure.ms_sharepoint import MsSharePointClient
-from api.app.dependencies.az_client_factory import get_ms_sharepoint_client
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

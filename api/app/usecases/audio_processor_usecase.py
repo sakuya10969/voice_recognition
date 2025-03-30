@@ -8,7 +8,7 @@ from app.infrastructure.ms_sharepoint import MsSharePointClient
 from app.infrastructure.az_blob import AzBlobClient
 from app.infrastructure.az_speech import AzSpeechClient
 from app.services.audio.mp4_processor_service import MP4ProcessorService
-from api.app.services.audio.transcribe_audio_service import TranscrbeAudioService
+from app.services.audio.transcribe_audio_service import TranscrbeAudioService
 
 logger = logging.getLogger(__name__)
 

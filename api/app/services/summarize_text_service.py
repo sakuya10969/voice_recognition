@@ -1,9 +1,9 @@
 import asyncio
 from typing import List
 
-from infrastructure.az_openai import AzOpenAIClient
-from utils.chunk_splitter import split_token
-from utils.create_prompt import create_prompt
+from app.infrastructure.az_openai import AzOpenAIClient
+from app.utils.chunk_splitter import split_token
+from app.utils.create_prompt import create_prompt
 
 class SummarizeTextService:
     def __init__(self, az_openai_client: AzOpenAIClient, max_tokens: int = 7500, batch_size: int = 5):
