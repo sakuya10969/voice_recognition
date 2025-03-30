@@ -7,8 +7,9 @@ from app.dependencies.az_client import (
     get_az_blob_client,
     get_az_speech_client, 
     get_az_openai_client,
-    get_sp_access
+    get_ms_sharepoint_client
 )
+from app.dependencies.parse_form import parse_transcription_form
 from app.infrastructure.az_blob import AzBlobClient
 from app.infrastructure.az_speech import AzSpeechClient
 from app.infrastructure.az_openai import AzOpenAIClient
@@ -17,7 +18,7 @@ from app.services.task_manager_service import TaskManager
 from app.services.audio.mp4_processor_service import MP4ProcessorService
 from app.services.word_generator_service import WordGeneratorService
 from api.app.usecases.audio_processor_usecase import TranscribeAudioUseCase
-from api.app.models.transcription import Transcribe
+from api.app.models.transcription import Transcription
 from app.utils.file_handler import save_file_temporarily
 
 router = APIRouter()
@@ -27,12 +28,12 @@ class TranscriptionRouter:
     """音声文字起こし関連のルーティングを管理するクラス"""
 
     @staticmethod
-    def get_transcribe_usecase(
+    def get_transcription_usecase(
         request: Request,
         az_blob_client: AzBlobClient = Depends(get_az_blob_client),
         az_speech_client: AzSpeechClient = Depends(get_az_speech_client),
         az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
-        ms_sharepoint_client: MsSharePointClient = Depends(get_sp_access),
+        ms_sharepoint_client: MsSharePointClient = Depends(get_ms_sharepoint_client),
     ) -> TranscribeAudioUseCase:
         """TranscribeAudioUseCaseのインスタンスを生成"""
         task_manager: TaskManager = request.app.state.task_manager
@@ -59,8 +60,8 @@ class TranscriptionRouter:
 async def transcribe(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    site_data: Optional[Transcribe] = None,
-    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcribe_usecase),
+    site_data: Optional[Transcription] = Depends(parse_transcription_form),
+    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcription_usecase),
 ):
     """音声ファイルの文字起こしと要約を非同期で実行"""
     try:
@@ -89,7 +90,7 @@ async def transcribe(
 @router.get("/{task_id}")
 async def get_transcription_status(
     task_id: str,
-    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcribe_usecase)
+    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcription_usecase)
 ):
     """タスクの処理状態と結果を取得"""
     await TranscriptionRouter.validate_task_exists(task_id, usecase.task_manager)

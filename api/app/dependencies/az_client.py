@@ -36,7 +36,7 @@ class AzureClientFactory:
             config.TENANT_ID
         )
 
-# FastAPI dependency injection用の関数
+# FastAPI DI用の関数
 def get_az_blob_client() -> AzBlobClient:
     return AzureClientFactory.create_blob_client()
 
@@ -46,5 +46,5 @@ def get_az_speech_client(request: Request) -> AzSpeechClient:
 def get_az_openai_client() -> AzOpenAIClient:
     return AzureClientFactory.create_openai_client()
 
-def get_sp_access() -> MsSharePointClient:
+def get_ms_sharepoint_client() -> MsSharePointClient:
     return AzureClientFactory.create_sharepoint_client()
