@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks, Request, HTTPException, status
-from fastapi.responses import JSONResponse
 from typing import Optional
 import uuid
 import logging
 
 from app.dependencies.az_client import (
     get_az_blob_client,
-    get_az_speech_client,
+    get_az_speech_client, 
     get_az_openai_client,
     get_sp_access
 )
@@ -24,47 +23,58 @@ from app.utils.file_handler import save_file_temporarily
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-def get_transcribe_usecase(
-    request: Request,
-    blob_client: AzBlobClient = Depends(get_az_blob_client),
-    speech_client: AzSpeechClient = Depends(get_az_speech_client),
-    openai_client: AzOpenAIClient = Depends(get_az_openai_client),
-    sharepoint_client: MsSharePointClient = Depends(get_sp_access),
-) -> TranscribeAudioUseCase:
-    """TranscribeAudioUseCaseの依存性注入"""
-    task_manager: TaskManager = request.app.state.task_manager
-    mp4_processor = MP4ProcessorService()
-    word_generator = WordGeneratorService()
-    
-    return TranscribeAudioUseCase(
-        task_manager=task_manager,
-        mp4_processor=mp4_processor,
-        word_generator=word_generator,
-        blob_client=blob_client,
-        speech_client=speech_client,
-        openai_client=openai_client,
-        sharepoint_client=sharepoint_client
-    )
+class TranscriptionRouter:
+    """音声文字起こし関連のルーティングを管理するクラス"""
+
+    @staticmethod
+    def get_transcribe_usecase(
+        request: Request,
+        az_blob_client: AzBlobClient = Depends(get_az_blob_client),
+        az_speech_client: AzSpeechClient = Depends(get_az_speech_client),
+        az_openai_client: AzOpenAIClient = Depends(get_az_openai_client),
+        ms_sharepoint_client: MsSharePointClient = Depends(get_sp_access),
+    ) -> TranscribeAudioUseCase:
+        """TranscribeAudioUseCaseのインスタンスを生成"""
+        task_manager: TaskManager = request.app.state.task_manager
+        return TranscribeAudioUseCase(
+            task_manager=task_manager,
+            mp4_processor=MP4ProcessorService(),
+            word_generator=WordGeneratorService(),
+            az_blob_client=az_blob_client,
+            az_speech_client=az_speech_client,
+            az_openai_client=az_openai_client,
+            ms_sharepoint_client=ms_sharepoint_client
+        )
+
+    @staticmethod
+    async def validate_task_exists(task_id: str, task_manager: TaskManager) -> None:
+        """タスクの存在確認"""
+        if task_id not in task_manager.status:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="タスクIDが存在しません"
+            )
 
 @router.post("/", status_code=status.HTTP_202_ACCEPTED)
 async def transcribe(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     site_data: Optional[Transcribe] = None,
-    usecase: TranscribeAudioUseCase = Depends(get_transcribe_usecase),
+    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcribe_usecase),
 ):
-    """音声ファイルの文字起こしと要約を非同期で実行するエンドポイント"""
-    task_id = str(uuid.uuid4())
-    site_data_dict = site_data.model_dump() if site_data else None
-
+    """音声ファイルの文字起こしと要約を非同期で実行"""
     try:
+        task_id = str(uuid.uuid4())
+        site_data_dict = site_data.model_dump() if site_data else None
         temp_file_path = await save_file_temporarily(file)
+        
         background_tasks.add_task(
             usecase.execute,
             task_id=task_id,
             site_data=site_data_dict,
             file_path=temp_file_path
         )
+        
         return {
             "task_id": task_id,
             "message": "処理を開始しました"
@@ -79,20 +89,14 @@ async def transcribe(
 @router.get("/{task_id}")
 async def get_transcription_status(
     task_id: str,
-    usecase: TranscribeAudioUseCase = Depends(get_transcribe_usecase)
+    usecase: TranscribeAudioUseCase = Depends(TranscriptionRouter.get_transcribe_usecase)
 ):
-    """タスクの処理状態と結果を取得するエンドポイント"""
-    task_manager = usecase.task_manager
+    """タスクの処理状態と結果を取得"""
+    await TranscriptionRouter.validate_task_exists(task_id, usecase.task_manager)
     
-    if task_id not in task_manager.status:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="タスクIDが存在しません"
-        )
-        
     return {
         "task_id": task_id,
-        "status": task_manager.status[task_id],
-        "transcribed_text": task_manager.transcribed_text[task_id],
-        "summarized_text": task_manager.summarized_text[task_id]
+        "status": usecase.task_manager.status[task_id],
+        "transcribed_text": usecase.task_manager.transcribed_text[task_id],
+        "summarized_text": usecase.task_manager.summarized_text[task_id]
     }
