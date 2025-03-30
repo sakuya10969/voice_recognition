@@ -4,29 +4,32 @@ import aiohttp
 from contextlib import asynccontextmanager
 import logging
 
+from app.core.config import get_config
+from app.dependencies.az_client_factory import AzClientFactory
 from app.services.task_manager_service import TaskManager
 from app.routers import transcription_router, sharepoint_router
 
-# ロガー設定
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """アプリケーションのライフサイクル管理"""
+    config = get_config()
     session = aiohttp.ClientSession()
+    az_client_factory = AzClientFactory(config=config, session=session)
+
+    app.state.config = config
     app.state.session = session
     app.state.task_manager = TaskManager()
+    app.state.az_client_factory = az_client_factory
+
     yield
     await session.close()
 
-# FastAPIアプリケーションの設定
 app = FastAPI(lifespan=lifespan)
 
-# CORSミドルウェアの設定
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,6 +38,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ルーターの登録
 app.include_router(transcription_router.router)
 app.include_router(sharepoint_router.router)
