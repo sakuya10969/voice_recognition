@@ -1,6 +1,6 @@
 import uuid
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from fastapi import BackgroundTasks, UploadFile, File, Depends, HTTPException, status, Request
 
@@ -18,61 +18,64 @@ from app.utils.file_handler import save_file_temporarily
 
 logger = logging.getLogger(__name__)
 
-def get_transcription_usecase(request: Request) -> TranscribeAudioUseCase:
-    """TranscribeAudioUseCaseのインスタンスを生成"""
-    task_manager: TaskManager = request.app.state.task_manager
-    az_blob_client: AzBlobClient = request.app.state.az_client_factory.create_az_blob_client()
-    az_speech_client: AzSpeechClient = request.app.state.az_client_factory.create_az_speech_client()
-    az_openai_client: AzOpenAIClient = request.app.state.az_client_factory.create_az_openai_client()
-    ms_sharepoint_client: MsSharePointClient = request.app.state.az_client_factory.create_ms_sharepoint_client()
-
+def _create_transcription_usecase(request: Request) -> TranscribeAudioUseCase:
+    """TranscribeAudioUseCaseのインスタンスを生成する"""
+    az_client_factory = request.app.state.az_client_factory
     return TranscribeAudioUseCase(
-        task_manager=task_manager,
+        task_manager=request.app.state.task_manager,
         mp4_processor=MP4ProcessorService(),
         word_generator=WordGeneratorService(),
-        az_blob_client=az_blob_client,
-        az_speech_client=az_speech_client,
-        az_openai_client=az_openai_client,
-        ms_sharepoint_client=ms_sharepoint_client
+        az_blob_client=az_client_factory.create_az_blob_client(),
+        az_speech_client=az_client_factory.create_az_speech_client(),
+        az_openai_client=az_client_factory.create_az_openai_client(),
+        ms_sharepoint_client=az_client_factory.create_ms_sharepoint_client()
     )
+
+async def _handle_transcription_operation(operation_name: str, operation: callable) -> Dict[str, Any]:
+    """文字起こし操作の共通エラーハンドリング"""
+    try:
+        return await operation()
+    except Exception as e:
+        logger.error(f"{operation_name}に失敗: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{operation_name}に失敗しました: {str(e)}"
+        )
 
 async def transcribe(
     request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     site_data: Optional[Transcription] = Depends(parse_transcription_form),
-):
+) -> Dict[str, str]:
     """音声ファイルの文字起こしと要約を非同期で実行"""
-    usecase = get_transcription_usecase(request)
-
-    try:
+    usecase = _create_transcription_usecase(request)
+    
+    async def start_transcription():
         task_id = str(uuid.uuid4())
         site_data_dict = site_data.model_dump() if site_data else None
         temp_file_path = await save_file_temporarily(file)
-
+        
         background_tasks.add_task(
             usecase.execute,
             task_id=task_id,
             site_data=site_data_dict,
             file_path=temp_file_path
         )
-
+        
         return {
             "task_id": task_id,
             "message": "処理を開始しました"
         }
-    except Exception as e:
-        logger.error(f"音声処理の開始に失敗: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"処理の開始に失敗しました: {str(e)}"
-        )
+    
+    return await _handle_transcription_operation("音声処理の開始", start_transcription)
 
-async def get_transcription_status(request: Request, task_id: str):
+async def get_transcription_status(request: Request, task_id: str) -> Dict[str, Any]:
     """タスクの処理状態と結果を取得"""
-    usecase = get_transcription_usecase(request)
+    usecase = _create_transcription_usecase(request)
+    task_manager = usecase.task_manager
 
-    if task_id not in usecase.task_manager.status:
+    if task_id not in task_manager.status:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="タスクIDが存在しません"
@@ -80,7 +83,7 @@ async def get_transcription_status(request: Request, task_id: str):
 
     return {
         "task_id": task_id,
-        "status": usecase.task_manager.status[task_id],
-        "transcribed_text": usecase.task_manager.transcribed_text[task_id],
-        "summarized_text": usecase.task_manager.summarized_text[task_id]
+        "status": task_manager.status[task_id],
+        "transcribed_text": task_manager.transcribed_text[task_id],
+        "summarized_text": task_manager.summarized_text[task_id]
     }
