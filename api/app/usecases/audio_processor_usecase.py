@@ -27,8 +27,8 @@ class AudioProcessorUseCase:
     ):
         self._task_manager = task_manager
         self._audio_processor = AudioProcessorService(
-            speech_client=az_speech_client,
-            blob_client=az_blob_client,
+            az_speech_client=az_speech_client,
+            az_blob_client=az_blob_client,
             mp4_processor=mp4_processor,
             transcription_service=TranscribeAudioService(az_speech_client)
         )
