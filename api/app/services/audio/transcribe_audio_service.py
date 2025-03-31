@@ -6,7 +6,7 @@ from app.infrastructure.az_speech import AzSpeechClient
 
 logger = logging.getLogger(__name__)
 
-class TranscrbeAudioService:
+class TranscribeAudioService:
     """音声文字起こしを行うサービス"""
     
     def __init__(self, az_speech_client: AzSpeechClient):

@@ -8,7 +8,7 @@ from app.infrastructure.ms_sharepoint import MsSharePointClient
 from app.infrastructure.az_blob import AzBlobClient
 from app.infrastructure.az_speech import AzSpeechClient
 from app.services.audio.mp4_processor_service import MP4ProcessorService
-from app.services.audio.transcribe_audio_service import TranscrbeAudioService
+from app.services.audio.transcribe_audio_service import TranscribeAudioService
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class TranscribeAudioUseCase:
             speech_client=az_speech_client,
             blob_client=az_blob_client,
             mp4_processor=mp4_processor,
-            transcription_service=TranscrbeAudioService(az_speech_client)
+            transcription_service=TranscribeAudioService(az_speech_client)
         )
         self._word_generator = word_generator
         self._openai_client = az_openai_client
