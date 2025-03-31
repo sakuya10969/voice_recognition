@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import patch
+
 from app.services.summarize_text_service import SummarizeTextService
-from tests.mocks.az_client_mock import MockAzOpenAIClient
+from tests.mocks.mock_az_client import MockAzOpenAIClient
 
 class TestSummarizeTextService:
     @pytest.fixture

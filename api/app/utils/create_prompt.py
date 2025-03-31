@@ -1,4 +1,4 @@
-def create_summary_prompt(chunk: str) -> list[dict]:
+def create_prompt(chunk: str) -> list[dict]:
     return [
             {
                 "role": "system",

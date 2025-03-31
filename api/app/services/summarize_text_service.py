@@ -11,7 +11,7 @@ class SummarizeTextService:
         self.max_tokens = max_tokens
         self.batch_size = batch_size
 
-    async def summarize(self, text: str) -> str:
+    async def summarize_text(self, text: str) -> str:
         """テキストを要約する"""
         chunks = self._split_text_chunks(text)
         chunk_summaries = await self._summarize_chunks(chunks)
@@ -40,7 +40,7 @@ class SummarizeTextService:
 
     async def _process_batch(self, batch: List[List[dict]]) -> List[str]:
         """バッチ単位で要約を実行する"""
-        tasks = [self._az_openai_client.fetch_summary(prompt) for prompt in batch]
+        tasks = [self._az_openai_client.get_summary(prompt) for prompt in batch]
         results = await asyncio.gather(*tasks, return_exceptions=True)
         return [r for r in results if isinstance(r, str)]
 
@@ -48,4 +48,4 @@ class SummarizeTextService:
         """チャンク要約を結合して最終的な要約を生成する"""
         combined_text = "\n".join(chunk_summaries)
         final_prompt = create_prompt(combined_text)
-        return await self._az_openai_client.fetch_summary(final_prompt)
+        return await self._az_openai_client.get_summary(final_prompt)

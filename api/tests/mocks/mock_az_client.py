@@ -65,7 +65,7 @@ class MockAzOpenAIClient(BaseMockClient):
     def __init__(self, response: Optional[MockAzOpenAIResponse] = None):
         super().__init__(response or MockAzOpenAIResponse())
     def _setup_mock_methods(self) -> None:
-        self.fetch_summary = AsyncMock(return_value=self._response.summary)
+        self.get_summary = AsyncMock(return_value=self._response.summary)
         self.summarize_text = AsyncMock(return_value=self._response.summary)
 
 class MockMsSharePointClient(BaseMockClient):

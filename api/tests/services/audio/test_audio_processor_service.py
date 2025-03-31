@@ -1,10 +1,11 @@
 import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
+
 from app.services.audio.audio_processor_service import AudioProcessorService
 from app.services.audio.mp4_processor_service import MP4ProcessorService
 from app.services.audio.transcribe_audio_service import TranscribeAudioService
-from tests.mocks.az_client_mock import MockAzSpeechClient, MockAzBlobClient
+from tests.mocks.mock_az_client import MockAzSpeechClient, MockAzBlobClient
 
 class TestAudioProcessorService:
     @pytest.fixture
@@ -73,15 +74,15 @@ class TestAudioProcessorService:
         assert exc_info.value.status_code == 500
 
     @pytest.mark.asyncio
-    async def test_process_audio_transcribe_fail(self, mock_speech_client, mock_blob_client, mock_mp4_processor):
+    async def test_process_audio_transcribe_fail(self, mock_az_speech_client, mock_az_blob_client, mock_mp4_processor):
         """異常系: 文字起こしが失敗するケース"""
         # モックの設定
         mock_transcribe_service = MagicMock(spec=TranscribeAudioService)
         mock_transcribe_service.transcribe.side_effect = Exception("transcribe error")
 
         service = AudioProcessorService(
-            az_speech_client=mock_speech_client,
-            az_blob_client=mock_blob_client,
+            az_speech_client=mock_az_speech_client,
+            az_blob_client=mock_az_blob_client,
             mp4_processor=mock_mp4_processor,
             transcription_service=mock_transcribe_service
         )

@@ -2,8 +2,9 @@ import pytest
 import tempfile
 import os
 import subprocess
-from app.services.audio.mp4_processor_service import MP4ProcessorService
 from fastapi import HTTPException
+
+from app.services.audio.mp4_processor_service import MP4ProcessorService
 
 class TestMP4ProcessorService:
     @pytest.fixture

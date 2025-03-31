@@ -50,7 +50,7 @@ class AudioProcessorService:
     async def transcribe_audio(self, blob_url: str) -> str:
         """音声ファイルを文字起こしする"""
         try:
-            return await self.transcription_service.transcribe(blob_url)
+            return await self.transcription_service.transcribe_audio(blob_url)
 
         except Exception as e:
             logger.error(f"文字起こしに失敗: {str(e)}")

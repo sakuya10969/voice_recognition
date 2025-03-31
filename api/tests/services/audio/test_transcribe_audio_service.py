@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from fastapi import HTTPException
 
 from app.services.audio.transcribe_audio_service import TranscribeAudioService
-from tests.mocks.az_client_mock import MockAzSpeechClient
+from tests.mocks.mock_az_client import MockAzSpeechClient
 
 class TestTranscribeAudioService:
     @pytest.fixture
@@ -22,7 +22,7 @@ class TestTranscribeAudioService:
     async def test_transcribe_success(self, service, mock_az_speech_client, test_blob_url):
         """正常系: 文字起こしが成功するケース"""
         # 実行
-        result = await service.transcribe(test_blob_url)
+        result = await service.transcribe_audio(test_blob_url)
 
         # 検証
         assert result == "これはテスト用の文字起こしテキストです。"
@@ -40,7 +40,7 @@ class TestTranscribeAudioService:
 
         # 実行と検証
         with pytest.raises(HTTPException) as exc_info:
-            await service.transcribe(test_blob_url)
+            await service.transcribe_audio(test_blob_url)
 
         assert exc_info.value.status_code == 500
         assert "文字起こしジョブが失敗しました" in exc_info.value.detail
@@ -54,7 +54,7 @@ class TestTranscribeAudioService:
 
         # 実行と検証
         with pytest.raises(HTTPException) as exc_info:
-            await service.transcribe(test_blob_url)
+            await service.transcribe_audio(test_blob_url)
 
         assert exc_info.value.status_code == 500
         assert "コンテンツURLを取得できませんでした" in exc_info.value.detail

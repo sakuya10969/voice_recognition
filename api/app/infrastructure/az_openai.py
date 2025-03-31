@@ -19,7 +19,7 @@ class AzOpenAIClient:
         )
         self.semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def fetch_summary(self, prompt_messages: List[Dict[str, Any]]) -> str:
+    async def get_summary(self, prompt_messages: List[Dict[str, Any]]) -> str:
         """要約を取得する"""
         async with self.semaphore:
             try:
