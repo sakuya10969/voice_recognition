@@ -8,8 +8,8 @@ interface TranscriptionResponse {
     summarized_text?: string;
 }
 
-// const apiUrl = "http://127.0.0.1:8000";
-const apiUrl = "https://ca-vr-dev-010.politecoast-4904dd91.eastasia.azurecontainerapps.io";
+const apiUrl = "http://127.0.0.1:8000";
+// const apiUrl = "https://ca-vr-dev-010.politecoast-4904dd91.eastasia.azurecontainerapps.io";
 
 const fetcher = async (url: string) => {
     const response = await axios.get(url);
@@ -45,7 +45,7 @@ export const handleSendAudio = async (
             formData.append("file", file);
         }
         // タスクIDを取得
-        const response = await axios.post<{ task_id: string; message: string }>(`${apiUrl}/transcribe`, formData, {
+        const response = await axios.post<{ task_id: string; message: string }>(`${apiUrl}/transcription`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
         const taskId = response.data.task_id;
@@ -66,7 +66,7 @@ const pollTranscriptionStatus = async (taskId: string): Promise<{ transcribed_te
     return new Promise((resolve, reject) => {
         const interval = setInterval(async () => {
             try {
-                const statusResponse = await axios.get<TranscriptionResponse>(`${apiUrl}/transcribe/${taskId}`, {
+                const statusResponse = await axios.get<TranscriptionResponse>(`${apiUrl}/transcription/${taskId}`, {
                     headers: { "Cache-Control": "no-cache, no-store, must-revalidate" }
                 });
                 console.log("APIレスポンス:", statusResponse.data);
