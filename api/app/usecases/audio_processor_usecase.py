@@ -33,8 +33,8 @@ class AudioProcessorUseCase:
             transcription_service=TranscribeAudioService(az_speech_client)
         )
         self._word_generator = word_generator
-        self._openai_client = az_openai_client
-        self._sharepoint_client = ms_sharepoint_client
+        self._az_openai_client = az_openai_client
+        self._ms_sharepoint_client = ms_sharepoint_client
 
     async def execute(
         self,
@@ -65,7 +65,7 @@ class AudioProcessorUseCase:
     async def _process_audio_transcription(self, task_id: str, file_path: str) -> None:
         """音声処理と文字起こし、要約を実行"""
         transcribed_text = await self._audio_processor.process_audio(file_path)
-        summarized_text = await self._openai_client.summarize_text(transcribed_text)
+        summarized_text = await self._az_openai_client.summarize_text(transcribed_text)
         self._task_manager.complete_task(task_id, transcribed_text, summarized_text)
 
     async def _handle_word_document(self, site_data: Dict[str, Any]) -> None:
@@ -75,7 +75,7 @@ class AudioProcessorUseCase:
             self._task_manager.summarized_text
         )
         try:
-            await self._sharepoint_client.upload_file(
+            await self._ms_sharepoint_client.upload_file(
                 site_data["site"],
                 site_data["directory"],
                 word_file_path
