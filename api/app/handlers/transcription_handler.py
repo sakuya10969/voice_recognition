@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import BackgroundTasks, UploadFile, File, Depends, HTTPException, status, Request
 
 from app.models.transcription import Transcription
-from app.dependencies.parse_form import parse_transcription_form
+from app.di.parse_form import parse_transcription_form
 from app.usecases.audio_processor_usecase import TranscribeAudioUseCase
 from app.services.task_manager_service import TaskManager
 from app.infrastructure.az_blob import AzBlobClient
