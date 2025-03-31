@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 import os
 from docx import Document
 from app.services.word_generator_service import WordGeneratorService
