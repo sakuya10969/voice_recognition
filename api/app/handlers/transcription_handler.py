@@ -7,11 +7,6 @@ from fastapi import BackgroundTasks, UploadFile, File, Depends, HTTPException, s
 from app.models.transcription import Transcription
 from app.di.parse_form import parse_transcription_form
 from app.usecases.audio_processor_usecase import AudioProcessorUseCase
-from app.services.task_manager_service import TaskManager
-from app.infrastructure.az_blob import AzBlobClient
-from app.infrastructure.az_speech import AzSpeechClient
-from app.infrastructure.az_openai import AzOpenAIClient
-from app.infrastructure.ms_sharepoint import MsSharePointClient
 from app.services.audio.mp4_processor_service import MP4ProcessorService
 from app.services.word_generator_service import WordGeneratorService
 from app.utils.file_handler import save_file_temporarily
@@ -72,8 +67,7 @@ async def transcribe(
 
 async def get_transcription_status(request: Request, task_id: str) -> Dict[str, Any]:
     """タスクの処理状態と結果を取得"""
-    usecase = _create_transcription_usecase(request)
-    task_manager = usecase.task_manager
+    task_manager = request.app.state.task_manager
 
     if task_id not in task_manager.status:
         raise HTTPException(
