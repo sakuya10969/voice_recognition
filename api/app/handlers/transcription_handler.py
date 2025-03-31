@@ -6,7 +6,7 @@ from fastapi import BackgroundTasks, UploadFile, File, Depends, HTTPException, s
 
 from app.models.transcription import Transcription
 from app.di.parse_form import parse_transcription_form
-from app.usecases.audio_processor_usecase import TranscribeAudioUseCase
+from app.usecases.audio_processor_usecase import AudioProcessorUseCase
 from app.services.task_manager_service import TaskManager
 from app.infrastructure.az_blob import AzBlobClient
 from app.infrastructure.az_speech import AzSpeechClient
@@ -18,10 +18,10 @@ from app.utils.file_handler import save_file_temporarily
 
 logger = logging.getLogger(__name__)
 
-def _create_transcription_usecase(request: Request) -> TranscribeAudioUseCase:
+def _create_transcription_usecase(request: Request) -> AudioProcessorUseCase:
     """TranscribeAudioUseCaseのインスタンスを生成する"""
     az_client_factory = request.app.state.az_client_factory
-    return TranscribeAudioUseCase(
+    return AudioProcessorUseCase(
         task_manager=request.app.state.task_manager,
         mp4_processor=MP4ProcessorService(),
         word_generator=WordGeneratorService(),
