@@ -15,19 +15,19 @@ class AudioProcessingService:
         self,
         az_speech_client: AzSpeechClient,
         az_blob_client: AzBlobClient,
-        mp4_processor: MP4ProcessingService,
-        transcription_service: AudioTranscriptionService
+        mp4_processing_service: MP4ProcessingService,
+        audio_transcription_service: AudioTranscriptionService
     ):
         self.az_speech_client = az_speech_client
         self.az_blob_client = az_blob_client
-        self.mp4_processor = mp4_processor
-        self.transcription_service = transcription_service
+        self.mp4_processing_service = mp4_processing_service
+        self.audio_transcription_service = audio_transcription_service
 
     async def process_audio_file(self, file_path: str) -> Dict[str, Any]:
         """音声ファイルを処理し、Blobストレージにアップロードする"""
         try:
             # MP4の処理
-            processed_data = await self.mp4_processor.process_mp4(file_path)
+            processed_data = await self.mp4_processing_service.process_mp4(file_path)
             
             # Blobへのアップロード
             blob_url = await self.az_blob_client.upload_blob(
@@ -50,7 +50,7 @@ class AudioProcessingService:
     async def transcribe_audio(self, blob_url: str) -> str:
         """音声ファイルを文字起こしする"""
         try:
-            return await self.transcription_service.transcribe_audio(blob_url)
+            return await self.audio_transcription_service.transcribe_audio(blob_url)
 
         except Exception as e:
             logger.error(f"文字起こしに失敗: {str(e)}")

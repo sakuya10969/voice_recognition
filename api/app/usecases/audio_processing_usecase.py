@@ -32,8 +32,8 @@ class AudioProcessingUseCase:
         self._audio_processing_service = AudioProcessingService(
             az_speech_client=az_speech_client,
             az_blob_client=az_blob_client,
-            mp4_processor=mp4_processing_service,
-            transcription_service=AudioTranscriptionService(az_speech_client)
+            mp4_processing_service=mp4_processing_service,
+            audio_transcription_service=AudioTranscriptionService(az_speech_client)
         )
         self._text_summarization_service = TextSummarizationService(
             az_openai_client=az_openai_client,
