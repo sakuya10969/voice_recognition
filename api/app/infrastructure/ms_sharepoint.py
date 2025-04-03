@@ -2,6 +2,7 @@ import msal
 import requests
 from functools import cache
 from typing import Optional, Dict, Any
+from pathlib import Path
 
 class MsSharePointClient:
     def __init__(self, client_id: str, client_secret: str, tenant_id: str):
@@ -33,7 +34,6 @@ class MsSharePointClient:
         if self.access_token is None:
             raise ValueError("アクセストークンが設定されていません")
 
-    # Graph APIを使用してデータを取得する汎用GETメソッド
     @cache
     def graph_api_get(self, endpoint: str) -> Optional[requests.Response]:
         """Graph APIのGETリクエストを実行"""
@@ -110,14 +110,12 @@ class MsSharePointClient:
         """指定フォルダ内のサブフォルダ一覧を取得"""
         return self.get_folders(site_id, folder_id)
 
-    def upload_file(self, target_site_id: str, folder_id: str, object_file_path: str) -> Dict[str, Any]:
+    def upload_file(self, target_site_id: str, folder_id: str, file_path: Path) -> None:
         """ファイルをアップロード"""
         if not folder_id:
-            return {"error": "Folder not found"}
+            raise ValueError("フォルダが見つかりません")
 
-        url = f"https://graph.microsoft.com/v1.0/sites/{target_site_id}/drive/items/{folder_id}:/{object_file_path.name}:/content"
+        url = f"https://graph.microsoft.com/v1.0/sites/{target_site_id}/drive/items/{folder_id}:/{file_path.name}:/content"
         
-        with open(object_file_path, "rb") as f:
-            response = self.graph_api_put(url, f)
-        
-        return response.json()
+        with open(file_path, "rb") as f:
+            self.graph_api_put(url, f)
