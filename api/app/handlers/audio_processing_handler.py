@@ -29,7 +29,7 @@ class TranscriptionStatusResponse:
     summarized_text: Optional[str]
 
 def _create_audio_usecase(request: Request) -> AudioProcessingUseCase:
-    """TranscribeAudioUseCaseのインスタンスを生成する"""
+    """AudioProcessingUseCaseのインスタンスを生成する"""
     az_client_factory = request.app.state.az_client_factory
     return AudioProcessingUseCase(
         task_managing_service=request.app.state.task_managing_service,
