@@ -34,5 +34,4 @@ class AzClientFactory:
             client_id=self.config.CLIENT_ID,
             client_secret=self.config.CLIENT_SECRET,
             tenant_id=self.config.TENANT_ID,
-            session=self.session
         )

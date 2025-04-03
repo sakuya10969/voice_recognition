@@ -6,7 +6,7 @@ import logging
 
 from app.config.get_config import get_config
 from app.infrastructure.az_client_factory import AzClientFactory
-from api.app.services.task_managing_service import TaskManager
+from app.services.task_managing_service import TaskManagingService
 from app.routers import audio_processing_router
 from app.routers import sharepoint_router
 
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     try:
         app.state.config = get_config()
         app.state.session = session
-        app.state.task_manager = TaskManager()
+        app.state.task_managing_service = TaskManagingService()
         app.state.az_client_factory = AzClientFactory(
             config=app.state.config,
             session=session

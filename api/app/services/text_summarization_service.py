@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 
 from app.infrastructure.az_openai import AzOpenAIClient
-from api.app.utils.token_chunking import split_token
+from app.utils.token_chunking import split_token
 from app.utils.prompt_generating import generate_prompt
 
 class TextSummarizationService:
