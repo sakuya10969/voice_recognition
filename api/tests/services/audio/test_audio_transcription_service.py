@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from app.services.audio.audio_transcription_service import AudioTranscriptionService
 from tests.mocks.mock_az_client import MockAzSpeechClient
 
-class TestTranscribeAudioService:
+class TestAudioTranscriptionService:
     @pytest.fixture
     def mock_az_speech_client(self):
         """Azure Speech Clientのモックを提供するフィクスチャ"""
