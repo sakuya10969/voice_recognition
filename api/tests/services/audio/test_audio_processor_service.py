@@ -50,7 +50,7 @@ class TestAudioProcessorService:
         assert result == "これはテスト用の文字起こしテキストです。"
         mock_mp4_processor.process_mp4.assert_awaited_once()
         mock_az_blob_client.upload_blob.assert_awaited_once()
-        mock_transcribe_service.transcribe.assert_awaited_once()
+        mock_transcribe_service.transcribe_audio.assert_awaited_once()
         mock_az_blob_client.delete_blob.assert_awaited_once()
 
     @pytest.mark.asyncio
@@ -78,7 +78,7 @@ class TestAudioProcessorService:
         """異常系: 文字起こしが失敗するケース"""
         # モックの設定
         mock_transcribe_service = MagicMock(spec=TranscribeAudioService)
-        mock_transcribe_service.transcribe.side_effect = Exception("transcribe error")
+        mock_transcribe_service.transcribe_audio.side_effect = Exception("transcribe error")
 
         service = AudioProcessorService(
             az_speech_client=mock_az_speech_client,

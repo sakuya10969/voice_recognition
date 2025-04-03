@@ -42,7 +42,7 @@ class MockAzSpeechClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.create_transcription_job = AsyncMock(return_value=self._response.job_id)
-        self.get_transcription_status = AsyncMock(side_effect=["Running", "Succeeded"])
+        self.get_transcription_status = AsyncMock(side_effect=["Processing", "Completed", "Failed"])
         self.get_transcription_result = AsyncMock(
             return_value={"contentUrls": {"contentUrl": self._response.content_url}}
         )
@@ -57,7 +57,6 @@ class MockAzBlobClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.upload_blob = AsyncMock(return_value=self._response.blob_url)
-        self.get_blob_url = AsyncMock(return_value=self._response.audio_url)
         self.delete_blob = AsyncMock(return_value=True)
 
 class MockAzOpenAIClient(BaseMockClient):

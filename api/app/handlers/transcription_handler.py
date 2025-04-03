@@ -37,7 +37,7 @@ async def _handle_transcription_operation(operation_name: str, operation: callab
             detail=f"{operation_name}に失敗しました: {str(e)}"
         )
 
-async def transcribe(
+async def transcribe_audio(
     request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
