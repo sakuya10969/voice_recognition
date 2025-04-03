@@ -13,7 +13,7 @@ from app.services.audio.audio_transcription_service import AudioTranscriptionSer
 
 logger = logging.getLogger(__name__)
 
-class AudioProcessorUseCase:
+class AudioProcessingUseCase:
     """音声文字起こしのユースケース"""
     
     def __init__(

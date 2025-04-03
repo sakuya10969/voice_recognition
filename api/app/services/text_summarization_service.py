@@ -2,8 +2,8 @@ import asyncio
 from typing import List
 
 from app.infrastructure.az_openai import AzOpenAIClient
-from app.utils.chunk_splitter import split_token
-from app.utils.create_prompt import create_prompt
+from api.app.utils.token_chunking import split_token
+from app.utils.prompt_generating import generate_prompt
 
 class TextSummarizationService:
     def __init__(self, az_openai_client: AzOpenAIClient, max_tokens: int = 7500, batch_size: int = 5):
@@ -26,7 +26,7 @@ class TextSummarizationService:
 
     async def _summarize_chunks(self, chunks: List[str]) -> List[str]:
         """各チャンクを要約する"""
-        prompts = [create_prompt(chunk) for chunk in chunks]
+        prompts = [generate_prompt(chunk) for chunk in chunks]
         return await self._process_batches(prompts)
 
     async def _process_batches(self, prompts: List[List[dict]]) -> List[str]:
@@ -47,5 +47,5 @@ class TextSummarizationService:
     async def _create_final_summary(self, chunk_summaries: List[str]) -> str:
         """チャンク要約を結合して最終的な要約を生成する"""
         combined_text = "\n".join(chunk_summaries)
-        final_prompt = create_prompt(combined_text)
+        final_prompt = generate_prompt(combined_text)
         return await self._az_openai_client.get_summary(final_prompt)

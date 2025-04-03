@@ -1,4 +1,4 @@
-def create_prompt(chunk: str) -> list[dict]:
+def generate_prompt(chunk: str) -> list[dict]:
     return [
             {
                 "role": "system",
