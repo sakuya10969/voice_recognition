@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock
 from fastapi import HTTPException
 
-from api.app.services.audio.audio_transcription_service import TranscribeAudioService
+from app.services.audio.audio_transcription_service import AudioTranscriptionService
 from tests.mocks.mock_az_client import MockAzSpeechClient
 
 class TestTranscribeAudioService:
@@ -12,7 +12,7 @@ class TestTranscribeAudioService:
 
     @pytest.fixture
     def service(self, mock_az_speech_client):
-        return TranscribeAudioService(mock_az_speech_client)
+        return AudioTranscriptionService(mock_az_speech_client)
 
     @pytest.fixture
     def test_blob_url(self):
@@ -36,7 +36,7 @@ class TestTranscribeAudioService:
         """異常系: 文字起こしジョブが失敗するケース"""
         # モックの設定
         mock_az_speech_client.get_transcription_status = AsyncMock(side_effect=["Running", "Failed"])
-        service = TranscribeAudioService(mock_az_speech_client)
+        service = AudioTranscriptionService(mock_az_speech_client)
 
         # 実行と検証
         with pytest.raises(HTTPException) as exc_info:
@@ -50,7 +50,7 @@ class TestTranscribeAudioService:
         """異常系: コンテンツURLが取得できないケース"""
         # モックの設定
         mock_az_speech_client.get_transcription_result = AsyncMock(return_value={})
-        service = TranscribeAudioService(mock_az_speech_client)
+        service = AudioTranscriptionService(mock_az_speech_client)
 
         # 実行と検証
         with pytest.raises(HTTPException) as exc_info:

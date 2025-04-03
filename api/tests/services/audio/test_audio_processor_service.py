@@ -2,12 +2,12 @@ import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
 
-from api.app.services.audio.audio_processing_service import AudioProcessorService
-from api.app.services.audio.mp4_processing_service import MP4ProcessorService
-from api.app.services.audio.audio_transcription_service import TranscribeAudioService
+from app.services.audio.audio_processing_service import AudioProcessingService
+from app.services.audio.mp4_processing_service import MP4ProcessingService
+from app.services.audio.audio_transcription_service import AudioTranscriptionService
 from tests.mocks.mock_az_client import MockAzSpeechClient, MockAzBlobClient
 
-class TestAudioProcessorService:
+class TestAudioProcessingService:
     @pytest.fixture
     def mock_az_blob_client(self):
         return MockAzBlobClient()
@@ -17,54 +17,72 @@ class TestAudioProcessorService:
         return MockAzSpeechClient()
 
     @pytest.fixture
-    def mock_mp4_processor(self):
-        processor = MagicMock(spec=MP4ProcessorService)
-        processor.process_mp4.return_value = {
+    def mock_mp4_processing_service(self):
+        mock_mp4_processing_service = MagicMock(spec=MP4ProcessingService)
+        mock_mp4_processing_service.process_mp4.return_value = {
             "file_name": "audio.wav",
             "file_data": b"fake-data"
         }
-        return processor
+        return mock_mp4_processing_service
 
     @pytest.fixture
-    def mock_transcribe_service(self):
-        service = MagicMock(spec=TranscribeAudioService)
-        service.transcribe.return_value = "これはテスト用の文字起こしテキストです。"
-        return service
+    def mock_audio_transcription_service(self):
+        mock_audio_transcription_service = MagicMock(spec=AudioTranscriptionService)
+        mock_audio_transcription_service.transcribe_audio.return_value = "これはテスト用の文字起こしテキストです。"
+        return mock_audio_transcription_service
 
     @pytest.fixture
-    def service(self, mock_az_speech_client, mock_az_blob_client, mock_mp4_processor, mock_transcribe_service):
-        return AudioProcessorService(
+    def mock_audio_processing_service(
+        self, 
+        mock_az_speech_client, 
+        mock_az_blob_client, 
+        mock_mp4_processing_service, 
+        mock_audio_transcription_service
+        ):
+        return AudioProcessingService(
             az_speech_client=mock_az_speech_client,
             az_blob_client=mock_az_blob_client,
-            mp4_processor=mock_mp4_processor,
-            transcription_service=mock_transcribe_service
+            mp4_processing_service=mock_mp4_processing_service,
+            audio_transcription_service=mock_audio_transcription_service
         )
 
     @pytest.mark.asyncio
-    async def test_process_audio_success(self, service, mock_az_blob_client, mock_mp4_processor, mock_transcribe_service):
+    async def test_process_audio_success(
+        self, 
+        mock_audio_processing_service, 
+        mock_az_blob_client, 
+        mock_mp4_processing_service, 
+        mock_audio_transcription_service
+        ):
         """正常系: 音声処理が成功するケース"""
         # 実行
-        result = await service.process_audio("dummy/path/to/audio.mp4")
+        result = await mock_audio_processing_service.process_audio("dummy/path/to/audio.mp4")
 
         # 検証
         assert result == "これはテスト用の文字起こしテキストです。"
-        mock_mp4_processor.process_mp4.assert_awaited_once()
+        mock_mp4_processing_service.process_mp4.assert_awaited_once()
         mock_az_blob_client.upload_blob.assert_awaited_once()
-        mock_transcribe_service.transcribe_audio.assert_awaited_once()
+        mock_audio_transcription_service.transcribe_audio.assert_awaited_once()
         mock_az_blob_client.delete_blob.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_process_audio_mp4_fail(self, mock_az_speech_client, mock_az_blob_client, mock_mp4_processor, mock_transcribe_service):
+    async def test_process_audio_mp4_fail(
+        self, 
+        mock_az_speech_client, 
+        mock_az_blob_client, 
+        mock_mp4_processing_service, 
+        mock_audio_transcription_service
+        ):
         """異常系: MP4処理が失敗するケース"""
         # モックの設定
-        mock_mp4_processor = MagicMock(spec=MP4ProcessorService)
-        mock_mp4_processor.process_mp4.side_effect = Exception("mp4 error")
+        mock_mp4_processing_service = MagicMock(spec=MP4ProcessingService)
+        mock_mp4_processing_service.process_mp4.side_effect = Exception("mp4 error")
         
-        service = AudioProcessorService(
+        service = AudioProcessingService(
             az_speech_client=mock_az_speech_client,
             az_blob_client=mock_az_blob_client,
-            mp4_processor=mock_mp4_processor,
-            transcription_service=mock_transcribe_service
+            mp4_processing_service=mock_mp4_processing_service,
+            audio_transcription_service=mock_audio_transcription_service
         )
 
         # 実行と検証
@@ -74,17 +92,23 @@ class TestAudioProcessorService:
         assert exc_info.value.status_code == 500
 
     @pytest.mark.asyncio
-    async def test_process_audio_transcribe_fail(self, mock_az_speech_client, mock_az_blob_client, mock_mp4_processor):
+    async def test_process_audio_transcribe_fail(
+        self, 
+        mock_az_speech_client, 
+        mock_az_blob_client, 
+        mock_mp4_processing_service, 
+        mock_audio_transcription_service
+        ):
         """異常系: 文字起こしが失敗するケース"""
         # モックの設定
-        mock_transcribe_service = MagicMock(spec=TranscribeAudioService)
-        mock_transcribe_service.transcribe_audio.side_effect = Exception("transcribe error")
+        mock_audio_transcription_service = MagicMock(spec=AudioTranscriptionService)
+        mock_audio_transcription_service.transcribe_audio.side_effect = Exception("transcribe error")
 
-        service = AudioProcessorService(
+        service = AudioProcessingService(
             az_speech_client=mock_az_speech_client,
             az_blob_client=mock_az_blob_client,
-            mp4_processor=mock_mp4_processor,
-            transcription_service=mock_transcribe_service
+            mp4_processing_service=mock_mp4_processing_service,
+            audio_transcription_service=mock_audio_transcription_service
         )
 
         # 実行と検証
