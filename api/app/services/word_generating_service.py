@@ -9,7 +9,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-class WordGeneratorService:
+class WordGeneratingService:
     """Word文書の生成を行うサービス"""
 
     def __init__(self):

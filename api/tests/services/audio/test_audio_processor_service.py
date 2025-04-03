@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
 
-from app.services.audio.audio_processor_service import AudioProcessorService
-from app.services.audio.mp4_processor_service import MP4ProcessorService
-from app.services.audio.transcribe_audio_service import TranscribeAudioService
+from api.app.services.audio.audio_processing_service import AudioProcessorService
+from api.app.services.audio.mp4_processing_service import MP4ProcessorService
+from api.app.services.audio.audio_transcription_service import TranscribeAudioService
 from tests.mocks.mock_az_client import MockAzSpeechClient, MockAzBlobClient
 
 class TestAudioProcessorService:

@@ -4,7 +4,7 @@ import os
 import subprocess
 from fastapi import HTTPException
 
-from app.services.audio.mp4_processor_service import MP4ProcessorService
+from api.app.services.audio.mp4_processing_service import MP4ProcessorService
 
 class TestMP4ProcessorService:
     @pytest.fixture

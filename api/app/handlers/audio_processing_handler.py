@@ -6,14 +6,14 @@ from fastapi import BackgroundTasks, UploadFile, File, Depends, HTTPException, s
 
 from app.models.transcription import Transcription
 from app.di.parse_form import parse_transcription_form
-from app.usecases.audio_processor_usecase import AudioProcessorUseCase
-from app.services.audio.mp4_processor_service import MP4ProcessorService
-from app.services.word_generator_service import WordGeneratorService
+from api.app.usecases.audio_processing_usecase import AudioProcessorUseCase
+from api.app.services.audio.mp4_processing_service import MP4ProcessorService
+from api.app.services.word_generating_service import WordGeneratorService
 from app.utils.file_handler import save_file_temporarily
 
 logger = logging.getLogger(__name__)
 
-def _create_transcription_usecase(request: Request) -> AudioProcessorUseCase:
+def _create_audio_usecase(request: Request) -> AudioProcessorUseCase:
     """TranscribeAudioUseCaseのインスタンスを生成する"""
     az_client_factory = request.app.state.az_client_factory
     return AudioProcessorUseCase(
@@ -26,7 +26,7 @@ def _create_transcription_usecase(request: Request) -> AudioProcessorUseCase:
         ms_sharepoint_client=az_client_factory.create_ms_sharepoint_client()
     )
 
-async def _handle_transcription_operation(operation_name: str, operation: callable) -> Dict[str, Any]:
+async def _handle_audio_operation(operation_name: str, operation: callable) -> Dict[str, Any]:
     """文字起こし操作の共通エラーハンドリング"""
     try:
         return await operation()
@@ -37,16 +37,16 @@ async def _handle_transcription_operation(operation_name: str, operation: callab
             detail=f"{operation_name}に失敗しました: {str(e)}"
         )
 
-async def transcribe_audio(
+async def process_audio(
     request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     site_data: Optional[Transcription] = Depends(parse_transcription_form),
 ) -> Dict[str, str]:
     """音声ファイルの文字起こしと要約を非同期で実行"""
-    usecase = _create_transcription_usecase(request)
+    usecase = _create_audio_usecase(request)
     
-    async def start_transcription():
+    async def start_audio_processing():
         task_id = str(uuid.uuid4())
         site_data_dict = site_data.model_dump() if site_data else None
         temp_file_path = await save_file_temporarily(file)
@@ -63,7 +63,7 @@ async def transcribe_audio(
             "message": "処理を開始しました"
         }
     
-    return await _handle_transcription_operation("音声処理の開始", start_transcription)
+    return await _handle_audio_operation("音声処理の開始", start_audio_processing)
 
 async def get_transcription_status(request: Request, task_id: str) -> Dict[str, Any]:
     """タスクの処理状態と結果を取得"""

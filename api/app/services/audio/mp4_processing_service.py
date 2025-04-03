@@ -8,7 +8,7 @@ from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 
-class MP4ProcessorService:
+class MP4ProcessingService:
     """MP4ファイルをWAVファイルに変換・処理するサービス"""
     
     async def process_mp4(self, file_path: str) -> Dict[str, Any]:

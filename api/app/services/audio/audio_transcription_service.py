@@ -2,7 +2,7 @@ from fastapi import HTTPException
 
 from app.infrastructure.az_speech import AzSpeechClient
 
-class TranscribeAudioService:
+class AudioTranscriptionService:
     """音声文字起こしを行うサービス"""
     
     def __init__(self, az_speech_client: AzSpeechClient):

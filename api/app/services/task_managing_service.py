@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 from app.models.transcription import TaskStatus
 
-class TaskManager:
+class TaskManagingService:
     """
     タスクの状態と文字起こし・要約結果を管理するアプリケーションサービス
     """

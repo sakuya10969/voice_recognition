@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.handlers.transcription_handler import transcribe_audio, get_transcription_status
+from app.handlers.audio_processing_handler import transcribe_audio, get_transcription_status
 
 router = APIRouter()
 

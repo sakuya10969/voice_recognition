@@ -3,20 +3,20 @@ from typing import Dict, Any
 from fastapi import HTTPException
 from app.infrastructure.az_speech import AzSpeechClient
 from app.infrastructure.az_blob import AzBlobClient
-from app.services.audio.mp4_processor_service import MP4ProcessorService
-from app.services.audio.transcribe_audio_service import TranscribeAudioService
+from app.services.audio.mp4_processing_service import MP4ProcessingService
+from app.services.audio.audio_transcription_service import AudioTranscriptionService
 
 logger = logging.getLogger(__name__)
 
-class AudioProcessorService:
+class AudioProcessingService:
     """音声処理を統合的に管理するサービス"""
     
     def __init__(
         self,
         az_speech_client: AzSpeechClient,
         az_blob_client: AzBlobClient,
-        mp4_processor: MP4ProcessorService,
-        transcription_service: TranscribeAudioService
+        mp4_processor: MP4ProcessingService,
+        transcription_service: AudioTranscriptionService
     ):
         self.az_speech_client = az_speech_client
         self.az_blob_client = az_blob_client

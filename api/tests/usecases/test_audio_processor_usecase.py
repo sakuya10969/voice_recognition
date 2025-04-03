@@ -1,10 +1,10 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
 
-from app.usecases.audio_processor_usecase import AudioProcessorUseCase
-from app.services.task_manager_service import TaskManager
-from app.services.audio.mp4_processor_service import MP4ProcessorService
-from app.services.word_generator_service import WordGeneratorService
+from api.app.usecases.audio_processing_usecase import AudioProcessorUseCase
+from api.app.services.task_managing_service import TaskManager
+from api.app.services.audio.mp4_processing_service import MP4ProcessorService
+from api.app.services.word_generating_service import WordGeneratorService
 from ..mocks.mock_az_client import (
     MockAzSpeechClient,
     MockAzBlobClient,

@@ -6,8 +6,8 @@ import logging
 
 from app.config.get_config import get_config
 from app.infrastructure.az_client_factory import AzClientFactory
-from app.services.task_manager_service import TaskManager
-from app.routers import transcription_router
+from api.app.services.task_managing_service import TaskManager
+from app.routers import audio_processing_router
 from app.routers import sharepoint_router
 
 logging.basicConfig(
@@ -44,5 +44,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(transcription_router.router)
+app.include_router(audio_processing_router.router)
 app.include_router(sharepoint_router.router)

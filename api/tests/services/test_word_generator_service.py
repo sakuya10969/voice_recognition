@@ -2,7 +2,7 @@ import pytest
 import os
 from docx import Document
 
-from app.services.word_generator_service import WordGeneratorService
+from api.app.services.word_generating_service import WordGeneratorService
 
 class TestWordGeneratorService:
     @pytest.fixture

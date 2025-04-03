@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock
 from fastapi import HTTPException
 
-from app.services.audio.transcribe_audio_service import TranscribeAudioService
+from api.app.services.audio.audio_transcription_service import TranscribeAudioService
 from tests.mocks.mock_az_client import MockAzSpeechClient
 
 class TestTranscribeAudioService:

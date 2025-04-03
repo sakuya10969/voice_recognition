@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.task_manager_service import TaskManager
+from api.app.services.task_managing_service import TaskManager
 from app.models.transcription import TaskStatus
 
 class TestTaskManager:
