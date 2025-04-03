@@ -1,5 +1,7 @@
 from typing import Dict, Any, Optional
+from pathlib import Path
 import logging
+
 from app.services.task_managing_service import TaskManagingService
 from app.services.audio.audio_processing_service import AudioProcessingService
 from app.services.word_generating_service import WordGeneratingService
@@ -86,7 +88,7 @@ class AudioProcessingUseCase:
         )
         
         try:
-            await self._ms_sharepoint_client.upload_file(
+            self._ms_sharepoint_client.upload_file(
                 site_data["site"],
                 site_data["directory"],
                 word_file_path

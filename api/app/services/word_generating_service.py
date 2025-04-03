@@ -17,7 +17,7 @@ class WordGeneratingService:
         self.temp_dir = None
         self.temp_file_path = None
 
-    async def create_word_document(self, transcribed_text: str, summarized_text: str) -> str:
+    async def create_word_document(self, transcribed_text: str, summarized_text: str) -> Path:
         """文字起こしと要約からWord文書を生成する"""
         try:
             self._initialize_document()
@@ -25,7 +25,7 @@ class WordGeneratingService:
             self._save_document()
             
             logger.info(f"Word文書を生成: {self.temp_file_path}")
-            return str(self.temp_file_path)
+            return self.temp_file_path
             
         except Exception as e:
             logger.error(f"Word文書の生成に失敗: {str(e)}")
@@ -54,13 +54,15 @@ class WordGeneratingService:
         """要約セクションを追加"""
         self.doc.add_heading('要約', level=1)
         summary_para = self.doc.add_paragraph(summary_text)
-        summary_para.font.size = Pt(11)
+        for run in summary_para.runs:
+            run.font.size = Pt(11)
 
     def _add_transcription_section(self, transcribed_text: str) -> None:
         """文字起こしセクションを追加"""
         self.doc.add_heading('文字起こし', level=1)
         trans_para = self.doc.add_paragraph(transcribed_text)
-        trans_para.font.size = Pt(11)
+        for run in trans_para.runs:
+            run.font.size = Pt(11)
 
     def _save_document(self) -> None:
         """文書を保存"""

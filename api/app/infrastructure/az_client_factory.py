@@ -12,21 +12,21 @@ class AzClientFactory:
 
     def create_az_blob_client(self) -> AzBlobClient:
         return AzBlobClient(
-            connection_string=self.config.AZ_BLOB_CONNECTION,
-            container_name=self.config.AZ_CONTAINER_NAME
+            az_blob_connection=self.config.AZ_BLOB_CONNECTION,
+            az_container_name=self.config.AZ_CONTAINER_NAME
         )
 
     def create_az_speech_client(self) -> AzSpeechClient:
         return AzSpeechClient(
             session=self.session,
-            key=self.config.AZ_SPEECH_KEY,
-            endpoint=self.config.AZ_SPEECH_ENDPOINT
+            az_speech_key=self.config.AZ_SPEECH_KEY,
+            az_speech_endpoint=self.config.AZ_SPEECH_ENDPOINT
         )
 
     def create_az_openai_client(self) -> AzOpenAIClient:
         return AzOpenAIClient(
-            key=self.config.AZ_OPENAI_KEY,
-            endpoint=self.config.AZ_OPENAI_ENDPOINT
+            az_openai_key=self.config.AZ_OPENAI_KEY,
+            az_openai_endpoint=self.config.AZ_OPENAI_ENDPOINT
         )
 
     def create_ms_sharepoint_client(self) -> MsSharePointClient:

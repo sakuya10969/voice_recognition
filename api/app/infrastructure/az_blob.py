@@ -4,14 +4,14 @@ from fastapi import HTTPException
 class AzBlobClient:
     """Azure Blob Storageとの通信を担当するクライアントクラス"""
 
-    def __init__(self, connection_string: str, container_name: str) -> None:
-        self._blob_service = BlobServiceClient.from_connection_string(connection_string)
-        self._container = self._blob_service.get_container_client(container_name)
+    def __init__(self, az_blob_connection: str, az_container_name: str) -> None:
+        self._az_blob_service = BlobServiceClient.from_connection_string(az_blob_connection)
+        self._az_container = self._az_blob_service.get_container_client(az_container_name)
 
     async def upload_blob(self, file_name: str, file_data: bytes) -> str:
         """ファイルをBlobストレージにアップロードする"""
         try:
-            blob = self._container.get_blob_client(blob=file_name)
+            blob = self._az_container.get_blob_client(blob=file_name)
             blob.upload_blob(file_data, overwrite=True)
             return blob.url
         except Exception as e:
@@ -24,7 +24,7 @@ class AzBlobClient:
         """
         指定されたBlobを削除する"""
         try:
-            self._container.delete_blob(blob_name)
+            self._az_container.delete_blob(blob_name)
         except Exception as e:
             raise HTTPException(
                 status_code=500,
