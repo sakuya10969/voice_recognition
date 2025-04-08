@@ -6,6 +6,8 @@ import IconButton from "@mui/material/IconButton";
 import MicIcon from "@mui/icons-material/Mic";
 import Box from "@mui/material/Box";
 
+import intelligentforce from "../assets/intelligentforce.png";
+
 
 const Header: React.FC = () => {
   return (
@@ -20,7 +22,7 @@ const Header: React.FC = () => {
           </Typography>
         </Box>
         <Box>
-          <img src="/intelligentforce.png" alt="Intelligent Force" style={{ height: 40 }} />
+          <img src={intelligentforce} alt="Intelligent Force" style={{ height: 40 }} />
         </Box>
       </Toolbar>
     </AppBar>
