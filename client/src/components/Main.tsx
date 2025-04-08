@@ -6,7 +6,10 @@ import CssBaseline from "@mui/material/CssBaseline"
 
 import FileUpload from "./FileUpload";
 import Note from "./Note";
-import { handleSendAudio, useFetchSites, useFetchDirectories, useFetchSubDirectories } from "../api/Api";
+import { handleSendAudio } from "../api/transcription";
+import { useFetchSites } from "../hooks/useFetchSites";
+import { useFetchDirectories } from "../hooks/useFetchDirectories";
+import { useFetchSubDirectories } from "../hooks/useFetchSubDirectories";
 import UploadingModal from "./UploadingModal";
 import SuccessModal from "./SuccessModal";
 import { searchValueAtom } from "../store/atoms";
