@@ -19,6 +19,9 @@ class WordGeneratingService:
 
     async def create_word_document(self, transcribed_text: str, summarized_text: str) -> Path:
         """文字起こしと要約からWord文書を生成する"""
+        if transcribed_text is None or summarized_text is None:
+            raise ValueError("文字起こしテキストと要約テキストは必須です")
+            
         try:
             self._initialize_document()
             self._create_document_content(transcribed_text, summarized_text)
