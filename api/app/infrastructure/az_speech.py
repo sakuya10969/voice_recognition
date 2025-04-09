@@ -78,6 +78,7 @@ class AzSpeechClient:
     async def get_transcription_display(self, content_url: str) -> str:
         """文字起こしの表示用テキストを取得する"""
         content_data = await self._get(content_url)
+        content_data["recognizedPhrases"]
         return content_data["combinedRecognizedPhrases"][0]["display"]
 
     async def _get(self, url: str) -> Dict[str, Any]:

@@ -70,9 +70,12 @@ class AudioProcessingUseCase:
         summarized_text = await self._text_summarization_service.summarize_text(transcribed_text)
         self._task_managing_service.complete_task(task_id, transcribed_text, summarized_text)
         
-        # SharePointへのアップロードが必要な場合
-        if site_data and self._is_valid_site_data(site_data):
-            await self._handle_word_document(task_id, site_data)
+        # SharePointへのアップロードが必要な場合のみWordファイル処理を実行
+        if site_data is not None and self._is_valid_site_data(site_data):
+            try:
+                await self._handle_word_document(task_id, site_data)
+            except Exception as e:
+                logger.warning(f"Wordファイルの処理中にエラーが発生しましたが、文字起こしは正常に完了しています: {str(e)}")
 
     async def _handle_word_document(self, task_id: str, site_data: Dict[str, Any]) -> None:
         """Wordファイルの生成とアップロード"""

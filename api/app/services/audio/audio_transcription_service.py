@@ -20,6 +20,7 @@ class AudioTranscriptionService:
         job_url = await self._az_speech_client.create_transcription_job(blob_url)
         files_url = await self._az_speech_client.poll_transcription_status(job_url)
         content_url = await self._az_speech_client.get_transcription_result(files_url)
+        print(f"content_url: {content_url}")
         return await self._az_speech_client.get_transcription_display(content_url)
 
     def _handle_error(self, error: Exception) -> None:
