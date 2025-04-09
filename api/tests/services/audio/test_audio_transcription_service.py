@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from fastapi import HTTPException
 
 from app.services.audio.audio_transcription_service import AudioTranscriptionService
-from tests.mocks.mock_az_client import MockAzSpeechClient
+from tests.mocks.mock_az_client import MockAzSpeechClient, MockAzSpeechResponse
 
 class TestAudioTranscriptionService:
     @pytest.fixture
@@ -24,9 +24,9 @@ class TestAudioTranscriptionService:
     async def _verify_transcription_calls(self, mock_az_speech_client: MockAzSpeechClient):
         """文字起こし関連のAPI呼び出しを検証するヘルパーメソッド"""
         mock_az_speech_client.create_transcription_job.assert_awaited_once()
-        mock_az_speech_client.get_transcription_status.assert_awaited()
+        mock_az_speech_client.poll_transcription_status.assert_awaited_once()
         mock_az_speech_client.get_transcription_result.assert_awaited_once()
-        mock_az_speech_client.get_content.assert_awaited_once()
+        mock_az_speech_client.get_transcription_display.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_transcribe_success(
@@ -34,7 +34,7 @@ class TestAudioTranscriptionService:
         audio_transcription_service: AudioTranscriptionService, 
         mock_az_speech_client: MockAzSpeechClient, 
         test_blob_url: str
-        ):
+    ):
         """正常系: 文字起こしが成功するケース"""
         result = await audio_transcription_service.transcribe_audio(test_blob_url)
 
@@ -42,35 +42,38 @@ class TestAudioTranscriptionService:
         await self._verify_transcription_calls(mock_az_speech_client)
 
     @pytest.mark.asyncio
-    async def test_transcribe_job_failed(
+    async def test_transcribe_failure(
         self, 
         audio_transcription_service: AudioTranscriptionService, 
         mock_az_speech_client: MockAzSpeechClient, 
         test_blob_url: str
-        ):
-        """異常系: 文字起こしジョブが失敗するケース"""
-        mock_az_speech_client.get_transcription_status = AsyncMock(side_effect=["Running", "Failed"])
-        service = AudioTranscriptionService(mock_az_speech_client)
+    ):
+        """異常系: 文字起こし処理が失敗するケース"""
+        mock_az_speech_client.create_transcription_job = AsyncMock(side_effect=Exception("API Error"))
 
         with pytest.raises(HTTPException) as exc_info:
             await audio_transcription_service.transcribe_audio(test_blob_url)
 
         assert exc_info.value.status_code == 500
-        assert "文字起こしジョブが失敗しました" in exc_info.value.detail
+        assert "文字起こしに失敗しました" in exc_info.value.detail
+        mock_az_speech_client.create_transcription_job.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_transcribe_missing_content_url(
+    async def test_transcribe_with_custom_response(
         self, 
-        audio_transcription_service: AudioTranscriptionService, 
-        mock_az_speech_client: MockAzSpeechClient, 
         test_blob_url: str
-        ):
-        """異常系: コンテンツURLが取得できないケース"""
-        mock_az_speech_client.get_transcription_result = AsyncMock(return_value={})
-        audio_transcription_service = AudioTranscriptionService(mock_az_speech_client)
+    ):
+        """正常系: カスタムレスポンスを使用した文字起こし"""
+        custom_response = MockAzSpeechResponse(
+            display_text="カスタムテキスト"
+        )
+        mock_client = MockAzSpeechClient(custom_response)
+        service = AudioTranscriptionService(mock_client)
 
-        with pytest.raises(HTTPException) as exc_info:
-            await audio_transcription_service.transcribe_audio(test_blob_url)
+        result = await service.transcribe_audio(test_blob_url)
 
-        assert exc_info.value.status_code == 500
-        assert "コンテンツURLを取得できませんでした" in exc_info.value.detail
+        assert result == "カスタムテキスト"
+        mock_client.create_transcription_job.assert_awaited_once()
+        mock_client.poll_transcription_status.assert_awaited_once()
+        mock_client.get_transcription_result.assert_awaited_once()
+        mock_client.get_transcription_display.assert_awaited_once()

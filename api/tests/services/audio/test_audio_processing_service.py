@@ -36,14 +36,14 @@ class TestAudioProcessingService:
         self, 
         mock_az_speech_client: MockAzSpeechClient, 
         mock_az_blob_client: MockAzBlobClient, 
-        mock_mp4_processing_service: MP4ProcessingService, 
-        mock_audio_transcription_service: AudioTranscriptionService
+        mp4_processing_service: MP4ProcessingService, 
+        audio_transcription_service: AudioTranscriptionService
     ):
         return AudioProcessingService(
             az_speech_client=mock_az_speech_client,
             az_blob_client=mock_az_blob_client,
-            mp4_processing_service=mock_mp4_processing_service,
-            audio_transcription_service=mock_audio_transcription_service
+            mp4_processing_service=mp4_processing_service,
+            audio_transcription_service=audio_transcription_service
         )
 
     @pytest.mark.asyncio
@@ -110,3 +110,92 @@ class TestAudioProcessingService:
             await service.process_audio("dummy/path.mp4")
         assert "transcribe error" in exc_info.value.detail
         assert exc_info.value.status_code == 500
+
+    @pytest.mark.asyncio
+    async def test_process_audio_file_success(
+        self,
+        audio_processing_service: AudioProcessingService,
+        mock_az_blob_client: MockAzBlobClient,
+        mp4_processing_service: MP4ProcessingService
+    ):
+        """正常系: 音声ファイルの処理とアップロードが成功するケース"""
+        # モックの設定
+        mock_az_blob_client.upload_blob = AsyncMock(return_value="https://example.com/blob/audio.wav")
+        
+        # テストの実行
+        result = await audio_processing_service.process_audio_file("dummy/path/to/audio.mp4")
+        
+        # 結果の検証
+        assert result["file_name"] == "audio.wav"
+        assert result["blob_url"] == "https://example.com/blob/audio.wav"
+        mp4_processing_service.process_mp4.assert_awaited_once()
+        mock_az_blob_client.upload_blob.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_process_audio_file_upload_fail(
+        self,
+        mock_az_speech_client: MockAzSpeechClient,
+        mock_az_blob_client: MockAzBlobClient,
+        mp4_processing_service: MP4ProcessingService,
+        audio_transcription_service: AudioTranscriptionService
+    ):
+        """異常系: Blobアップロードが失敗するケース"""
+        # モックの設定
+        mock_az_blob_client.upload_blob = AsyncMock(side_effect=Exception("upload error"))
+        
+        service = AudioProcessingService(
+            az_speech_client=mock_az_speech_client,
+            az_blob_client=mock_az_blob_client,
+            mp4_processing_service=mp4_processing_service,
+            audio_transcription_service=audio_transcription_service
+        )
+
+        # テストの実行と検証
+        with pytest.raises(HTTPException) as exc_info:
+            await service.process_audio_file("dummy/path.mp4")
+        assert "upload error" in exc_info.value.detail
+        assert exc_info.value.status_code == 500
+        mp4_processing_service.process_mp4.assert_awaited_once()
+        mock_az_blob_client.upload_blob.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_transcribe_audio_success(
+        self,
+        audio_processing_service: AudioProcessingService,
+        audio_transcription_service: AudioTranscriptionService
+    ):
+        """正常系: 文字起こしが成功するケース"""
+        # テストの実行
+        result = await audio_processing_service.transcribe_audio("https://example.com/blob/audio.wav")
+        
+        # 結果の検証
+        assert result == "これはテスト用の文字起こしテキストです。"
+        audio_transcription_service.transcribe_audio.assert_awaited_once_with("https://example.com/blob/audio.wav")
+
+    @pytest.mark.asyncio
+    async def test_transcribe_audio_fail(
+        self,
+        mock_az_speech_client: MockAzSpeechClient,
+        mock_az_blob_client: MockAzBlobClient,
+        mp4_processing_service: MP4ProcessingService,
+        audio_transcription_service: AudioTranscriptionService
+    ):
+        """異常系: 文字起こしが失敗するケース"""
+        # モックの設定
+        audio_transcription_service.transcribe_audio = AsyncMock(
+            side_effect=Exception("transcribe error")
+        )
+        
+        service = AudioProcessingService(
+            az_speech_client=mock_az_speech_client,
+            az_blob_client=mock_az_blob_client,
+            mp4_processing_service=mp4_processing_service,
+            audio_transcription_service=audio_transcription_service
+        )
+
+        # テストの実行と検証
+        with pytest.raises(HTTPException) as exc_info:
+            await service.transcribe_audio("https://example.com/blob/audio.wav")
+        assert "transcribe error" in exc_info.value.detail
+        assert exc_info.value.status_code == 500
+        audio_transcription_service.transcribe_audio.assert_awaited_once_with("https://example.com/blob/audio.wav")
