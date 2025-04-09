@@ -48,8 +48,8 @@ class TestTextSummarizationService:
         text_summarization_service._az_openai_client.get_summary.assert_awaited()
 
     @pytest.mark.asyncio
-    @patch('app.utils.chunk_splitter.split_token')
-    @patch('app.utils.create_prompt.create_prompt')
+    @patch('app.services.text_summarization_service.split_token')
+    @patch('app.services.text_summarization_service.generate_prompt')
     async def test_summarize_single_chunk(
         self,
         mock_generate_prompt: AsyncMock,
@@ -70,8 +70,8 @@ class TestTextSummarizationService:
         assert isinstance(result, str)
 
     @pytest.mark.asyncio
-    @patch('app.utils.chunk_splitter.split_token')
-    @patch('app.utils.create_prompt.create_prompt')
+    @patch('app.services.text_summarization_service.split_token')
+    @patch('app.services.text_summarization_service.generate_prompt')
     async def test_summarize_multiple_chunks(
         self,
         mock_generate_prompt: AsyncMock,
@@ -92,7 +92,7 @@ class TestTextSummarizationService:
         assert isinstance(result, str)
 
     @pytest.mark.asyncio
-    @patch('app.utils.chunk_splitter.split_token')
+    @patch('app.services.text_summarization_service.split_token')
     async def test_empty_text_raises_error(
         self,
         mock_split_token: AsyncMock,
@@ -105,8 +105,8 @@ class TestTextSummarizationService:
             await text_summarization_service.summarize_text("")
 
     @pytest.mark.asyncio
-    @patch('app.utils.chunk_splitter.split_token')
-    @patch('app.utils.create_prompt.create_prompt')
+    @patch('app.services.text_summarization_service.split_token')
+    @patch('app.services.text_summarization_service.generate_prompt')
     async def test_batch_processing(
         self,
         mock_generate_prompt: AsyncMock,
@@ -126,8 +126,8 @@ class TestTextSummarizationService:
         mock_split_token.assert_called_once_with(test_text, max_tokens=1000)
 
     @pytest.mark.asyncio
-    @patch('app.utils.chunk_splitter.split_token')
-    @patch('app.utils.create_prompt.create_prompt')
+    @patch('app.services.text_summarization_service.split_token')
+    @patch('app.services.text_summarization_service.generate_prompt')
     async def test_error_handling_in_batch(
         self,
         mock_create_prompt: AsyncMock,
