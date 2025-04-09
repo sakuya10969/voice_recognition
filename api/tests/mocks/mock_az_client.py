@@ -1,6 +1,6 @@
 from unittest.mock import AsyncMock
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 @dataclass
 class MockResponse:
@@ -36,18 +36,18 @@ class MockMsSharePointResponse(MockResponse):
     site_id: str = "mock-site-id"
     folder_id: str = "mock-folder-id"
     access_token: str = "mock-access-token"
-    site_data: dict = None
-    folder_data: dict = None
+    sites_data: Dict[str, List[Dict[str, str]]] = None
+    folders_data: Dict[str, List[Dict[str, Any]]] = None
 
     def __post_init__(self):
-        if self.site_data is None:
-            self.site_data = {
+        if self.sites_data is None:
+            self.sites_data = {
                 "value": [
                     {"name": "TestSite", "id": self.site_id}
                 ]
             }
-        if self.folder_data is None:
-            self.folder_data = {
+        if self.folders_data is None:
+            self.folders_data = {
                 "value": [
                     {
                         "name": "TestFolder",
@@ -103,7 +103,7 @@ class MockAzBlobClient(BaseMockClient):
         self.upload_blob = AsyncMock(return_value=self._response.blob_url)
         self.delete_blob = AsyncMock(return_value=True)
         self.download_blob = AsyncMock(return_value=self._response.file_data)
-        self.list_blob = AsyncMock(return_value=[])
+        self.list_blobs = AsyncMock(return_value=[])
         self.get_blob_properties = AsyncMock(return_value={"size": 1024})
         self.copy_blob = AsyncMock(return_value=True)
 
@@ -127,20 +127,20 @@ class MockMsSharePointClient(BaseMockClient):
         self._get_access_token = AsyncMock()
         self.graph_api_get = AsyncMock(return_value=type(
             "Response", (), {
-                "json": lambda: self._response.site_data if "site" in self._get_current_mock_call_args() 
-                else self._response.folder_data
+                "json": lambda: self._response.sites_data if "site" in self._get_current_mock_call_args() 
+                else self._response.folders_data
             }
         ))
         self.graph_api_put = AsyncMock(return_value=type(
             "Response", (), {"status_code": 200}
         ))
-        self.get_site = AsyncMock(return_value=self._response.site_data)
+        self.get_sites = AsyncMock(return_value=self._response.sites_data)
         self.get_site_id = AsyncMock(return_value=self._response.site_id)
-        self.get_folder = AsyncMock(return_value=self._response.folder_data)
+        self.get_folders = AsyncMock(return_value=self._response.folders_data)
         self.get_folder_id = AsyncMock(return_value=self._response.folder_id)
-        self.get_folder = AsyncMock(return_value=self._response.folder_data["value"][0])
+        self.get_folder = AsyncMock(return_value=self._response.folders_data["value"][0])
         self.get_folder_id_from_tree = AsyncMock(return_value=self._response.folder_id)
-        self.get_subfolder = AsyncMock(return_value=self._response.folder_data)
+        self.get_subfolders = AsyncMock(return_value=self._response.folders_data)
         self.upload_file = AsyncMock()
 
     def _get_current_mock_call_args(self):
