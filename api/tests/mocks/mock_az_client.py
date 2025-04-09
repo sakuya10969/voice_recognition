@@ -74,7 +74,7 @@ class MockAzSpeechClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.create_transcription_job = AsyncMock(return_value=self._response.job_id)
-        self.poll_transcription_status = AsyncMock(return_value=self._response.files_url)
+        self.poll_transcription_status = AsyncMock(return_value=self._response.file_url)
         self.get_transcription_result = AsyncMock(return_value=self._response.content_url)
         self.get_transcription_display = AsyncMock(return_value=self._response.display_text)
         self._get = AsyncMock(return_value={
@@ -82,7 +82,7 @@ class MockAzSpeechClient(BaseMockClient):
             "link": {
                 "file": self._response.file_url
             },
-            "values": [{
+            "value": [{
                 "link": {
                     "contentUrl": self._response.content_url
                 }
@@ -114,7 +114,6 @@ class MockAzOpenAIClient(BaseMockClient):
 
     def _setup_mock_methods(self) -> None:
         self.get_summary = AsyncMock(return_value=self._response.summary)
-        self.summarize_text = AsyncMock(return_value=self._response.summary)
         self.count_tokens = AsyncMock(return_value=self._response.tokens)
         self.get_available_models = AsyncMock(return_value=["gpt-4", "gpt-3.5-turbo"])
         self.validate_api_key = AsyncMock(return_value=True)
