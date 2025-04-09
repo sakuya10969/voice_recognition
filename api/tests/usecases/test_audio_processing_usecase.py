@@ -18,12 +18,16 @@ class TestAudioProcessorUseCase:
     @pytest.fixture
     def task_managing_service(self) -> TaskManagingService:
         """タスク管理サービスのモックを提供するフィクスチャ"""
-        service = TaskManagingService()
-        service.initialize_task = AsyncMock()
-        service.complete_task = AsyncMock()
-        service.fail_task = AsyncMock()
-        service.transcribed_text = "これはテスト用の文字起こしテキストです。"
-        service.summarized_text = "これはテスト用の要約テキストです。"
+        service = Mock(spec=TaskManagingService)
+        service.initialize_task = Mock()
+        service.complete_task = Mock()
+        service.fail_task = Mock()
+        service.transcribed_text = {
+        "test-task-id": "これはテスト用の文字起こしテキストです。"
+        }
+        service.summarized_text = {
+            "test-task-id": "これはテスト用の要約テキストです。"
+        }
         return service
 
     @pytest.fixture
@@ -73,16 +77,16 @@ class TestAudioProcessorUseCase:
 
     async def _verify_common_assertions(self, task_managing_service: Mock, task_id: str) -> None:
         """共通の検証ロジックを実行するヘルパーメソッド"""
-        task_managing_service.initialize_task.assert_awaited_once_with(task_id)
-        task_managing_service.complete_task.assert_awaited_once()
-        task_managing_service.fail_task.assert_not_awaited()
+        task_managing_service.initialize_task.assert_called_once_with(task_id)
+        task_managing_service.complete_task.assert_called_once()
+        task_managing_service.fail_task.assert_not_called()
 
     @pytest.mark.asyncio
     @patch('app.usecases.audio_processing_usecase.AudioTranscriptionService')
     async def test_execute_success(
         self,
         audio_transcription_service: AudioTranscriptionService,
-        usecase: AudioProcessingUseCase,
+        mock_audio_processing_usecase: AudioProcessingUseCase,
         task_managing_service: TaskManagingService,
         test_data: Dict[str, Any]
     ) -> None:
@@ -91,7 +95,7 @@ class TestAudioProcessorUseCase:
             return_value="これはテスト用の文字起こしテキストです。"
         )
 
-        await usecase.execute(
+        await mock_audio_processing_usecase.execute(
             test_data["task_id"],
             test_data["site_data"],
             test_data["file_path"]
@@ -104,7 +108,7 @@ class TestAudioProcessorUseCase:
     async def test_execute_without_site_data(
         self,
         audio_transcription_service: AudioTranscriptionService,
-        usecase: AudioProcessingUseCase,
+        mock_audio_processing_usecase: AudioProcessingUseCase,
         task_managing_service: TaskManagingService,
         test_data: Dict[str, Any]
     ) -> None:
@@ -113,7 +117,7 @@ class TestAudioProcessorUseCase:
             return_value="これはテスト用の文字起こしテキストです。"
         )
 
-        await usecase.execute(
+        await mock_audio_processing_usecase.execute(
             test_data["task_id"],
             None,
             test_data["file_path"]
@@ -126,7 +130,7 @@ class TestAudioProcessorUseCase:
     async def test_execute_with_invalid_site_data(
         self,
         audio_transcription_service: AudioTranscriptionService,
-        usecase: AudioProcessingUseCase,
+        mock_audio_processing_usecase: AudioProcessingUseCase,
         task_managing_service: TaskManagingService,
         test_data: Dict[str, Any]
     ) -> None:
@@ -137,7 +141,7 @@ class TestAudioProcessorUseCase:
 
         invalid_site_data = {"site": "test-site"}
 
-        await usecase.execute(
+        await mock_audio_processing_usecase.execute(
             test_data["task_id"],
             invalid_site_data,
             test_data["file_path"]
@@ -148,7 +152,7 @@ class TestAudioProcessorUseCase:
     @pytest.mark.asyncio
     async def test_execute_with_error(
         self,
-        usecase: AudioProcessingUseCase,
+        mock_audio_processing_usecase: AudioProcessingUseCase,
         task_managing_service: TaskManagingService,
         test_data: Dict[str, Any]
     ) -> None:
@@ -157,11 +161,11 @@ class TestAudioProcessorUseCase:
         task_managing_service.initialize_task.side_effect = Exception(error_message)
 
         with pytest.raises(Exception) as exc_info:
-            await usecase.execute(
+            await mock_audio_processing_usecase.execute(
                 test_data["task_id"],
                 None,
                 test_data["file_path"]
             )
 
         assert str(exc_info.value) == error_message
-        task_managing_service.fail_task.assert_awaited_once_with(test_data["task_id"], error_message)
+        task_managing_service.fail_task.assert_called_once_with(test_data["task_id"], error_message)

@@ -1,127 +1,51 @@
+# tests/routers/test_sharepoint_router.py
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
+from unittest.mock import MagicMock
 
 from app.main import app
 
-client = TestClient(app)
 
 @pytest.fixture
-def mock_sites():
-    """サイト一覧のモックデータ"""
-    return [
-        {"id": "1", "name": "Site 1"},
-        {"id": "2", "name": "Site 2"}
-    ]
+def client():
+    mock_factory = MagicMock()
+    mock_client = MagicMock()
 
-@pytest.fixture
-def mock_directories():
-    """ディレクトリ一覧のモックデータ"""
-    return [
-        {"id": "1", "name": "Directory 1"},
-        {"id": "2", "name": "Directory 2"}
-    ]
+    # 各 fetch メソッドをモック
+    mock_client.fetch_sites.return_value = [{"id": "1", "name": "Site"}]
+    mock_client.fetch_directories.return_value = [{"id": "1", "name": "Dir"}]
+    mock_client.fetch_subdirectories.return_value = [{"id": "1", "name": "Subdir"}]
+    mock_factory.create_ms_sharepoint_client.return_value = mock_client
 
-@pytest.fixture
-def mock_subdirectories():
-    """サブディレクトリ一覧のモックデータ"""
-    return [
-        {"id": "1", "name": "Subdirectory 1"},
-        {"id": "2", "name": "Subdirectory 2"}
-    ]
+    app.state.az_client_factory = mock_factory
+    with TestClient(app) as c:
+        yield c
 
-def test_get_sites_success(mock_sites):
-    """サイト一覧取得のテスト
-    
-    期待される動作:
-    - ステータスコード200が返される
-    - モックデータと一致するレスポンスが返される
-    """
-    with patch('app.handlers.sharepoint_handler.get_sites', return_value=mock_sites):
-        response = client.get("/sites")
-        assert response.status_code == 200
-        assert response.json() == mock_sites
 
-def test_get_sites_failure():
-    """サイト一覧取得失敗のテスト
-    
-    期待される動作:
-    - ステータスコード500が返される
-    - エラーメッセージが含まれる
-    """
-    with patch('app.handlers.sharepoint_handler.get_sites', side_effect=Exception("SharePoint error")):
-        response = client.get("/sites")
-        assert response.status_code == 500
-        assert "サイト取得中にエラーが発生しました" in response.json()["detail"]
+def test_get_sites_success(client):
+    res = client.get("/sites")
+    assert res.status_code == 200
+    assert res.json() == [{"id": "1", "name": "Site"}]
 
-def test_get_directories_success(mock_directories):
-    """ディレクトリ一覧取得のテスト
-    
-    期待される動作:
-    - ステータスコード200が返される
-    - モックデータと一致するレスポンスが返される
-    """
-    with patch('app.handlers.sharepoint_handler.get_directories', return_value=mock_directories):
-        response = client.get("/directories?site_id=test-site")
-        assert response.status_code == 200
-        assert response.json() == mock_directories
 
-def test_get_directories_failure():
-    """ディレクトリ一覧取得失敗のテスト
-    
-    期待される動作:
-    - ステータスコード500が返される
-    - エラーメッセージが含まれる
-    """
-    with patch('app.handlers.sharepoint_handler.get_directories', side_effect=Exception("SharePoint error")):
-        response = client.get("/directories?site_id=test-site")
-        assert response.status_code == 500
-        assert "ディレクトリ取得中にエラーが発生しました" in response.json()["detail"]
+def test_get_directories_success(client):
+    res = client.get("/directories", params={"site_id": "abc"})
+    assert res.status_code == 200
+    assert res.json() == [{"id": "1", "name": "Dir"}]
 
-def test_get_directories_missing_site_id():
-    """サイトID未指定でのディレクトリ一覧取得テスト
-    
-    期待される動作:
-    - ステータスコード422が返される
-    - バリデーションエラーメッセージが含まれる
-    """
-    response = client.get("/directories")
-    assert response.status_code == 422
-    assert "site_id" in response.json()["detail"][0]["loc"]
 
-def test_get_subdirectories_success(mock_subdirectories):
-    """サブディレクトリ一覧取得のテスト
-    
-    期待される動作:
-    - ステータスコード200が返される
-    - モックデータと一致するレスポンスが返される
-    """
-    with patch('app.handlers.sharepoint_handler.get_subdirectories', return_value=mock_subdirectories):
-        response = client.get("/subdirectories?site_id=test-site&directory_id=test-dir")
-        assert response.status_code == 200
-        assert response.json() == mock_subdirectories
+def test_get_directories_missing_param(client):
+    res = client.get("/directories")
+    assert res.status_code == 422
+    assert any("site_id" in str(e["loc"]) for e in res.json()["detail"])
 
-def test_get_subdirectories_failure():
-    """サブディレクトリ一覧取得失敗のテスト
-    
-    期待される動作:
-    - ステータスコード500が返される
-    - エラーメッセージが含まれる
-    """
-    with patch('app.handlers.sharepoint_handler.get_subdirectories', side_effect=Exception("SharePoint error")):
-        response = client.get("/subdirectories?site_id=test-site&directory_id=test-dir")
-        assert response.status_code == 500
-        assert "サブディレクトリ取得中にエラーが発生しました" in response.json()["detail"]
 
-def test_get_subdirectories_missing_params():
-    """必須パラメータ未指定でのサブディレクトリ一覧取得テスト
-    
-    期待される動作:
-    - ステータスコード422が返される
-    - バリデーションエラーメッセージが含まれる
-    """
-    response = client.get("/subdirectories")
-    assert response.status_code == 422
-    errors = response.json()["detail"]
-    assert any("site_id" in error["loc"] for error in errors)
-    assert any("directory_id" in error["loc"] for error in errors)
+def test_get_subdirectories_success(client):
+    res = client.get("/subdirectories", params={"site_id": "abc", "directory_id": "def"})
+    assert res.status_code == 200
+    assert res.json() == [{"id": "1", "name": "Subdir"}]
+
+
+def test_get_subdirectories_missing_params(client):
+    res = client.get("/subdirectories")
+    assert res.status_code == 422

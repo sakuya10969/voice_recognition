@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 from dataclasses import dataclass
 from typing import Optional, List, Dict, Any
 
@@ -124,24 +124,24 @@ class MockMsSharePointClient(BaseMockClient):
         super().__init__(response or MockMsSharePointResponse())
 
     def _setup_mock_methods(self) -> None:
-        self._get_access_token = AsyncMock()
-        self.graph_api_get = AsyncMock(return_value=type(
+        self._get_access_token = Mock()
+        self.graph_api_get = Mock(return_value=type(
             "Response", (), {
                 "json": lambda: self._response.sites_data if "site" in self._get_current_mock_call_args() 
                 else self._response.folders_data
             }
         ))
-        self.graph_api_put = AsyncMock(return_value=type(
+        self.graph_api_put = Mock(return_value=type(
             "Response", (), {"status_code": 200}
         ))
-        self.get_sites = AsyncMock(return_value=self._response.sites_data)
-        self.get_site_id = AsyncMock(return_value=self._response.site_id)
-        self.get_folders = AsyncMock(return_value=self._response.folders_data)
-        self.get_folder_id = AsyncMock(return_value=self._response.folder_id)
-        self.get_folder = AsyncMock(return_value=self._response.folders_data["value"][0])
-        self.get_folder_id_from_tree = AsyncMock(return_value=self._response.folder_id)
-        self.get_subfolders = AsyncMock(return_value=self._response.folders_data)
-        self.upload_file = AsyncMock()
+        self.get_sites = Mock(return_value=self._response.sites_data)
+        self.get_site_id = Mock(return_value=self._response.site_id)
+        self.get_folders = Mock(return_value=self._response.folders_data)
+        self.get_folder_id = Mock(return_value=self._response.folder_id)
+        self.get_folder = Mock(return_value=self._response.folders_data["value"][0])
+        self.get_folder_id_from_tree = Mock(return_value=self._response.folder_id)
+        self.get_subfolders = Mock(return_value=self._response.folders_data)
+        self.upload_file = Mock()
 
     def _get_current_mock_call_args(self):
         """現在のモックコールの引数を取得するヘルパーメソッド"""

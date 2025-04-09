@@ -1,6 +1,5 @@
 import logging
 from typing import Dict, Any, Callable
-
 from fastapi import HTTPException, status, Request, Query
 
 from app.infrastructure.ms_sharepoint import MsSharePointClient
