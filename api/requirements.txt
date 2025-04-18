@@ -1,3 +1,4 @@
+aiofiles
 aiohttp
 azure-storage-blob
 fastapi
