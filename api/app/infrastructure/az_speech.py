@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from typing import Dict, Any, Optional
 
 class AzSpeechClient:
-    """Azure Speech Servicesのクライアントクラス（パフォーマンス最適化済み）"""
+    """Azure Speech Servicesのクライアントクラス"""
 
     def __init__(self, session: aiohttp.ClientSession, az_speech_key: str, az_speech_endpoint: str):
         self._session = session
