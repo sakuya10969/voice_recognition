@@ -1,5 +1,7 @@
 import axios from "axios";
-import { apiUrl } from "../constants/api";
+// import { apiUrl } from "../constants/api";
+
+const apiUrl = process.env.REACT_APP_API_URL;
 
 interface TranscriptionResponse {
     task_id: string;
