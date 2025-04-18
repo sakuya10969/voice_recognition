@@ -1,6 +1,8 @@
 import useSWR from "swr";
 import { fetcher } from "../utils/fetcher";
-import { apiUrl } from "../constants/api";
+// import { apiUrl } from "../constants/api";
+
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export const useFetchSubDirectories = (
   siteId: string | null,
