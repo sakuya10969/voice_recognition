@@ -79,4 +79,3 @@ class AudioProcessingService:
                 status_code=500,
                 detail=f"音声処理と文字起こしに失敗しました: {str(e)}"
             )
-            

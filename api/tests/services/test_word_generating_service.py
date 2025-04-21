@@ -89,4 +89,3 @@ class TestWordGeneratingService:
     async def test_cleanup_nonexistent_file(self, word_generating_service: WordGeneratingService) -> None:
         """異常系: 存在しないファイルのクリーンアップ"""
         await word_generating_service.cleanup_word_file("/path/to/nonexistent/file.docx")
-        # エラーが発生しないことを確認

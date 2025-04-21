@@ -28,3 +28,4 @@ class TaskManagingService:
         error_text = f"エラー: {error_message}"
         self.transcribed_text[task_id] = error_text
         self.summarized_text[task_id] = error_text
+        
