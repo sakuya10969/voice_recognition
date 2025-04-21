@@ -9,6 +9,7 @@ openai
 pydantic
 pytest
 pytest-asyncio
+pytest-mock
 python-dotenv
 python-docx
 python-multipart
