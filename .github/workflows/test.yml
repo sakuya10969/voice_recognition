@@ -1,3 +1,12 @@
+name: Run API Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -6,7 +15,8 @@ jobs:
         working-directory: api
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
