@@ -79,7 +79,7 @@ class TestMP4ProcessingService:
     @patch("app.services.audio.mp4_processing_service.ffmpeg.get_ffmpeg_exe", return_value="ffmpeg")
     @patch("subprocess.Popen")
     def test_convert_wav_failure(self, mock_popen, mock_get_ffmpeg_exe):
-        """WAV変換が失敗した場合のエラーハンドリングを確認するテスト（同期）"""
+        """WAV変換が失敗した場合のエラーハンドリングを確認するテスト"""
         service = MP4ProcessingService()
 
         # subprocess.Popenの戻り値をモック
