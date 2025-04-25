@@ -1,6 +1,9 @@
 from fastapi import HTTPException
+import logging
 
 from app.infrastructure.az_speech import AzSpeechClient
+
+logger = logging.getLogger(__name__)
 
 class AudioTranscriptionService:
     """音声文字起こしを行うサービス"""
@@ -19,9 +22,9 @@ class AudioTranscriptionService:
         """文字起こし処理を実行する"""
         job_url = await self._az_speech_client.create_transcription_job(blob_url)
         files_url = await self._az_speech_client.poll_transcription_status(job_url)
-        content_url = await self._az_speech_client.get_transcription_result(files_url)
-        print(f"content_url: {content_url}")
-        return await self._az_speech_client.get_transcription_display(content_url)
+        content_url = await self._az_speech_client.get_transcription_result_url(files_url)
+        logger.info(f"content_url: {content_url}")
+        return await self._az_speech_client.get_transcription_by_speaker(content_url)
 
     def _handle_error(self, error: Exception) -> None:
         """エラー処理を行う"""

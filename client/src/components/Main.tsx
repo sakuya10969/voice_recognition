@@ -107,7 +107,7 @@ const Main: React.FC = () => {
   };
 
   if (sitesError) return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました</p>;
-  if (isSitesLoading) return <p>サイトを読み込んでいます...</p>;
+  if (isSitesLoading) return <p style={{ textAlign: "center" }}>サイトを読み込んでいます...</p>;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", padding: 3, gap: 2 }}>

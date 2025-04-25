@@ -2,9 +2,12 @@ import asyncio
 import aiohttp
 from fastapi import HTTPException
 from typing import Dict, Any, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AzSpeechClient:
-    """Azure Speech Servicesのクライアントクラス"""
+    """Azure Speech Servicesのクライアントクラス(話者識別対応)"""
 
     def __init__(self, session: aiohttp.ClientSession, az_speech_key: str, az_speech_endpoint: str):
         self._session = session
@@ -44,16 +47,7 @@ class AzSpeechClient:
             },
         }
 
-    async def poll_transcription_status(
-        self,
-        job_url: str,
-        timeout_seconds: int = 7200,
-        interval: int = 15
-    ) -> str:
-        """
-        ジョブの完了を非同期で監視。最大timeout_seconds秒まで監視。
-        intervalは待機秒数。
-        """
+    async def poll_transcription_status(self, job_url: str, timeout_seconds: int = 7200, interval: int = 15) -> str:
         end_time = asyncio.get_event_loop().time() + timeout_seconds
         while True:
             status_data = await self._get(job_url)
@@ -69,22 +63,33 @@ class AzSpeechClient:
 
             await asyncio.sleep(interval)
 
-    async def get_transcription_result(self, file_url: str) -> str:
+    async def get_transcription_result_url(self, file_url: str) -> str:
         file_data = await self._get(file_url)
         return file_data["values"][0]["links"]["contentUrl"]
 
-    async def get_transcription_display(self, content_url: str) -> str:
+    async def get_transcription_by_speaker(self, content_url: str) -> str:
         content_data = await self._get(content_url)
-        return content_data["combinedRecognizedPhrases"][0]["display"]
+        recognized = content_data.get("recognizedPhrases", [])
+        
+        result_lines = []
 
-    async def process_full_transcription(self, blob_url: str) -> str:
-        """
-        1関数でジョブ作成→完了監視→結果取得までを完結させる高速パス。
-        """
+        for phrase in recognized:
+            speaker = phrase.get("speaker", 0)
+            text = phrase.get("nBest", [{}])[0].get("display", "")
+            result_lines.append(f"[話者{speaker}]\n{text}")
+
+        # 各発話の間に空行を入れる（見やすくする）
+        final_result = "\n\n".join(result_lines)
+
+        logger.info(f"時系列話者テキスト:\n{final_result}")
+        return final_result
+
+    async def process_full_transcription(self, blob_url: str) -> Dict[int, str]:
+        """話者識別付きで全文文字起こしを取得。"""
         job_url = await self.create_transcription_job(blob_url)
         files_url = await self.poll_transcription_status(job_url)
-        result_url = await self.get_transcription_result(files_url)
-        return await self.get_transcription_display(result_url)
+        result_url = await self.get_transcription_result_url(files_url)
+        return await self.get_transcription_by_speaker(result_url)
 
     async def _get(self, url: str) -> Dict[str, Any]:
         return await self._make_request("GET", url)
