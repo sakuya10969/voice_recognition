@@ -110,7 +110,7 @@ const Main: React.FC = () => {
   if (isSitesLoading) return <p style={{ textAlign: "center" }}>サイトを読み込んでいます...</p>;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", padding: 3, gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", overflowY: "auto" }}>
       <CssBaseline />
       {selectedDirectory && (
         <Box>

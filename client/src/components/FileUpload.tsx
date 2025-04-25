@@ -95,7 +95,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         flexDirection: "column",
         alignItems: "center",
         borderRadius: "5px",
-        p: 5,
+        p: 4,
         width: "500px",
       }}
     >

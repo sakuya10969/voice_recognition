@@ -52,7 +52,7 @@ const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
     <Paper
       elevation={3}
       sx={{
-        width: "700px",
+        width: "600px",
         height: "600px",
         padding: 2,
         border: "1px solid black",
@@ -86,7 +86,7 @@ const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
       <Box
         sx={{
           overflowY: "auto",
-          mt: 2,
+          mt: 1,
           height: "90%",
         }}
       >

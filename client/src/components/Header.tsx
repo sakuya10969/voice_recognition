@@ -8,7 +8,6 @@ import Box from "@mui/material/Box";
 
 import intelligentforce from "../assets/intelligentforce.png";
 
-
 const Header: React.FC = () => {
   return (
     <AppBar position="static" sx={{ backgroundColor: "white", color: "black" }}>

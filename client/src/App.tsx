@@ -17,7 +17,6 @@ function App() {
           justifyContent: "space-between",
           alignItems: "center",
           width: "100vw",
-          height: "100vh",
           overflowX: "hidden",
         }}
       >
