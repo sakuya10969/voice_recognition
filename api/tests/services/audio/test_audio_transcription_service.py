@@ -26,7 +26,7 @@ class TestAudioTranscriptionService:
         mock_az_speech_client.create_transcription_job.assert_awaited_once()
         mock_az_speech_client.poll_transcription_status.assert_awaited_once()
         mock_az_speech_client.get_transcription_result.assert_awaited_once()
-        mock_az_speech_client.get_transcription_display.assert_awaited_once()
+        mock_az_speech_client.get_transcription_by_speaker.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_transcribe_success(
@@ -76,4 +76,4 @@ class TestAudioTranscriptionService:
         mock_client.create_transcription_job.assert_awaited_once()
         mock_client.poll_transcription_status.assert_awaited_once()
         mock_client.get_transcription_result.assert_awaited_once()
-        mock_client.get_transcription_display.assert_awaited_once()
+        mock_client.get_transcription_by_speaker.assert_awaited_once()

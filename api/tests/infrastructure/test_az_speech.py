@@ -53,12 +53,12 @@ async def test_get_transcription_result(az_speech_client):
     assert result == "https://content.url"
 
 @pytest.mark.asyncio
-async def test_get_transcription_display(az_speech_client):
+async def test_get_transcription_by_speaker(az_speech_client):
     az_speech_client._get = AsyncMock(return_value={
         "combinedRecognizedPhrases": [{"display": "こんにちは、世界"}]
     })
 
-    result = await az_speech_client.get_transcription_display("https://content.url")
+    result = await az_speech_client.get_transcription_by_speaker("https://content.url")
     assert result == "こんにちは、世界"
 
 @pytest.mark.asyncio
@@ -66,7 +66,7 @@ async def test_process_full_transcription(az_speech_client):
     az_speech_client.create_transcription_job = AsyncMock(return_value="https://job.url")
     az_speech_client.poll_transcription_status = AsyncMock(return_value="https://files.url")
     az_speech_client.get_transcription_result = AsyncMock(return_value="https://content.url")
-    az_speech_client.get_transcription_display = AsyncMock(return_value="全文テキスト")
+    az_speech_client.get_transcription_by_speaker = AsyncMock(return_value="全文テキスト")
 
     result = await az_speech_client.process_full_transcription("https://blob.url/audio.wav")
     assert result == "全文テキスト"
