@@ -75,8 +75,8 @@ class MockAzSpeechClient(BaseMockClient):
     def _setup_mock_methods(self) -> None:
         self.create_transcription_job = AsyncMock(return_value=self._response.job_id)
         self.poll_transcription_status = AsyncMock(return_value=self._response.file_url)
-        self.get_transcription_result = AsyncMock(return_value=self._response.content_url)
-        self.get_transcription_display = AsyncMock(return_value=self._response.display_text)
+        self.get_transcription_result_url = AsyncMock(return_value=self._response.content_url)
+        self.get_transcription_by_speaker = AsyncMock(return_value=self._response.display_text)
         self._get = AsyncMock(return_value={
             "status": self._response.status,
             "link": {

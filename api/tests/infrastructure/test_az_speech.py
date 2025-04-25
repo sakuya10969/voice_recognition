@@ -44,12 +44,12 @@ async def test_poll_transcription_status_failure(az_speech_client):
     assert "ジョブ失敗" in str(exc_info.value.detail)
 
 @pytest.mark.asyncio
-async def test_get_transcription_result(az_speech_client):
+async def test_get_transcription_result_url(az_speech_client):
     az_speech_client._get = AsyncMock(return_value={
         "values": [{"links": {"contentUrl": "https://content.url"}}]
     })
 
-    result = await az_speech_client.get_transcription_result("https://files.url")
+    result = await az_speech_client.get_transcription_result_url("https://files.url")
     assert result == "https://content.url"
 
 @pytest.mark.asyncio

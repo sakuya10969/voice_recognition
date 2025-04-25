@@ -25,7 +25,7 @@ class TestAudioTranscriptionService:
         """文字起こし関連のAPI呼び出しを検証するヘルパーメソッド"""
         mock_az_speech_client.create_transcription_job.assert_awaited_once()
         mock_az_speech_client.poll_transcription_status.assert_awaited_once()
-        mock_az_speech_client.get_transcription_result.assert_awaited_once()
+        mock_az_speech_client.get_transcription_result_url.assert_awaited_once()
         mock_az_speech_client.get_transcription_by_speaker.assert_awaited_once()
 
     @pytest.mark.asyncio
@@ -75,5 +75,5 @@ class TestAudioTranscriptionService:
         assert result == "カスタムテキスト"
         mock_client.create_transcription_job.assert_awaited_once()
         mock_client.poll_transcription_status.assert_awaited_once()
-        mock_client.get_transcription_result.assert_awaited_once()
+        mock_client.get_transcription_result_url.assert_awaited_once()
         mock_client.get_transcription_by_speaker.assert_awaited_once()
