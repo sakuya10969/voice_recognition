@@ -30,8 +30,8 @@ async def test_create_transcription_job(az_speech_client):
 @pytest.mark.asyncio
 async def test_poll_transcription_status_success(az_speech_client):
     az_speech_client._get = AsyncMock(side_effect=[
-        {"status": "Processing"},
-        {"status": "Completed", "links": {"files": "https://files.url/result"}}
+        {"status": "Running"},
+        {"status": "Succeeded", "links": {"files": "https://files.url/result"}}
     ])
     result = await az_speech_client.poll_transcription_status("https://job.url", interval=0.01)
     assert result == "https://files.url/result"
