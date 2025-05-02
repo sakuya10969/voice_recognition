@@ -41,7 +41,6 @@
 | **クラウドストレージ**   | `azure-storage-blob` | Azure Blob Storageとのやり取りを行うライブラリ      |
 | **Webフレームワーク**   | `fastapi`         | 高速なPython製Webフレームワーク                    |
 | **動画処理**        | `imageio-ffmpeg`  | FFmpegを利用した動画処理                        |
-| **サーバー管理**     | `gunicorn`        | WSGIサーバー、FastAPIの本番運用向け                 |
 | **認証・認可**       | `msal`            | Microsoft認証ライブラリ（Azure AD認証など）         |
 | **AI・LLM**       | `openai`          | OpenAI APIを利用するためのクライアントライブラリ      |
 | **データバリデーション** | `pydantic`        | データスキーマ定義とバリデーション                 |
@@ -49,7 +48,6 @@
 | **ドキュメント操作**   | `python-docx`     | Word（.docx）ドキュメントの作成・編集              |
 | **マルチパート処理**   | `python-multipart` | ファイルアップロードなどのマルチパートデータ処理     |
 | **HTTP通信**       | `requests`        | シンプルなHTTPリクエストライブラリ                 |
-| **Webフレームワーク**   | `starlette`        | FastAPIの基盤となるASGIフレームワーク               |
 | **トークン処理**     | `tiktoken`        | OpenAIのトークナイザー（トークン計算など）         |
 | **非同期サーバー**   | `uvicorn[standard]` | ASGIサーバー、FastAPIの実行に使用                  |
 
