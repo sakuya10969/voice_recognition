@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AzSpeechClient:
-    """Azure Speech Servicesのクライアントクラス(話者識別対応)"""
+    """Azure Speech Servicesのクライアントクラス"""
 
     def __init__(self, session: aiohttp.ClientSession, az_speech_key: str, az_speech_endpoint: str):
         self._session = session
