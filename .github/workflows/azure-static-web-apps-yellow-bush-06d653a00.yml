@@ -33,7 +33,9 @@ jobs:
         id: idtoken
         with:
           script: |
-            return await getIDToken();
+            const core = require('@actions/core');
+            const idToken = await core.getIDToken();
+            return idToken;
           result-encoding: string
 
       - name: Build And Deploy
