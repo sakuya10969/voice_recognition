@@ -70,19 +70,33 @@ class AzSpeechClient:
     async def get_transcription_by_speaker(self, content_url: str) -> str:
         content_data = await self._get(content_url)
         recognized = content_data.get("recognizedPhrases", [])
-        
-        result_lines = []
+
+        result_blocks = []
+        current_speaker = None
+        current_block = []
 
         for phrase in recognized:
             speaker = phrase.get("speaker", 0)
             text = phrase.get("nBest", [{}])[0].get("display", "")
-            result_lines.append(f"[話者{speaker}]\n{text}")
 
-        # 各発話の間に空行を入れる（見やすくする）
-        final_result = "\n\n".join(result_lines)
+            if speaker != current_speaker:
+                if current_block:
+                    # ひとつ前のスピーカーのブロックを保存
+                    result_blocks.append(f"[話者{current_speaker}]\n" + "\n".join(current_block))
+                # 話者が変わったので新しいブロックを開始
+                current_speaker = speaker
+                current_block = [text]
+            else:
+                current_block.append(text)
 
+        # 最後のブロックも追加
+        if current_block:
+            result_blocks.append(f"[話者{current_speaker}]\n" + "\n".join(current_block))
+
+        final_result = "\n\n".join(result_blocks)
         logger.info(f"時系列話者テキスト:\n{final_result}")
         return final_result
+
 
     async def process_full_transcription(self, blob_url: str) -> Dict[int, str]:
         """話者識別付きで全文文字起こしを取得。"""
