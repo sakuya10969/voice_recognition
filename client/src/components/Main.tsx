@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline"
 
-import FileUpload from "./FileUpload";
+import FileUploadField from "./FileUploadField";
 import Note from "./Note";
 import { handleSendAudio } from "../api/transcription";
 import { useFetchSites } from "../hooks/useFetchSites";
@@ -118,7 +118,7 @@ const Main: React.FC = () => {
         </Box>
       )}
       <Box sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", width: "100%" }}>
-        <FileUpload
+        <FileUploadField
           sites={sitesData}
           directories={directoriesData}
           subDirectories={subDirectoriesData}

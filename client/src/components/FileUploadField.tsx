@@ -1,0 +1,138 @@
+// components/FileUpload.tsx
+import React, { useState, useEffect, useCallback } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Send from "@mui/icons-material/Send";
+import { useAtom } from "jotai";
+import { searchValueAtom } from "../store/atoms";
+
+import SearchField from "./SearchField";
+import SPOSelection from "./SPOSelection";
+import FileDropZone from "./FileDropZone";
+
+interface Option {
+  id: string;
+  name: string;
+}
+
+interface FileUploadProps {
+  sites: Option[];
+  directories: Option[];
+  subDirectories: Option[];
+  onFileChange: (file: File | null) => void;
+  onSubmit: () => void;
+  onSiteChange: (site: Option) => void;
+  onDirectoryChange: (directory: Option) => void;
+  onSubDirectoryChange: (subDirectory: Option) => void;
+  file: File | null;
+  selectedSiteId: string;
+  selectedDirectoryId: string;
+  selectedSubDirectoryId: string;
+}
+
+const FileUploadField: React.FC<FileUploadProps> = ({
+  sites,
+  directories,
+  subDirectories,
+  onFileChange,
+  onSubmit,
+  onSiteChange,
+  onDirectoryChange,
+  onSubDirectoryChange,
+  file,
+  selectedSiteId,
+  selectedDirectoryId,
+  selectedSubDirectoryId,
+}) => {
+  const [errorFileType, setErrorFileType] = useState<boolean>(false);
+  const [filteredSites, setFilteredSites] = useState<Option[]>(sites);
+  const [searchValue, setSearchValue] = useAtom(searchValueAtom);
+
+  useEffect(() => {
+    setFilteredSites(sites);
+  }, [sites]);
+
+  const handleSearch = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchValue(value);
+      setFilteredSites(
+        value.trim() === ""
+          ? sites
+          : sites.filter((site) => (site.name || "").includes(value))
+      );
+    },
+    [sites, setSearchValue]
+  );
+
+  return (
+    <Box
+      component="form"
+      onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        borderRadius: "5px",
+        p: 4,
+        width: "500px",
+      }}
+    >
+      <Typography fontWeight="bold" align="left" sx={{ fontSize: "x-large", mb: 2 }}>
+        議事録ファイル出力先
+      </Typography>
+
+      <SearchField value={searchValue} onChange={handleSearch} />
+
+      <SPOSelection
+        sites={filteredSites}
+        directories={directories}
+        subDirectories={subDirectories}
+        selectedSiteId={selectedSiteId}
+        selectedDirectoryId={selectedDirectoryId}
+        selectedSubDirectoryId={selectedSubDirectoryId}
+        onSiteChange={onSiteChange}
+        onDirectoryChange={onDirectoryChange}
+        onSubDirectoryChange={onSubDirectoryChange}
+      />
+
+      <FileDropZone
+        file={file}
+        errorFileType={errorFileType}
+        onFileChange={(f) => {
+          if (!f) setErrorFileType(true);
+          else {
+            setErrorFileType(false);
+            onFileChange(f);
+          }
+        }}
+      />
+
+      <Button
+        type="submit"
+        disabled={!file}
+        endIcon={<Send />}
+        sx={{
+          color: "white",
+          backgroundColor: "black",
+          borderRadius: "5px",
+          width: "110px",
+          ":disabled": {
+            backgroundColor: "whitesmoke",
+          },
+          "&:hover": {
+            backgroundColor: "black",
+          },
+        }}
+      >
+        送信
+      </Button>
+    </Box>
+  );
+};
+
+export default FileUploadField;
