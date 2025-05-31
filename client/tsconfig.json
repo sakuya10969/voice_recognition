@@ -17,7 +17,7 @@
       "@/*": ["src/*"]
     },
     "lib": ["DOM", "ESNext"],
-    "types": ["jest", "node", "@testing-library/jest-dom", "web-vitals"],
+    "types": ["jest", "node", "web-vitals"],
     "allowJs": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
