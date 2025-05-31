@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import aiohttp
 from contextlib import asynccontextmanager
 import logging
@@ -7,6 +6,8 @@ import logging
 from app.config.get_config import get_config
 from app.infrastructure.az_client_factory import AzClientFactory
 from app.services.task_managing_service import TaskManagingService
+from app.middlewares.cors_middleware import configure_cors
+from app.middlewares.logging_middleware import configure_logging
 from app.routers import audio_processing_router
 from app.routers import sharepoint_router
 
@@ -37,13 +38,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# ミドルウェアの設定
+configure_logging(app)  # ログミドルウェアを先に設定
+configure_cors(app)     # CORSミドルウェアを後に設定
 
 app.include_router(audio_processing_router.router)
 app.include_router(sharepoint_router.router)
