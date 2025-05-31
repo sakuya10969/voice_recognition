@@ -13,6 +13,7 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
+
 class MP4ProcessingService:
     """MP4ファイルをWAVファイルに変換・処理するサービス"""
 
@@ -25,10 +26,12 @@ class MP4ProcessingService:
             sanitized_filename = os.path.basename(file_path)
             ext = os.path.splitext(sanitized_filename)[1].lower()
 
-            if ext not in ['.mp4', '.wav']:
-                raise HTTPException(status_code=400, detail="サポートされていないファイル形式です。")
+            if ext not in [".mp4", ".wav"]:
+                raise HTTPException(
+                    status_code=400, detail="サポートされていないファイル形式です。"
+                )
 
-            if ext == '.wav':
+            if ext == ".wav":
                 return await self._read_file_async(file_path, sanitized_filename)
 
             return await self._process_audio_file(file_path, sanitized_filename)
@@ -37,7 +40,9 @@ class MP4ProcessingService:
             logger.error(f"処理エラー: {str(e)}")
             raise HTTPException(status_code=500, detail=f"処理失敗: {str(e)}")
 
-    async def _process_audio_file(self, file_path: str, filename: str) -> Dict[str, Any]:
+    async def _process_audio_file(
+        self, file_path: str, filename: str
+    ) -> Dict[str, Any]:
         tmpdir = tempfile.mkdtemp()
         try:
             input_path = os.path.join(tmpdir, filename)
@@ -68,28 +73,42 @@ class MP4ProcessingService:
         try:
             command = [
                 ffmpeg.get_ffmpeg_exe(),
-                "-i", input_path,
+                "-i",
+                input_path,
                 "-vn",  # 映像なし
-                "-map", "a",  # 音声ストリームのみ
-                "-ar", "16000",
-                "-ac", "1",
-                "-sample_fmt", "s16",
-                "-f", "wav",
-                "-threads", "0",
-                "-preset", "ultrafast",
-                "-y", output_path
+                "-map",
+                "a",  # 音声ストリームのみ
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                "-sample_fmt",
+                "s16",
+                "-f",
+                "wav",
+                "-threads",
+                "0",
+                "-preset",
+                "ultrafast",
+                "-y",
+                output_path,
             ]
             process = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8
             )
             _, stderr = process.communicate()
             if process.returncode != 0:
-                raise subprocess.CalledProcessError(process.returncode, command, stderr=stderr)
+                raise subprocess.CalledProcessError(
+                    process.returncode, command, stderr=stderr
+                )
         except subprocess.CalledProcessError as e:
-            raise HTTPException(status_code=500, detail=f"FFmpeg失敗: {e.stderr.decode(errors='ignore')}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"FFmpeg失敗: {e.stderr.decode(errors='ignore')}",
+            )
 
     async def _read_file_async(self, file_path: str, filename: str) -> Dict[str, Any]:
-        async with aio_open(file_path, 'rb') as f:
+        async with aio_open(file_path, "rb") as f:
             data = await f.read()
         return {"file_name": filename, "file_data": data}
 
@@ -103,6 +122,8 @@ class MP4ProcessingService:
 
     async def _remove_temp_directory_async(self, tmpdir: str) -> None:
         try:
-            await asyncio.get_event_loop().run_in_executor(self._executor, shutil.rmtree, tmpdir)
+            await asyncio.get_event_loop().run_in_executor(
+                self._executor, shutil.rmtree, tmpdir
+            )
         except Exception as e:
             logger.warning(f"一時ディレクトリ削除失敗: {str(e)}")

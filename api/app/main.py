@@ -12,11 +12,12 @@ from app.routers import sharepoint_router
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,12 +28,12 @@ async def lifespan(app: FastAPI):
         app.state.session = session
         app.state.task_managing_service = TaskManagingService()
         app.state.az_client_factory = AzClientFactory(
-            config=app.state.config,
-            session=session
+            config=app.state.config, session=session
         )
         yield
     finally:
         await session.close()
+
 
 app = FastAPI(lifespan=lifespan)
 

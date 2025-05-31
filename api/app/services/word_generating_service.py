@@ -9,6 +9,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class WordGeneratingService:
     """Word文書の生成を行うサービス"""
 
@@ -17,54 +18,46 @@ class WordGeneratingService:
         self.temp_dir = None
         self.temp_file_path = None
 
-    async def create_word_document(self, transcribed_text: str, summarized_text: str) -> Path:
+    async def create_word_document(
+        self, transcribed_text: str, summarized_text: str
+    ) -> Path:
         """文字起こしと要約からWord文書を生成する"""
-        if transcribed_text is None or summarized_text is None:
+        if not transcribed_text or not summarized_text:
             raise ValueError("文字起こしテキストと要約テキストは必須です")
-            
         try:
             self._initialize_document()
-            self._create_document_content(transcribed_text, summarized_text)
+            self._add_sections(summarized_text, transcribed_text)
             self._save_document()
-            
             logger.info(f"Word文書を生成: {self.temp_file_path}")
             return self.temp_file_path
-            
         except Exception as e:
             logger.error(f"Word文書の生成に失敗: {str(e)}")
             raise Exception(f"Word文書の生成に失敗しました: {str(e)}")
 
     def _initialize_document(self) -> None:
-        """文書の初期化処理"""
+        """一時ディレクトリとWord文書の初期化"""
         self.temp_dir = Path(tempfile.mkdtemp())
         now = datetime.now()
         filename = f"{now.year}_{now.month:02d}{now.day:02d}_{now.hour:02d}{now.minute:02d}_議事録.docx"
         self.temp_file_path = self.temp_dir / filename
         self.doc = Document()
 
-    def _create_document_content(self, transcribed_text: str, summarized_text: str) -> None:
-        """文書の内容を作成"""
+    def _add_sections(self, summary_text: str, transcribed_text: str) -> None:
+        """タイトル・要約・文字起こしセクションをまとめて追加"""
         self._add_title()
-        self._add_summary_section(summarized_text)
-        self._add_transcription_section(transcribed_text)
+        self._add_section("要約", summary_text)
+        self._add_section("文字起こし", transcribed_text)
 
     def _add_title(self) -> None:
         """タイトルを追加"""
-        title = self.doc.add_heading('文字起こしと要約', 0)
+        title = self.doc.add_heading("文字起こしと要約", 0)
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    def _add_summary_section(self, summary_text: str) -> None:
-        """要約セクションを追加"""
-        self.doc.add_heading('要約', level=1)
-        summary_para = self.doc.add_paragraph(summary_text)
-        for run in summary_para.runs:
-            run.font.size = Pt(11)
-
-    def _add_transcription_section(self, transcribed_text: str) -> None:
-        """文字起こしセクションを追加"""
-        self.doc.add_heading('文字起こし', level=1)
-        trans_para = self.doc.add_paragraph(transcribed_text)
-        for run in trans_para.runs:
+    def _add_section(self, heading: str, content: str) -> None:
+        """見出しと本文を追加"""
+        self.doc.add_heading(heading, level=1)
+        para = self.doc.add_paragraph(content)
+        for run in para.runs:
             run.font.size = Pt(11)
 
     def _save_document(self) -> None:

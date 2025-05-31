@@ -3,13 +3,14 @@ from fastapi import HTTPException
 import asyncio
 from typing import List, Dict, Any
 
+
 class AzOpenAIClient:
     def __init__(
         self,
         az_openai_key: str,
         az_openai_endpoint: str,
         api_version: str = "2024-02-01",
-        max_concurrent: int = 10
+        max_concurrent: int = 10,
     ):
         """Azure OpenAI クライアントの初期化"""
         self.client = AsyncAzureOpenAI(
@@ -30,7 +31,4 @@ class AzOpenAIClient:
                 )
                 return response.choices[0].message.content.strip()
             except Exception as e:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"OpenAIエラー: {str(e)}"
-                )
+                raise HTTPException(status_code=500, detail=f"OpenAIエラー: {str(e)}")

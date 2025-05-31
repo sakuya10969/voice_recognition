@@ -1,6 +1,7 @@
 aiofiles
 aiohttp
 azure-storage-blob
+black
 fastapi
 imageio-ffmpeg
 msal

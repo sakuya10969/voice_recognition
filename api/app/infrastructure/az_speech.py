@@ -6,10 +6,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class AzSpeechClient:
     """Azure Speech Servicesのクライアントクラス"""
 
-    def __init__(self, session: aiohttp.ClientSession, az_speech_key: str, az_speech_endpoint: str):
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        az_speech_key: str,
+        az_speech_endpoint: str,
+    ):
         self._session = session
         self._endpoint = az_speech_endpoint.rstrip("/")
         self._headers = self._create_headers(az_speech_key)
@@ -27,14 +33,18 @@ class AzSpeechClient:
         if not self._session.closed:
             await self._session.close()
 
-    async def create_transcription_job(self, blob_url: str, display_name: Optional[str] = None) -> str:
+    async def create_transcription_job(
+        self, blob_url: str, display_name: Optional[str] = None
+    ) -> str:
         """文字起こしジョブを作成する"""
         body = self._create_transcription_config(blob_url, display_name)
         transcription_url = f"{self._endpoint}/speechtotext/v3.2/transcriptions"
         response_data = await self._post(transcription_url, body)
         return response_data["self"]
 
-    def _create_transcription_config(self, blob_url: str, display_name: Optional[str]) -> Dict[str, Any]:
+    def _create_transcription_config(
+        self, blob_url: str, display_name: Optional[str]
+    ) -> Dict[str, Any]:
         """文字起こし設定を作成する"""
         return {
             "displayName": display_name or "Transcription",
@@ -49,17 +59,19 @@ class AzSpeechClient:
             },
         }
 
-    async def poll_transcription_status(self, job_url: str, timeout_seconds: int = 7200, interval: int = 15) -> str:
+    async def poll_transcription_status(
+        self, job_url: str, timeout_seconds: int = 7200, interval: int = 15
+    ) -> str:
         """文字起こしジョブの状態を監視する"""
         end_time = asyncio.get_event_loop().time() + timeout_seconds
-        
+
         while True:
             status_data = await self._get(job_url)
             status = status_data.get("status")
 
             if status == "Succeeded":
                 return status_data["links"]["files"]
-            
+
             if status in ["Failed", "Cancelled"]:
                 raise HTTPException(500, f"ジョブ失敗: {status}")
 
@@ -77,7 +89,7 @@ class AzSpeechClient:
         """話者ごとに文字起こし結果を整形する"""
         content_data = await self._get(content_url)
         recognized_phrases = content_data.get("recognizedPhrases", [])
-        
+
         return self._format_transcription_by_speaker(recognized_phrases)
 
     def _format_transcription_by_speaker(self, recognized_phrases: list) -> str:
@@ -124,16 +136,20 @@ class AzSpeechClient:
         """POSTリクエストを実行する"""
         return await self._make_request("POST", url, json_body)
 
-    async def _make_request(self, method: str, url: str, json_body: Dict[str, Any] = None) -> Dict[str, Any]:
+    async def _make_request(
+        self, method: str, url: str, json_body: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
         """HTTPリクエストを実行する"""
         try:
-            async with self._session.request(method, url, headers=self._headers, json=json_body) as response:
+            async with self._session.request(
+                method, url, headers=self._headers, json=json_body
+            ) as response:
                 expected_status = 201 if method == "POST" else 200
                 if response.status != expected_status:
                     error_msg = "ジョブの作成" if method == "POST" else "リクエスト"
                     raise HTTPException(
                         status_code=response.status,
-                        detail=f"{error_msg}に失敗しました: {await response.text()}"
+                        detail=f"{error_msg}に失敗しました: {await response.text()}",
                     )
                 return await response.json()
         except asyncio.TimeoutError:

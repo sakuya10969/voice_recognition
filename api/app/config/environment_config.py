@@ -1,11 +1,17 @@
 import os
 from dotenv import load_dotenv
 
+
 class EnvironmentConfig:
     REQUIRED_VARS = [
-        "AZ_SPEECH_KEY", "AZ_SPEECH_ENDPOINT", "AZ_OPENAI_KEY",
-        "AZ_OPENAI_ENDPOINT", "AZ_BLOB_CONNECTION", "CLIENT_ID",
-        "CLIENT_SECRET", "TENANT_ID"
+        "AZ_SPEECH_KEY",
+        "AZ_SPEECH_ENDPOINT",
+        "AZ_OPENAI_KEY",
+        "AZ_OPENAI_ENDPOINT",
+        "AZ_BLOB_CONNECTION",
+        "CLIENT_ID",
+        "CLIENT_SECRET",
+        "TENANT_ID",
     ]
 
     def __init__(self):
@@ -21,4 +27,6 @@ class EnvironmentConfig:
     def _validate_environment_variables(self):
         missing = [var for var in self.REQUIRED_VARS if not getattr(self, var)]
         if missing:
-            raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+            raise ValueError(
+                f"Missing required environment variables: {', '.join(missing)}"
+            )

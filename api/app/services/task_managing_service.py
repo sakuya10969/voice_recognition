@@ -1,10 +1,12 @@
 from typing import Dict, Optional
 from app.models.transcription import TaskStatus
 
+
 class TaskManagingService:
     """
     タスクの状態と文字起こし・要約結果を管理するアプリケーションサービス
     """
+
     def __init__(self):
         self.status: Dict[str, TaskStatus] = {}
         self.transcribed_text: Dict[str, Optional[str]] = {}
@@ -28,4 +30,3 @@ class TaskManagingService:
         error_text = f"エラー: {error_message}"
         self.transcribed_text[task_id] = error_text
         self.summarized_text[task_id] = error_text
-        
