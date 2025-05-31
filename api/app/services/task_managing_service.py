@@ -6,7 +6,6 @@ class TaskManagingService:
     """
     タスクの状態と文字起こし・要約結果を管理するアプリケーションサービス
     """
-
     def __init__(self):
         self.status: Dict[str, TaskStatus] = {}
         self.transcribed_text: Dict[str, Optional[str]] = {}

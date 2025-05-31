@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 class MP4ProcessingService:
     """MP4ファイルをWAVファイルに変換・処理するサービス"""
-
     def __init__(self):
         # I/Oバウンド処理のため、コア数の2倍を使用
         self._executor = ThreadPoolExecutor(max_workers=(os.cpu_count() or 2) * 2)

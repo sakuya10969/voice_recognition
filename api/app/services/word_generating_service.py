@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 class WordGeneratingService:
     """Word文書の生成を行うサービス"""
-
     def __init__(self):
         self.doc = None
         self.temp_dir = None

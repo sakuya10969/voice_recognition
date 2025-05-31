@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 class AudioTranscriptionService:
     """音声文字起こしを行うサービス"""
-
     def __init__(self, az_speech_client: AzSpeechClient):
         self._az_speech_client = az_speech_client
 

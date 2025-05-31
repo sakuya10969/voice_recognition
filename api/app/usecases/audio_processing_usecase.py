@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 class AudioProcessingUseCase:
     """音声文字起こしのユースケース"""
-
     def __init__(
         self,
         task_managing_service: TaskManagingService,

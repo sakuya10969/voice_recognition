@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 class AudioProcessingService:
     """音声処理を統合的に管理するサービス"""
-
     def __init__(
         self,
         az_speech_client: AzSpeechClient,

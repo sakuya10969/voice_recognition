@@ -7,6 +7,7 @@ from app.utils.prompt_generating import generate_prompt
 
 
 class TextSummarizationService:
+    """テキストを要約するサービス"""
     def __init__(
         self,
         az_openai_client: AzOpenAIClient,
