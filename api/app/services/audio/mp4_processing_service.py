@@ -30,7 +30,6 @@ class MP4ProcessingService:
                 raise HTTPException(
                     status_code=400, detail="サポートされていないファイル形式です。"
                 )
-
             if ext == ".wav":
                 return await self._read_file_async(file_path, sanitized_filename)
 

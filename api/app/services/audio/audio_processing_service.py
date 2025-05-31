@@ -29,7 +29,6 @@ class AudioProcessingService:
         try:
             # MP4の処理
             processed_data = await self.mp4_processing_service.process_mp4(file_path)
-
             # Blobへのアップロード
             blob_url = await self.az_blob_client.upload_blob(
                 processed_data["file_name"], processed_data["file_data"]
@@ -59,10 +58,8 @@ class AudioProcessingService:
         try:
             # 音声ファイルの処理とアップロード
             audio_data = await self.process_audio_file(file_path)
-
             # 文字起こしの実行
             transcribed_text = await self.transcribe_audio(audio_data["blob_url"])
-
             # 文字起こし完了後、Blobを削除
             await self.az_blob_client.delete_blob(audio_data["file_name"])
 
