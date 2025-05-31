@@ -113,7 +113,7 @@ const Main: React.FC = () => {
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", overflowY: "auto" }}>
       <CssBaseline />
       {selectedDirectory && (
-        <Box>
+        <Box mt={2}>
           <LinkCopyButton />
         </Box>
       )}
