@@ -63,15 +63,15 @@ importers:
       '@babel/plugin-proposal-private-property-in-object':
         specifier: ^7.21.11
         version: 7.21.11(@babel/core@7.27.4)
-      '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
       '@testing-library/react':
         specifier: ^14.0.0
         version: 14.3.1(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/file-saver':
         specifier: ^2.0.7
         version: 2.0.7
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
       '@types/node':
         specifier: ^22.15.29
         version: 22.15.29
@@ -81,6 +81,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.12
         version: 18.3.7(@types/react@18.3.23)
+      '@types/testing-library__jest-dom':
+        specifier: ^6.0.0
+        version: 6.0.0
       eslint:
         specifier: ^8.56.0
         version: 8.57.1
@@ -1583,6 +1586,10 @@ packages:
 
   '@types/testing-library__jest-dom@5.14.9':
     resolution: {integrity: sha512-FSYhIjFlfOpGSRyVoMBMuS3ws5ehFQODymf3vlI7U1K8c7PHwWwFY7VREfmsuzHSOnoKs/9/Y983ayOs7eRzqw==}
+
+  '@types/testing-library__jest-dom@6.0.0':
+    resolution: {integrity: sha512-bnreXCgus6IIadyHNlN/oI5FfX4dWgvGhOPvpr7zzCYDGAPIfvyIoAozMBINmhmsVuqV0cncejF2y5KC7ScqOg==}
+    deprecated: This is a stub types definition. @testing-library/jest-dom provides its own type definitions, so you do not need this installed.
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -8095,6 +8102,10 @@ snapshots:
   '@types/testing-library__jest-dom@5.14.9':
     dependencies:
       '@types/jest': 29.5.14
+
+  '@types/testing-library__jest-dom@6.0.0':
+    dependencies:
+      '@testing-library/jest-dom': 5.17.0
 
   '@types/trusted-types@2.0.7': {}
 
