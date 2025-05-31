@@ -67,7 +67,7 @@ cd voice_recognition
 **フロントエンド (React)**
 ```bash
 cd client
-yarn install
+pnpm install
 ```
 
 **バックエンド (FastAPI)**
@@ -83,7 +83,7 @@ docker-compose build
 1. フロントエンドのサーバーを起動。
 ```bash
 cd client
-yarn start
+pnpm start
 ```
 
 2. バックエンドのサーバーを起動
