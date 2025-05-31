@@ -1,6 +1,6 @@
 import useSWR from "swr";
-import { fetcher } from "../utils/fetcher";
-// import { apiUrl } from "../constants/api";
+
+import { fetcher } from "@/utils/fetcher";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 

@@ -5,12 +5,9 @@ import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-interface SuccessModalProps {
-  open: boolean;
-  onClose: () => void;
-}
+import { SuccessModalProps } from "@/types";
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ open, onClose }) => {
+const SuccessModal = ({ open, onClose }: SuccessModalProps) => {
   return (
     <Modal open={open} onClose={onClose}>
       <Box

@@ -4,18 +4,18 @@ import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline"
 
-import FileUploadField from "./FileUploadField";
-import Note from "./Note";
-import { handleSendAudio } from "../api/transcription";
-import { useFetchSites } from "../hooks/useFetchSites";
-import { useFetchDirectories } from "../hooks/useFetchDirectories";
-import { useFetchSubDirectories } from "../hooks/useFetchSubDirectories";
-import UploadingModal from "./UploadingModal";
-import SuccessModal from "./SuccessModal";
-import { searchValueAtom } from "../store/atoms";
-import LinkCopyButton from "./LinkCopyButton";
+import FileUploadField from "@/components/FileUploadField";
+import Note from "@/components/Note";
+import { handleSendAudio } from "@/api/transcription";
+import { useFetchSites } from "@/hooks/useFetchSites";
+import { useFetchDirectories } from "@/hooks/useFetchDirectories";
+import { useFetchSubDirectories } from "@/hooks/useFetchSubDirectories";
+import UploadingModal from "@/components/UploadingModal";
+import SuccessModal from "@/components/SuccessModal";
+import { searchValueAtom } from "@/store/atoms";
+import LinkCopyButton from "@/components/LinkCopyButton";
 
-const Main: React.FC = () => {
+const Main = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { sitesData, sitesError, isSitesLoading } = useFetchSites();
 

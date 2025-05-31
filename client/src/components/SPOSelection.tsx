@@ -6,26 +6,11 @@ import {
   Select,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import { theme } from "../theme/theme";
 
-interface Option {
-  id: string;
-  name: string;
-}
+import { theme } from "@/theme/theme";
+import { Option, SPOSelectionProps } from "@/types";
 
-interface SPOSelectionProps {
-  sites: Option[];
-  directories: Option[];
-  subDirectories: Option[];
-  selectedSiteId: string;
-  selectedDirectoryId: string;
-  selectedSubDirectoryId: string;
-  onSiteChange: (site: Option) => void;
-  onDirectoryChange: (directory: Option) => void;
-  onSubDirectoryChange: (subDirectory: Option) => void;
-}
-
-const SPOSelection: React.FC<SPOSelectionProps> = ({
+const SPOSelection = ({
   sites,
   directories,
   subDirectories,
@@ -35,7 +20,7 @@ const SPOSelection: React.FC<SPOSelectionProps> = ({
   onSiteChange,
   onDirectoryChange,
   onSubDirectoryChange,
-}) => (
+}: SPOSelectionProps) => (
   <>
     <ThemeProvider theme={theme}>
       <FormControl fullWidth sx={{ mb: 2 }} size="small">

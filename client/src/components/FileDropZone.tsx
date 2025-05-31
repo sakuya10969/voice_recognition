@@ -3,13 +3,9 @@ import { useDropzone, FileRejection } from "react-dropzone";
 import { Box, Button, Typography } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-interface FileDropZoneProps {
-  file: File | null;
-  onFileChange: (file: File | null) => void;
-  errorFileType: boolean;
-}
+import { FileDropZoneProps } from "@/types";
 
-const FileDropZone: React.FC<FileDropZoneProps> = ({ file, onFileChange, errorFileType }) => {
+const FileDropZone = ({ file, onFileChange, errorFileType }: FileDropZoneProps) => {
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
       onFileChange(null);

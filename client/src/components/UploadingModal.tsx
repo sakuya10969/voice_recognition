@@ -5,7 +5,7 @@ import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
 import GraphicEqIcon from "@mui/icons-material/GraphicEq";
 
-const UploadingModal: React.FC<{ open: boolean }> = ({ open }) => {
+const UploadingModal = ({ open }: { open: boolean }) => {
     const modalStyle = {
     display: "flex",
     flexDirection: "column",

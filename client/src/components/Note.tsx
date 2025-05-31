@@ -4,12 +4,9 @@ import { Download as DownloadIcon } from "@mui/icons-material";
 import { saveAs } from "file-saver";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 
-interface NoteProps {
-  summarizedText: string;
-  transcribedText: string;
-}
+import { NoteProps } from "@/types";
 
-const Note: React.FC<NoteProps> = ({ summarizedText, transcribedText }) => {
+const Note = ({ summarizedText, transcribedText }: NoteProps) => {
   const handleDownload = async () => {
   const now = new Date();
   const formattedDate = now.toISOString().replace(/T/, "_").replace(/\..+/, "").replace(/:/g, "-"); 

@@ -5,33 +5,14 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Send from "@mui/icons-material/Send";
 import { useAtom } from "jotai";
-import { searchValueAtom } from "../store/atoms";
 
-import SearchField from "./SearchField";
-import SPOSelection from "./SPOSelection";
-import FileDropZone from "./FileDropZone";
+import { searchValueAtom } from "@/store/atoms";
+import SearchField from "@/components/SearchField";
+import SPOSelection from "@/components/SPOSelection";
+import FileDropZone from "@/components/FileDropZone";
+import { Option, FileUploadProps } from "@/types";
 
-interface Option {
-  id: string;
-  name: string;
-}
-
-interface FileUploadProps {
-  sites: Option[];
-  directories: Option[];
-  subDirectories: Option[];
-  onFileChange: (file: File | null) => void;
-  onSubmit: () => void;
-  onSiteChange: (site: Option) => void;
-  onDirectoryChange: (directory: Option) => void;
-  onSubDirectoryChange: (subDirectory: Option) => void;
-  file: File | null;
-  selectedSiteId: string;
-  selectedDirectoryId: string;
-  selectedSubDirectoryId: string;
-}
-
-const FileUploadField: React.FC<FileUploadProps> = ({
+const FileUploadField = ({
   sites,
   directories,
   subDirectories,
@@ -44,7 +25,7 @@ const FileUploadField: React.FC<FileUploadProps> = ({
   selectedSiteId,
   selectedDirectoryId,
   selectedSubDirectoryId,
-}) => {
+}: FileUploadProps) => {
   const [errorFileType, setErrorFileType] = useState<boolean>(false);
   const [filteredSites, setFilteredSites] = useState<Option[]>(sites);
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
