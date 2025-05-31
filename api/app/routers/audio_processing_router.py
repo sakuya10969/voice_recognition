@@ -1,7 +1,6 @@
 import uuid
 import logging
 from typing import Optional, Dict, Any
-from dataclasses import dataclass
 
 from fastapi import (
     APIRouter,
@@ -13,6 +12,7 @@ from fastapi import (
     status,
     Request,
 )
+from pydantic import BaseModel
 
 from app.models.transcription import Transcription
 from app.di.parse_form import parse_transcription_form
@@ -20,28 +20,11 @@ from app.usecases.audio_processing_usecase import AudioProcessingUseCase
 from app.services.audio.mp4_processing_service import MP4ProcessingService
 from app.services.word_generating_service import WordGeneratingService
 from app.utils.file_handling import save_file_temporarily
+from app.models.transcription import AudioProcessingResponse, TranscriptionStatusResponse
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-@dataclass
-class AudioProcessingResponse:
-    """音声処理のレスポンスデータ"""
-
-    task_id: str
-    message: str
-
-
-@dataclass
-class TranscriptionStatusResponse:
-    """文字起こし状態のレスポンスデータ"""
-
-    task_id: str
-    status: str
-    transcribed_text: Optional[str]
-    summarized_text: Optional[str]
 
 
 def _create_audio_usecase(request: Request) -> AudioProcessingUseCase:
@@ -72,13 +55,13 @@ async def _handle_audio_operation(
         )
 
 
-@router.post("/transcription", status_code=202)
+@router.post("/transcription", status_code=202, response_model=AudioProcessingResponse)
 async def process_audio(
     request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     site_data: Optional[Transcription] = Depends(parse_transcription_form),
-) -> AudioProcessingResponse:
+):
     """音声ファイルの文字起こしと要約を非同期で実行"""
 
     async def start_audio_processing():
@@ -99,10 +82,10 @@ async def process_audio(
     return await _handle_audio_operation("音声処理の開始", start_audio_processing)
 
 
-@router.get("/transcription/{task_id}")
+@router.get("/transcription/{task_id}", response_model=TranscriptionStatusResponse)
 async def get_transcription_status(
     request: Request, task_id: str
-) -> TranscriptionStatusResponse:
+):
     """タスクの処理状態と結果を取得"""
     task_managing_service = request.app.state.task_managing_service
 
