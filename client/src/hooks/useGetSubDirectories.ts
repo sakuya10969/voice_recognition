@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { fetcher } from "@/utils/fetcher";
 
-export const useFetchSubDirectories = (
+export const useGetSubDirectories = (
   apiUrl: string,
   siteId: string | null,
   directoryId: string | null

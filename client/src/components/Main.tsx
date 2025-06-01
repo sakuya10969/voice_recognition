@@ -7,9 +7,9 @@ import CssBaseline from "@mui/material/CssBaseline"
 import FileUploadField from "@/components/FileUploadField";
 import Note from "@/components/Note";
 import { handleSendAudio } from "@/api/transcription";
-import { useFetchSites } from "@/hooks/useFetchSites";
-import { useFetchDirectories } from "@/hooks/useFetchDirectories";
-import { useFetchSubDirectories } from "@/hooks/useFetchSubDirectories";
+import { useGetSites } from "@/hooks/useGetSites";
+import { useGetDirectories } from "@/hooks/useGetDirectories";
+import { useGetSubDirectories } from "@/hooks/useGetSubDirectories";
 import UploadingModal from "@/components/UploadingModal";
 import SuccessModal from "@/components/SuccessModal";
 import { searchValueAtom } from "@/store/atoms";
@@ -19,7 +19,7 @@ const Main = () => {
   const apiUrl = process.env.REACT_APP_API_URL ?? 'http://127.0.0.1:8000';
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { sitesData, sitesError, isSitesLoading } = useFetchSites(apiUrl);
+  const { sitesData, sitesError, isSitesLoading } = useGetSites(apiUrl);
 
   const selectedSite = useMemo(() => {
     if (!sitesData) return null;
@@ -27,7 +27,7 @@ const Main = () => {
     return sitesData.find((s: { id: string; name: string }) => s.id.trim() === siteParam) || null;
   }, [searchParams, sitesData]);
 
-  const { directoriesData } = useFetchDirectories(apiUrl, selectedSite?.id ?? "");
+  const { directoriesData } = useGetDirectories(apiUrl, selectedSite?.id ?? "");
 
   const selectedDirectory = useMemo(() => {
     if (!directoriesData) return null;
@@ -35,7 +35,7 @@ const Main = () => {
     return directoriesData.find((d: { id: string; name: string }) => d.id.trim() === dirParam) || null;
   }, [searchParams, directoriesData]);
 
-  const { subDirectoriesData } = useFetchSubDirectories(apiUrl, selectedSite?.id ?? "", selectedDirectory?.id ?? "");
+  const { subDirectoriesData } = useGetSubDirectories(apiUrl, selectedSite?.id ?? "", selectedDirectory?.id ?? "");
 
   const selectedSubDirectory = useMemo(() => {
     if (!subDirectoriesData) return null;
@@ -47,7 +47,7 @@ const Main = () => {
   const [summarizedText, setSummarizedText] = useState<string>("");
   const [transcribedText, setTranscribedText] = useState<string>("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false); 
   const [, setSearchValue] = useAtom<string>(searchValueAtom);
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
