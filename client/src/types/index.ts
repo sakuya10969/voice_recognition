@@ -50,3 +50,20 @@ export interface SuccessModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+export interface TranscriptionResponse {
+  task_id: string;
+  status: string;
+  transcribed_text?: string;
+  summarized_text?: string;
+}
+
+export interface TranscriptionResult {
+  transcribed_text: string;
+  summarized_text: string;
+}
+
+export interface LocationData {
+  id: string;
+  name: string;
+}

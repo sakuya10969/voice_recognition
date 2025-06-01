@@ -93,7 +93,7 @@ const Main = () => {
     }
     setIsUploadingModalOpen(true);
     try {
-      const transcription = await handleSendAudio(selectedSite, selectedDirectory, selectedSubDirectory, file);
+      const transcription = await handleSendAudio(apiUrl, selectedSite, selectedDirectory, selectedSubDirectory, file);
       setTranscribedText(transcription.transcribed_text);
       setSummarizedText(transcription.summarized_text);
       setIsSuccessModalOpen(true);

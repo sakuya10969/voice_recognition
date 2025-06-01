@@ -1,23 +1,5 @@
 import axios from "axios";
-
-const apiUrl = process.env.REACT_APP_API_URL;
-
-interface TranscriptionResponse {
-    task_id: string;
-    status: string;
-    transcribed_text?: string;
-    summarized_text?: string;
-}
-
-interface TranscriptionResult {
-    transcribed_text: string;
-    summarized_text: string;
-}
-
-interface LocationData {
-    id: string;
-    name: string;
-}
+import { LocationData, TranscriptionResult, TranscriptionResponse } from "@/types";
 
 const validateLocationData = (site: LocationData | null, directory: LocationData | null): void => {
     if (site && !directory) {
@@ -47,6 +29,7 @@ const createFormData = (
 };
 
 export const handleSendAudio = async (
+    apiUrl: string,
     site: LocationData | null,
     directory: LocationData | null,
     subDirectory: LocationData | null,
@@ -66,14 +49,14 @@ export const handleSendAudio = async (
         console.log(response.data.message);
 
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        return await pollTranscriptionStatus(response.data.task_id);
+        return await pollTranscriptionStatus(apiUrl, response.data.task_id);
     } catch (error) {
         console.error("音声送信エラー:", error);
         throw new Error(error instanceof Error ? error.message : "Failed to send audio");
     }
 };
 
-const pollTranscriptionStatus = async (taskId: string): Promise<TranscriptionResult> => {
+const pollTranscriptionStatus = async (apiUrl: string, taskId: string): Promise<TranscriptionResult> => {
     const POLLING_INTERVAL = 40000;
     const MAX_RETRIES = 10;
     let retryCount = 0;
