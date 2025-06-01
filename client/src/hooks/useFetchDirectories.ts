@@ -2,9 +2,7 @@ import useSWR from "swr";
 
 import { fetcher } from "@/utils/fetcher";
 
-const apiUrl = process.env.REACT_APP_API_URL;
-
-export const useFetchDirectories = (siteId: string | null) => {
+export const useFetchDirectories = (apiUrl: string, siteId: string | null) => {
   const { data, error } = useSWR(
     siteId
       ? `${apiUrl}/directories?site_id=${encodeURIComponent(siteId)}`

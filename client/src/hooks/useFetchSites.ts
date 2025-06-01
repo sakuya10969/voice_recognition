@@ -1,9 +1,7 @@
 import useSWR from "swr";
 import { fetcher } from "@/utils/fetcher";
 
-const apiUrl = process.env.REACT_APP_API_URL;
-
-export const useFetchSites = () => {
+export const useFetchSites = (apiUrl: string) => {
   const { data, error, isLoading } = useSWR(`${apiUrl}/sites`, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,

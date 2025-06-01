@@ -16,8 +16,10 @@ import { searchValueAtom } from "@/store/atoms";
 import LinkCopyButton from "@/components/LinkCopyButton";
 
 const Main = () => {
+  const apiUrl = process.env.REACT_APP_API_URL ?? 'http://127.0.0.1:8000';
+
   const [searchParams, setSearchParams] = useSearchParams();
-  const { sitesData, sitesError, isSitesLoading } = useFetchSites();
+  const { sitesData, sitesError, isSitesLoading } = useFetchSites(apiUrl);
 
   const selectedSite = useMemo(() => {
     if (!sitesData) return null;
@@ -25,7 +27,7 @@ const Main = () => {
     return sitesData.find((s: { id: string; name: string }) => s.id.trim() === siteParam) || null;
   }, [searchParams, sitesData]);
 
-  const { directoriesData } = useFetchDirectories(selectedSite?.id ?? "");
+  const { directoriesData } = useFetchDirectories(apiUrl, selectedSite?.id ?? "");
 
   const selectedDirectory = useMemo(() => {
     if (!directoriesData) return null;
@@ -33,7 +35,7 @@ const Main = () => {
     return directoriesData.find((d: { id: string; name: string }) => d.id.trim() === dirParam) || null;
   }, [searchParams, directoriesData]);
 
-  const { subDirectoriesData } = useFetchSubDirectories(selectedSite?.id ?? "", selectedDirectory?.id ?? "");
+  const { subDirectoriesData } = useFetchSubDirectories(apiUrl, selectedSite?.id ?? "", selectedDirectory?.id ?? "");
 
   const selectedSubDirectory = useMemo(() => {
     if (!subDirectoriesData) return null;
