@@ -8,7 +8,7 @@ import {
 import { ThemeProvider } from "@mui/material/styles";
 
 import { theme } from "@/theme/theme";
-import { Option, SPOSelectionProps } from "@/types";
+import { SPOSelectionProps } from "@/types";
 
 const SPOSelection = ({
   sites,
@@ -20,8 +20,8 @@ const SPOSelection = ({
   onSiteChange,
   onDirectoryChange,
   onSubDirectoryChange,
-}: SPOSelectionProps) => (
-  <>
+}: SPOSelectionProps) => {
+  return (
     <ThemeProvider theme={theme}>
       <FormControl fullWidth sx={{ mb: 2 }} size="small">
         <InputLabel id="site-select-label">SPOサイト</InputLabel>
@@ -83,7 +83,7 @@ const SPOSelection = ({
         </Select>
       </FormControl>
     </ThemeProvider>
-  </>
-);
+  );
+};
 
 export default SPOSelection;

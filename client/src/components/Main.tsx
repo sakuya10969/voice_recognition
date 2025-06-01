@@ -71,7 +71,6 @@ const Main = () => {
   }
 }, []);
 
-
   const handleSiteChange = (site: { id: string; name: string } | null) => {
     updateQueryParams({ site: site?.id ?? "", directory: "", subdirectory: "" });
   };
