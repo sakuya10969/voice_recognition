@@ -9,9 +9,5 @@ export const useTranscription = () => {
       handleTranscription(apiUrl, site, directory, subDirectory, file),
   });
 
-  // ローディング状況も返す
-  return {
-    ...mutation,
-    isLoading: mutation.status === 'pending',
-  };
+  return mutation;
 };

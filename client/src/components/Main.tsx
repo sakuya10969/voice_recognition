@@ -57,11 +57,10 @@ const Main = () => {
   const [file, setFile] = useState<File | null>(null);
   const [summarizedText, setSummarizedText] = useState<string>('');
   const [transcribedText, setTranscribedText] = useState<string>('');
-  const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [, setSearchValue] = useAtom(searchValueAtom);
 
-  const { mutateAsync: handleTranscription, isLoading: isTranscribing } = useTranscription();
+  const { mutateAsync: handleTranscription, isPending: isTranscribing } = useTranscription();
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams(
@@ -106,7 +105,6 @@ const Main = () => {
       alert('ファイルを選択してください');
       return;
     }
-    setIsUploadingModalOpen(true);
     try {
       const transcription = await handleTranscription({
         apiUrl,
@@ -121,7 +119,6 @@ const Main = () => {
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
-      setIsUploadingModalOpen(false);
       setSearchValue('');
       updateQueryParams({ site: null, directory: null, subdirectory: null });
       setFile(null);
@@ -171,7 +168,7 @@ const Main = () => {
         />
         <Note transcribedText={transcribedText} summarizedText={summarizedText} />
       </Box>
-      <UploadingModal open={isUploadingModalOpen} />
+      <UploadingModal open={isTranscribing} />
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
   );
