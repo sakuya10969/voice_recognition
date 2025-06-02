@@ -2,7 +2,7 @@ import useSWR from "swr";
 import { fetcher } from "@/utils/fetcher";
 
 export const useGetSites = (apiUrl: string) => {
-  const { data, error, isLoading } = useSWR(`${apiUrl}/sites`, fetcher, {
+  const { data, isLoading, error } = useSWR(`${apiUrl}/sites`, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   });
