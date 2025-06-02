@@ -28,7 +28,7 @@ const createFormData = (
     return formData;
 };
 
-export const handleSendAudio = async (
+export const handleTranscription = async (
     apiUrl: string,
     site: LocationData | null,
     directory: LocationData | null,

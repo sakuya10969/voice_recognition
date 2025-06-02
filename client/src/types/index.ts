@@ -51,6 +51,14 @@ export interface SuccessModalProps {
   onClose: () => void;
 }
 
+export interface TranscriptionParams {
+  apiUrl: string;
+  site: LocationData | null;
+  directory: LocationData | null;
+  subDirectory: LocationData | null;
+  file: File;
+};
+
 export interface TranscriptionResponse {
   task_id: string;
   status: string;

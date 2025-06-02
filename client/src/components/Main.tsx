@@ -2,11 +2,10 @@ import React, { useState, useMemo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import { useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
-import CssBaseline from "@mui/material/CssBaseline"
+import CssBaseline from "@mui/material/CssBaseline";
 
 import FileUploadField from "@/components/FileUploadField";
 import Note from "@/components/Note";
-import { handleSendAudio } from "@/api/transcription";
 import { useGetSites } from "@/hooks/useGetSites";
 import { useGetDirectories } from "@/hooks/useGetDirectories";
 import { useGetSubDirectories } from "@/hooks/useGetSubDirectories";
@@ -14,12 +13,15 @@ import UploadingModal from "@/components/UploadingModal";
 import SuccessModal from "@/components/SuccessModal";
 import { searchValueAtom } from "@/store/atoms";
 import LinkCopyButton from "@/components/LinkCopyButton";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
+import { useTranscription } from "@/hooks/useTranscription";
 
 const Main = () => {
   const apiUrl = process.env.REACT_APP_API_URL ?? 'http://127.0.0.1:8000';
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { sitesData, sitesError, isSitesLoading } = useGetSites(apiUrl);
+  const { sitesData, isSitesLoading, sitesError } = useGetSites(apiUrl);
 
   const selectedSite = useMemo(() => {
     if (!sitesData) return null;
@@ -47,8 +49,10 @@ const Main = () => {
   const [summarizedText, setSummarizedText] = useState<string>("");
   const [transcribedText, setTranscribedText] = useState<string>("");
   const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false); 
-  const [, setSearchValue] = useAtom<string>(searchValueAtom);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+  const [, setSearchValue] = useAtom(searchValueAtom);
+
+  const { mutateAsync: handleTranscription, isLoading: isTranscribing } = useTranscription();
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams(prevParams => {
@@ -65,11 +69,11 @@ const Main = () => {
   };
 
   useEffect(() => {
-  const navEntries = performance.getEntriesByType("navigation");
-  if (navEntries.length > 0 && navEntries[0].type === "reload") {
-    updateQueryParams({ site: null, directory: null, subdirectory: null });
-  }
-}, []);
+    const navEntries = performance.getEntriesByType("navigation");
+    if (navEntries.length > 0 && navEntries[0].type === "reload") {
+      updateQueryParams({ site: null, directory: null, subdirectory: null });
+    }
+  }, []);
 
   const handleSiteChange = (site: { id: string; name: string } | null) => {
     updateQueryParams({ site: site?.id ?? "", directory: "", subdirectory: "" });
@@ -92,13 +96,18 @@ const Main = () => {
     }
     setIsUploadingModalOpen(true);
     try {
-      const transcription = await handleSendAudio(apiUrl, selectedSite, selectedDirectory, selectedSubDirectory, file);
+      const transcription = await handleTranscription({
+        apiUrl,
+        site: selectedSite,
+        directory: selectedDirectory,
+        subDirectory: selectedSubDirectory,
+        file,
+      });
       setTranscribedText(transcription.transcribed_text);
       setSummarizedText(transcription.summarized_text);
       setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("ファイルのアップロード中にエラーが発生しました");
     } finally {
       setIsUploadingModalOpen(false);
       setSearchValue("");
@@ -107,8 +116,8 @@ const Main = () => {
     }
   };
 
-  if (sitesError) return <p style={{ color: "red" }}>サイトデータの取得中にエラーが発生しました</p>;
-  if (isSitesLoading) return <p style={{ textAlign: "center" }}>サイトを読み込んでいます...</p>;
+  if (sitesError) return <Error />;
+  if (isSitesLoading || isTranscribing) return <Loading />;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", overflowY: "auto" }}>
