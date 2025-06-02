@@ -1,16 +1,16 @@
 // components/FileUpload.tsx
-import React, { useState, useEffect, useCallback } from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Send from "@mui/icons-material/Send";
-import { useAtom } from "jotai";
+import React, { useState, useEffect, useCallback } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Send from '@mui/icons-material/Send';
+import { useAtom } from 'jotai';
 
-import { searchValueAtom } from "@/store/atoms";
-import SearchField from "@/components/SearchField";
-import SPOSelection from "@/components/SPOSelection";
-import FileDropZone from "@/components/FileDropZone";
-import { Option, FileUploadProps } from "@/types";
+import { searchValueAtom } from '@/store/atoms';
+import SearchField from '@/components/SearchField';
+import SPOSelection from '@/components/SPOSelection';
+import FileDropZone from '@/components/FileDropZone';
+import { Option, FileUploadProps } from '@/types';
 
 const FileUploadField = ({
   sites,
@@ -39,9 +39,7 @@ const FileUploadField = ({
       const value = e.target.value;
       setSearchValue(value);
       setFilteredSites(
-        value.trim() === ""
-          ? sites
-          : sites.filter((site) => (site.name || "").includes(value))
+        value.trim() === '' ? sites : sites.filter((site) => (site.name || '').includes(value))
       );
     },
     [sites, setSearchValue]
@@ -55,15 +53,15 @@ const FileUploadField = ({
         onSubmit();
       }}
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        borderRadius: "5px",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        borderRadius: '5px',
         p: 4,
-        width: "500px",
+        width: '500px',
       }}
     >
-      <Typography fontWeight="bold" align="left" sx={{ fontSize: "x-large", mb: 2 }}>
+      <Typography fontWeight="bold" align="left" sx={{ fontSize: 'x-large', mb: 2 }}>
         議事録ファイル出力先
       </Typography>
 
@@ -98,15 +96,15 @@ const FileUploadField = ({
         disabled={!file}
         endIcon={<Send />}
         sx={{
-          color: "white",
-          backgroundColor: "black",
-          borderRadius: "5px",
-          width: "110px",
-          ":disabled": {
-            backgroundColor: "whitesmoke",
+          color: 'white',
+          backgroundColor: 'black',
+          borderRadius: '5px',
+          width: '110px',
+          ':disabled': {
+            backgroundColor: 'whitesmoke',
           },
-          "&:hover": {
-            backgroundColor: "black",
+          '&:hover': {
+            backgroundColor: 'black',
           },
         }}
       >

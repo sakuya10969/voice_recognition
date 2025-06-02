@@ -1,14 +1,9 @@
-import React from "react";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
+import React from 'react';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 
-import { theme } from "@/theme/theme";
-import { SPOSelectionProps } from "@/types";
+import { theme } from '@/theme/theme';
+import { SPOSelectionProps } from '@/types';
 
 const SPOSelection = ({
   sites,
@@ -31,7 +26,7 @@ const SPOSelection = ({
           label="SPOサイト"
           MenuProps={{
             PaperProps: {
-              style: { width: 400, maxHeight: 450, overflowX: "auto" },
+              style: { width: 400, maxHeight: 450, overflowX: 'auto' },
             },
           }}
         >
@@ -51,12 +46,16 @@ const SPOSelection = ({
           label="ディレクトリ"
           MenuProps={{
             PaperProps: {
-              style: { width: 400, maxHeight: 450, overflowX: "auto" },
+              style: { width: 400, maxHeight: 450, overflowX: 'auto' },
             },
           }}
         >
           {directories.map((directory) => (
-            <MenuItem key={directory.id} value={directory.id} onClick={() => onDirectoryChange(directory)}>
+            <MenuItem
+              key={directory.id}
+              value={directory.id}
+              onClick={() => onDirectoryChange(directory)}
+            >
               {directory.name}
             </MenuItem>
           ))}
@@ -71,12 +70,16 @@ const SPOSelection = ({
           label="サブディレクトリ"
           MenuProps={{
             PaperProps: {
-              style: { width: 400, maxHeight: 450, overflowX: "auto" },
+              style: { width: 400, maxHeight: 450, overflowX: 'auto' },
             },
           }}
         >
           {subDirectories.map((subDirectory) => (
-            <MenuItem key={subDirectory.id} value={subDirectory.id} onClick={() => onSubDirectoryChange(subDirectory)}>
+            <MenuItem
+              key={subDirectory.id}
+              value={subDirectory.id}
+              onClick={() => onSubDirectoryChange(subDirectory)}
+            >
               {subDirectory.name}
             </MenuItem>
           ))}

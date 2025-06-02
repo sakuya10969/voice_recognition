@@ -57,7 +57,7 @@ export interface TranscriptionParams {
   directory: LocationData | null;
   subDirectory: LocationData | null;
   file: File;
-};
+}
 
 export interface TranscriptionResponse {
   task_id: string;

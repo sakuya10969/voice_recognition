@@ -1,9 +1,9 @@
-import React from "react";
-import TextField from "@mui/material/TextField";
-import { ThemeProvider } from "@mui/material/styles";
+import React from 'react';
+import TextField from '@mui/material/TextField';
+import { ThemeProvider } from '@mui/material/styles';
 
-import { theme } from "@/theme/theme";
-import { SearchFieldProps } from "@/types";
+import { theme } from '@/theme/theme';
+import { SearchFieldProps } from '@/types';
 
 const SearchField = ({ value, onChange }: SearchFieldProps) => (
   <ThemeProvider theme={theme}>
@@ -16,8 +16,8 @@ const SearchField = ({ value, onChange }: SearchFieldProps) => (
       onChange={onChange}
       sx={{
         mb: 2,
-        "& input": {
-          backgroundColor: "white",
+        '& input': {
+          backgroundColor: 'white',
         },
       }}
     />

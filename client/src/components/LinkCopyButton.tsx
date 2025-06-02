@@ -1,9 +1,9 @@
-import React, { useState, forwardRef } from "react";
-import Button from "@mui/material/Button";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
-import Box from "@mui/material/Box";
+import React, { useState, forwardRef } from 'react';
+import Button from '@mui/material/Button';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => (
   <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
@@ -17,30 +17,27 @@ const LinkCopyButton: React.FC = () => {
       await navigator.clipboard.writeText(window.location.href);
       setOpen(true);
     } catch (err) {
-      console.error("コピー失敗:", err);
+      console.error('コピー失敗:', err);
     }
   };
 
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") return;
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') return;
     setOpen(false);
   };
 
   return (
-    <Box sx={{ position: "relative", display: "inline-block" }}>
+    <Box sx={{ position: 'relative', display: 'inline-block' }}>
       <Button
         onClick={handleCopy}
         startIcon={<ContentCopyIcon />}
         sx={{
-          color: "white",
-          backgroundColor: "black",
-          borderRadius: "5px",
-          width: "150px",
-          "&:hover": {
-            backgroundColor: "black",
+          color: 'white',
+          backgroundColor: 'black',
+          borderRadius: '5px',
+          width: '150px',
+          '&:hover': {
+            backgroundColor: 'black',
           },
         }}
       >
@@ -50,9 +47,9 @@ const LinkCopyButton: React.FC = () => {
         open={open}
         autoHideDuration={2000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
           URLをコピーしました
         </Alert>
       </Snackbar>

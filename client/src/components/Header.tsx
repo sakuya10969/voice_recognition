@@ -1,18 +1,18 @@
-import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import MicIcon from "@mui/icons-material/Mic";
-import Box from "@mui/material/Box";
+import React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import MicIcon from '@mui/icons-material/Mic';
+import Box from '@mui/material/Box';
 
-import intelligentforce from "../assets/intelligentforce.png";
+import intelligentforce from '../assets/intelligentforce.png';
 
 const Header = () => {
   return (
-    <AppBar position="static" sx={{ backgroundColor: "white", color: "black" }}>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+    <AppBar position="static" sx={{ backgroundColor: 'white', color: 'black' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton edge="start" color="inherit" size="large">
             <MicIcon />
           </IconButton>

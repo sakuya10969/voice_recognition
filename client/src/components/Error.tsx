@@ -10,12 +10,10 @@ const Error = () => {
       justifyContent="center"
       minHeight="60vh"
     >
-      <Typography variant="h6" color="error" gutterBottom>  
+      <Typography variant="h6" color="error" gutterBottom>
         エラーが発生しました
       </Typography>
-      <Typography color="error">
-        サイトデータの取得に失敗しました
-      </Typography>
+      <Typography color="error">サイトデータの取得に失敗しました</Typography>
     </Box>
   );
 };

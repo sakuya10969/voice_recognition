@@ -1,11 +1,11 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
 
-import Header from "@/components/Header";
-import Main from "@/components/Main";
-import Footer from "@/components/Footer";
+import Header from '@/components/Header';
+import Main from '@/components/Main';
+import Footer from '@/components/Footer';
 
 function App() {
   return (
@@ -13,12 +13,12 @@ function App() {
       <CssBaseline />
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100vw",
-          overflowX: "hidden",
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100vw',
+          overflowX: 'hidden',
         }}
       >
         <Header />

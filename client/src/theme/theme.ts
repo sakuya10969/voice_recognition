@@ -1,16 +1,16 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme } from '@mui/material/styles';
 
 const commonStyles = {
-  backgroundColor: "white",
-  "&.Mui-focused": {
-    backgroundColor: "white",
+  backgroundColor: 'white',
+  '&.Mui-focused': {
+    backgroundColor: 'white',
   },
 };
 
 const commonLabelStyles = {
-  color: "black",
-  "&.Mui-focused": {
-    color: "black",
+  color: 'black',
+  '&.Mui-focused': {
+    color: 'black',
   },
 };
 
@@ -20,24 +20,24 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           ...commonStyles,
-          "&:hover": {
-            backgroundColor: "white",
+          '&:hover': {
+            backgroundColor: 'white',
           },
-          "& input": {
-            backgroundColor: "white",
+          '& input': {
+            backgroundColor: 'white',
           },
-          "& input:-webkit-autofill": {
-            backgroundColor: "white !important",
-            WebkitBoxShadow: "0 0 0px 1000px white inset !important",
+          '& input:-webkit-autofill': {
+            backgroundColor: 'white !important',
+            WebkitBoxShadow: '0 0 0px 1000px white inset !important',
           },
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black",
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'black',
           },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black",
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'black',
           },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "black",
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'black',
           },
         },
       },
@@ -60,29 +60,29 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           ...commonStyles,
-          "&.Mui-focused": {
-            color: "black",
+          '&.Mui-focused': {
+            color: 'black',
           },
         },
         select: {
           ...commonStyles,
-          "&.Mui-focused": {
-            color: "black",
+          '&.Mui-focused': {
+            color: 'black',
           },
         },
         icon: {
-          color: "black",
+          color: 'black',
         },
       },
     },
     MuiFormControl: {
       styleOverrides: {
         root: {
-          "& .MuiInputLabel-root": {
-            color: "black",
+          '& .MuiInputLabel-root': {
+            color: 'black',
           },
-          "& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused": {
-            color: "black",
+          '& .MuiInputLabel-root.Mui-focused, & .MuiFormLabel-root.Mui-focused': {
+            color: 'black',
           },
         },
       },

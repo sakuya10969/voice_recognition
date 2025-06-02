@@ -1,4 +1,4 @@
 // src/store/atoms.ts
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
-export const searchValueAtom = atom<string>("");
+export const searchValueAtom = atom<string>('');
