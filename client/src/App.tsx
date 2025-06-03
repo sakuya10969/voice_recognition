@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 
 import Header from '@/components/Header';
 import Main from '@/components/Main';
-import Footer from '@/components/Footer';
+// import Footer from '@/components/Footer';
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Main />} />
         </Routes>
-        <Footer />
+        {/* <Footer /> */}
       </Box>
     </Router>
   );
