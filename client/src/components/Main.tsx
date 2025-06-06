@@ -126,7 +126,7 @@ const Main = () => {
   };
 
   if (sitesError) return <Error />;
-  if (isSitesLoading || isTranscribing) return <Loading />;
+  if (isSitesLoading) return <Loading />;
 
   return (
     <Box
@@ -168,7 +168,7 @@ const Main = () => {
         />
         <Note transcribedText={transcribedText} summarizedText={summarizedText} />
       </Box>
-      <UploadingModal open={isTranscribing} />
+      {isTranscribing && <UploadingModal open={isTranscribing} />}
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
   );
