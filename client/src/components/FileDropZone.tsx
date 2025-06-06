@@ -37,7 +37,7 @@ const FileDropZone = ({ file, onFileChange, errorFileType }: FileDropZoneProps) 
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        width: '430px',
+        width: '450px',
         height: '250px',
         backgroundColor: isDragActive ? 'gainsboro' : 'transparent',
         '&:hover': {
