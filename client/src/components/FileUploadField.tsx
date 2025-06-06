@@ -57,7 +57,7 @@ const FileUploadField = ({
         flexDirection: 'column',
         alignItems: 'center',
         borderRadius: '5px',
-        p: 4,
+        p: 3,
         width: '500px',
       }}
     >

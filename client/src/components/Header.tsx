@@ -16,7 +16,7 @@ const Header = () => {
           <IconButton edge="start" color="inherit" size="large">
             <MicIcon />
           </IconButton>
-          <Typography variant="h5" component="div" sx={{ ml: 1 }}>
+          <Typography variant="h5" component="div" sx={{ ml: 1, fontWeight: 'bold' }}>
             議事録作成ツール
           </Typography>
         </Box>

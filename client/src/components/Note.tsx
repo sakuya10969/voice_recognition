@@ -55,7 +55,8 @@ const Note = ({ summarizedText, transcribedText }: NoteProps) => {
       sx={{
         width: '600px',
         height: '600px',
-        padding: 2,
+        p: 2,
+        mt: 1,
         border: '1px solid black',
       }}
     >
