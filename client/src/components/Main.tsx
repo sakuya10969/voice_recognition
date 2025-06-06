@@ -140,7 +140,7 @@ const Main = () => {
     >
       <CssBaseline />
       {selectedDirectory && (
-        <Box mt={1}>
+        <Box mt={2}>
           <LinkCopyButton />
         </Box>
       )}
