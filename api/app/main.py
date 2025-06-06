@@ -39,8 +39,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # ミドルウェアの設定
-configure_logging(app)  # ログミドルウェアを先に設定
-configure_cors(app)     # CORSミドルウェアを後に設定
+configure_logging(app)
+configure_cors(app)
 
 app.include_router(audio_processing_router.router)
 app.include_router(sharepoint_router.router)
