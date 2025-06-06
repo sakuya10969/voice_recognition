@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-
 def configure_cors(app: FastAPI) -> None:
     """CORSミドルウェアの設定を行う"""
     app.add_middleware(
