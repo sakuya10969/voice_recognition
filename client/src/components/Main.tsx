@@ -16,6 +16,7 @@ import LinkCopyButton from '@/components/LinkCopyButton';
 import Loading from '@/components/Loading';
 import Error from '@/components/Error';
 import { useTranscription } from '@/hooks/useTranscription';
+import { SPOData } from '@/types';
 
 const Main = () => {
   const apiUrl = process.env.REACT_APP_API_URL ?? 'http://127.0.0.1:8000';
@@ -26,7 +27,7 @@ const Main = () => {
   const selectedSite = useMemo(() => {
     if (!sitesData) return null;
     const siteParam = decodeURIComponent(searchParams.get('site') ?? '').trim();
-    return sitesData.find((s: { id: string; name: string }) => s.id.trim() === siteParam) || null;
+    return sitesData.find((s: SPOData) => s.id.trim() === siteParam) || null;
   }, [searchParams, sitesData]);
 
   const { directoriesData } = useGetDirectories(apiUrl, selectedSite?.id ?? '');
@@ -35,7 +36,7 @@ const Main = () => {
     if (!directoriesData) return null;
     const dirParam = decodeURIComponent(searchParams.get('directory') ?? '').trim();
     return (
-      directoriesData.find((d: { id: string; name: string }) => d.id.trim() === dirParam) || null
+      directoriesData.find((d: SPOData) => d.id.trim() === dirParam) || null
     );
   }, [searchParams, directoriesData]);
 
@@ -49,8 +50,7 @@ const Main = () => {
     if (!subDirectoriesData) return null;
     const subDirParam = decodeURIComponent(searchParams.get('subdirectory') ?? '').trim();
     return (
-      subDirectoriesData.find((sd: { id: string; name: string }) => sd.id.trim() === subDirParam) ||
-      null
+      subDirectoriesData.find((sd: SPOData) => sd.id.trim() === subDirParam) || null
     );
   }, [searchParams, subDirectoriesData]);
 
@@ -86,15 +86,15 @@ const Main = () => {
     }
   }, []);
 
-  const handleSiteChange = (site: { id: string; name: string } | null) => {
+  const handleSiteChange = (site: SPOData | null) => {
     updateQueryParams({ site: site?.id ?? '', directory: '', subdirectory: '' });
   };
 
-  const handleDirectoryChange = (directory: { id: string; name: string } | null) => {
+  const handleDirectoryChange = (directory: SPOData | null) => {
     updateQueryParams({ directory: directory?.id ?? '', subdirectory: '' });
   };
 
-  const handleSubDirectoryChange = (subDirectory: { id: string; name: string } | null) => {
+  const handleSubDirectoryChange = (subDirectory: SPOData | null) => {
     updateQueryParams({ subdirectory: subDirectory?.id ?? '' });
   };
 
@@ -124,7 +124,7 @@ const Main = () => {
       setFile(null);
     }
   };
-  
+
   return (
     <Box
       sx={{

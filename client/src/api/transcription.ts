@@ -1,16 +1,16 @@
 import axios from 'axios';
-import { LocationData, TranscriptionResult, TranscriptionResponse } from '@/types';
+import { SPOData, TranscriptionResult, TranscriptionResponse } from '@/types';
 
-const validateLocationData = (site: LocationData | null, directory: LocationData | null): void => {
+const validateSPODatas = (site: SPOData | null, directory: SPOData | null): void => {
   if (site && !directory) {
     throw new Error('サイトを選択した場合、ディレクトリの選択が必要です');
   }
 };
 
 const createFormData = (
-  site: LocationData | null,
-  directory: LocationData | null,
-  subDirectory: LocationData | null,
+  site: SPOData | null,
+  directory: SPOData | null,
+  subDirectory: SPOData | null,
   file: File
 ): FormData => {
   const formData = new FormData();
@@ -30,13 +30,13 @@ const createFormData = (
 
 export const handleTranscription = async (
   apiUrl: string,
-  site: LocationData | null,
-  directory: LocationData | null,
-  subDirectory: LocationData | null,
+  site: SPOData | null,
+  directory: SPOData | null,
+  subDirectory: SPOData | null,
   file: File
 ): Promise<TranscriptionResult> => {
   try {
-    validateLocationData(site, directory);
+    validateSPODatas(site, directory);
     const formData = createFormData(site, directory, subDirectory, file);
 
     const response = await axios.post<{ task_id: string; message: string }>(

@@ -53,9 +53,9 @@ export interface SuccessModalProps {
 
 export interface TranscriptionParams {
   apiUrl: string;
-  site: LocationData | null;
-  directory: LocationData | null;
-  subDirectory: LocationData | null;
+  site: SPOData | null;
+  directory: SPOData | null;
+  subDirectory: SPOData | null;
   file: File;
 }
 
@@ -71,7 +71,7 @@ export interface TranscriptionResult {
   summarized_text: string;
 }
 
-export interface LocationData {
+export interface SPOData {
   id: string;
   name: string;
 }
