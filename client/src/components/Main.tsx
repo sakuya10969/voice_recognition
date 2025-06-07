@@ -124,10 +124,7 @@ const Main = () => {
       setFile(null);
     }
   };
-
-  if (sitesError) return <Error />;
-  if (isSitesLoading) return <Loading />;
-
+  
   return (
     <Box
       sx={{
@@ -139,35 +136,41 @@ const Main = () => {
       }}
     >
       <CssBaseline />
-      {selectedDirectory && (
-        <Box mt={2}>
-          <LinkCopyButton />
-        </Box>
+      {sitesError && <Error />}
+      {isSitesLoading && <Loading />}
+      {!sitesError && !isSitesLoading && (
+        <>
+          {selectedDirectory && (
+            <Box mt={2}>
+              <LinkCopyButton />
+            </Box>
+          )}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <FileUploadField
+              sites={sitesData}
+              directories={directoriesData}
+              subDirectories={subDirectoriesData}
+              onFileChange={handleFileChange}
+              onSubmit={handleUpload}
+              onSiteChange={handleSiteChange}
+              onDirectoryChange={handleDirectoryChange}
+              onSubDirectoryChange={handleSubDirectoryChange}
+              file={file}
+              selectedSiteId={selectedSite?.id || ''}
+              selectedDirectoryId={selectedDirectory?.id || ''}
+              selectedSubDirectoryId={selectedSubDirectory?.id || ''}
+            />
+            <Note transcribedText={transcribedText} summarizedText={summarizedText} />
+          </Box>
+        </>
       )}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        <FileUploadField
-          sites={sitesData}
-          directories={directoriesData}
-          subDirectories={subDirectoriesData}
-          onFileChange={handleFileChange}
-          onSubmit={handleUpload}
-          onSiteChange={handleSiteChange}
-          onDirectoryChange={handleDirectoryChange}
-          onSubDirectoryChange={handleSubDirectoryChange}
-          file={file}
-          selectedSiteId={selectedSite?.id || ''}
-          selectedDirectoryId={selectedDirectory?.id || ''}
-          selectedSubDirectoryId={selectedSubDirectory?.id || ''}
-        />
-        <Note transcribedText={transcribedText} summarizedText={summarizedText} />
-      </Box>
       {isTranscribing && <UploadingModal open={isTranscribing} />}
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
