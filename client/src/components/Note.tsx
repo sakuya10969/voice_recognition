@@ -1,11 +1,8 @@
 import React from 'react';
 import { Paper, Box, Typography, IconButton } from '@mui/material';
 import { Download as DownloadIcon } from '@mui/icons-material';
-import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 import { exportMeetingDocx } from '@/utils/exportDocx';
-
 import { NoteProps } from '@/types';
 
 const Note = ({ summarizedText, transcribedText }: NoteProps) => {
