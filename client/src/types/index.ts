@@ -4,20 +4,15 @@ export interface FileDropZoneProps {
   errorFileType: boolean;
 }
 
-export interface Option {
-  id: string;
-  name: string;
-}
-
 export interface FileUploadProps {
-  sites: Option[];
-  directories: Option[];
-  subDirectories: Option[];
+  sites: SPOData[];
+  directories: SPOData[];
+  subDirectories: SPOData[];
   onFileChange: (file: File | null) => void;
   onSubmit: () => void;
-  onSiteChange: (site: Option) => void;
-  onDirectoryChange: (directory: Option) => void;
-  onSubDirectoryChange: (subDirectory: Option) => void;
+  onSiteChange: (site: SPOData) => void;
+  onDirectoryChange: (directory: SPOData) => void;
+  onSubDirectoryChange: (subDirectory: SPOData) => void;
   file: File | null;
   selectedSiteId: string;
   selectedDirectoryId: string;
@@ -35,15 +30,15 @@ export interface SearchFieldProps {
 }
 
 export interface SPOSelectionProps {
-  sites: Option[];
-  directories: Option[];
-  subDirectories: Option[];
+  sites: SPOData[];
+  directories: SPOData[];
+  subDirectories: SPOData[];
   selectedSiteId: string;
   selectedDirectoryId: string;
   selectedSubDirectoryId: string;
-  onSiteChange: (site: Option) => void;
-  onDirectoryChange: (directory: Option) => void;
-  onSubDirectoryChange: (subDirectory: Option) => void;
+  onSiteChange: (site: SPOData) => void;
+  onDirectoryChange: (directory: SPOData) => void;
+  onSubDirectoryChange: (subDirectory: SPOData) => void;
 }
 
 export interface SuccessModalProps {

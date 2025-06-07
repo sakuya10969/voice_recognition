@@ -10,7 +10,7 @@ import { searchValueAtom } from '@/store/atoms';
 import SearchField from '@/components/SearchField';
 import SPOSelection from '@/components/SPOSelection';
 import FileDropZone from '@/components/FileDropZone';
-import { Option, FileUploadProps } from '@/types';
+import { SPOData, FileUploadProps } from '@/types';
 
 const FileUploadField = ({
   sites,
@@ -27,7 +27,7 @@ const FileUploadField = ({
   selectedSubDirectoryId,
 }: FileUploadProps) => {
   const [errorFileType, setErrorFileType] = useState<boolean>(false);
-  const [filteredSites, setFilteredSites] = useState<Option[]>(sites);
+  const [filteredSites, setFilteredSites] = useState<SPOData[]>(sites);
   const [searchValue, setSearchValue] = useAtom(searchValueAtom);
 
   useEffect(() => {
