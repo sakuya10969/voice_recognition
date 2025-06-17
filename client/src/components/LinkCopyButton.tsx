@@ -9,7 +9,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => (
   <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 ));
 
-const LinkCopyButton: React.FC = () => {
+const LinkCopyButton = () => {
   const [open, setOpen] = useState(false);
 
   const handleCopy = async () => {

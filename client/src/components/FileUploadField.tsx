@@ -28,7 +28,7 @@ const FileUploadField = ({
 }: FileUploadProps) => {
   const [errorFileType, setErrorFileType] = useState<boolean>(false);
   const [filteredSites, setFilteredSites] = useState<SPOData[]>(sites);
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom);
+  const [searchValue, setSearchValue] = useAtom<string>(searchValueAtom);
 
   useEffect(() => {
     setFilteredSites(sites);
