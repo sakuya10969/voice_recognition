@@ -2,6 +2,7 @@
     "routes": [
       {
         "route": "/*",
+        "allowedOrigins": [ "https://ca-vr-dev-010.graydune-73910fd2.japaneast.azurecontainerapps.io" ],
         "allowedRoles": [ "authenticated" ]
       }
     ],
