@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { Box, Button, Typography } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
 
 import { FileDropZoneProps } from '@/types';
 
@@ -53,19 +53,19 @@ const FileDropZone = ({ file, onFileChange, errorFileType }: FileDropZoneProps) 
         }}
       />
       <label htmlFor="file-input">
-        <Button
-          variant="contained"
-          component="span"
-          startIcon={<CloudUploadIcon />}
-          sx={{
-            mb: 2,
-            backgroundColor: 'black',
-            width: '170px',
-            '&:hover': { backgroundColor: 'black' },
-          }}
-        >
-          ファイルの選択
-        </Button>
+      <Button
+        variant="contained"
+        component="span"
+        startIcon={<AudioFileIcon />}
+        sx={{
+          mb: 2,
+          backgroundColor: 'black',
+          width: '200px',
+          '&:hover': { backgroundColor: 'black' },
+        }}
+      >
+        音声ファイルの選択
+      </Button>
       </label>
 
       {file && (
