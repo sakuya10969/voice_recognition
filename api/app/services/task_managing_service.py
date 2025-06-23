@@ -1,5 +1,5 @@
 from typing import Dict, Optional
-from app.models.transcription import TaskStatus
+from app.domain.transcription import TaskStatus
 
 
 class TaskManagingService:

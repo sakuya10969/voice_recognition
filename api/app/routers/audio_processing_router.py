@@ -14,13 +14,13 @@ from fastapi import (
 )
 from pydantic import BaseModel
 
-from app.models.transcription import Transcription
+from app.domain.transcription import Transcription
 from app.di.parse_form import parse_transcription_form
 from app.usecases.audio_processing_usecase import AudioProcessingUseCase
 from app.services.audio.mp4_processing_service import MP4ProcessingService
 from app.services.word_generating_service import WordGeneratingService
 from app.utils.file_handling import save_file_temporarily
-from app.models.transcription import AudioProcessingResponse, TranscriptionStatusResponse
+from app.domain.transcription import AudioProcessingResponse, TranscriptionStatusResponse
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import Form
-from app.models.transcription import Transcription
+from app.domain.transcription import Transcription
 
 
 def parse_transcription_form(

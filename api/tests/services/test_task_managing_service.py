@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict
 from app.services.task_managing_service import TaskManagingService
-from app.models.transcription import TaskStatus
+from app.domain.transcription import TaskStatus
 
 class TestTaskManagingService:
     @pytest.fixture
