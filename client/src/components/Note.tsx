@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, Box, Typography, IconButton } from '@mui/material';
 import { Download as DownloadIcon } from '@mui/icons-material';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 import { exportMeetingDocx } from '@/utils/exportDocx';
 import { NoteProps } from '@/types';
@@ -30,9 +31,20 @@ const Note = ({ summarizedText, transcribedText }: NoteProps) => {
           pb: 1,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          議事録
-        </Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 'bold',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 1,
+        }}
+      >
+        <DescriptionIcon />
+        議事録
+      </Typography>
         <IconButton
           sx={{
             transform: 'translateX(50px)',
