@@ -2,8 +2,7 @@ import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MicIcon from '@mui/icons-material/Mic';
+import TranscribeIcon from '@mui/icons-material/Transcribe';
 import Box from '@mui/material/Box';
 
 import intelligentforce from '../assets/intelligentforce.png';
@@ -13,9 +12,7 @@ const Header = () => {
     <AppBar position="static" sx={{ backgroundColor: 'white', color: 'black' }}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton edge="start" color="inherit" size="large">
-            <MicIcon />
-          </IconButton>
+          <TranscribeIcon fontSize="large" sx={{ mr: 2 }} />
           <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
             議事録作成ツール
           </Typography>
