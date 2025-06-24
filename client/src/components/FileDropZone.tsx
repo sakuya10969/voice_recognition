@@ -70,7 +70,7 @@ const FileDropZone = ({ file, onFileChange, errorFileType }: FileDropZoneProps) 
 
       {file && (
         <Typography variant="body1" sx={{ mb: 2, textAlign: 'center' }}>
-          選択されたファイル: {file.name}
+          選択された音声ファイル: {file.name}
         </Typography>
       )}
       {errorFileType && (

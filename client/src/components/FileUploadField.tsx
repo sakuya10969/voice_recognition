@@ -99,7 +99,7 @@ const FileUploadField = ({
           color: 'white',
           backgroundColor: 'black',
           borderRadius: '5px',
-          width: '110px',
+          width: '120px',
           ':disabled': {
             backgroundColor: 'whitesmoke',
           },
@@ -108,7 +108,7 @@ const FileUploadField = ({
           },
         }}
       >
-        送信
+        送信する
       </Button>
     </Box>
   );
