@@ -62,7 +62,7 @@ const FileDropZone = ({ file, onFileChange, errorFileType }: FileDropZoneProps) 
           sx={{
             mb: 2,
             backgroundColor: 'black',
-            width: '200px',
+            width: '190px',
             '&:hover': { backgroundColor: 'black' },
           }}
         >
