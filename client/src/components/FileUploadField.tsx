@@ -58,7 +58,7 @@ const FileUploadField = ({
         alignItems: 'center',
         borderRadius: '5px',
         p: 3,
-        width: '550px',
+        width: '500px',
       }}
     >
       <Typography fontWeight="bold" align="left" sx={{ fontSize: 'x-large', mb: 2 }}>
