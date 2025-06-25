@@ -44,6 +44,7 @@ export const handleTranscription = async (
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       }
     );
     console.log(response.data.message);
