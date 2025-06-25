@@ -50,7 +50,7 @@ export const handleTranscription = async (
     console.log(response.data.message);
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
-    return await pollTranscriptionStatus(apiUrl, response.data.task_id);
+    return await pollTranscriptionStatus(response.data.task_id);
   } catch (error) {
     console.error('音声送信エラー:', error);
     throw new Error(error instanceof Error ? error.message : 'Failed to send audio');
@@ -58,7 +58,6 @@ export const handleTranscription = async (
 };
 
 const pollTranscriptionStatus = async (
-  apiUrl: string,
   taskId: string
 ): Promise<TranscriptionResult> => {
   const POLLING_INTERVAL = 40000;
