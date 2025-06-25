@@ -1,8 +1,9 @@
 import useSWR from 'swr';
+
 import { fetcher } from '@/utils/fetcher';
+import { apiUrl } from '@/constants';
 
 export const useGetSubDirectories = (
-  apiUrl: string,
   siteId: string | null,
   directoryId: string | null
 ) => {

@@ -5,9 +5,13 @@ import type { TranscriptionResult, TranscriptionParams } from '@/types';
 
 export const useTranscription = () => {
   const mutation = useMutation<TranscriptionResult, Error, TranscriptionParams>({
-    mutationFn: ({ apiUrl, site, directory, subDirectory, file }) =>
-      handleTranscription(apiUrl, site, directory, subDirectory, file),
+    mutationFn: ({ site, directory, subDirectory, file }) =>
+      handleTranscription(site, directory, subDirectory, file),
   });
 
-  return mutation;
+  return {
+    mutateAsync: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    reset: mutation.reset,
+  };
 };

@@ -19,10 +19,8 @@ import { useTranscription } from '@/hooks/useTranscription';
 import { SPOData } from '@/types';
 
 const Main = () => {
-  const apiUrl = process.env.REACT_APP_API_URL ?? 'http://127.0.0.1:8000';
-
   const [searchParams, setSearchParams] = useSearchParams();
-  const { sitesData, isSitesLoading, sitesError } = useGetSites(apiUrl);
+  const { sitesData, isSitesLoading, sitesError } = useGetSites();
 
   const selectedSite = useMemo(() => {
     if (!sitesData) return null;
@@ -30,7 +28,7 @@ const Main = () => {
     return sitesData.find((s: SPOData) => s.id.trim() === siteParam) || null;
   }, [searchParams, sitesData]);
 
-  const { directoriesData } = useGetDirectories(apiUrl, selectedSite?.id ?? '');
+  const { directoriesData } = useGetDirectories(selectedSite?.id ?? '');
 
   const selectedDirectory = useMemo(() => {
     if (!directoriesData) return null;
@@ -41,7 +39,6 @@ const Main = () => {
   }, [searchParams, directoriesData]);
 
   const { subDirectoriesData } = useGetSubDirectories(
-    apiUrl,
     selectedSite?.id ?? '',
     selectedDirectory?.id ?? ''
   );
@@ -57,11 +54,10 @@ const Main = () => {
   const [file, setFile] = useState<File | null>(null);
   const [summarizedText, setSummarizedText] = useState<string>('');
   const [transcribedText, setTranscribedText] = useState<string>('');
-  const [isUploadingModalOpen, setIsUploadingModalOpen] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [, setSearchValue] = useAtom(searchValueAtom);
 
-  const { mutateAsync: handleTranscription, isPending: isTranscribing } = useTranscription();
+  const { mutateAsync: handleTranscription, isPending: isTranscribing, reset } = useTranscription();
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     setSearchParams(
@@ -107,10 +103,7 @@ const Main = () => {
       return;
     }
     try {
-      setIsUploadingModalOpen(true);
-  
       const transcription = await handleTranscription({
-        apiUrl,
         site: selectedSite,
         directory: selectedDirectory,
         subDirectory: selectedSubDirectory,
@@ -120,7 +113,6 @@ const Main = () => {
       setTranscribedText(transcription.transcribed_text);
       setSummarizedText(transcription.summarized_text);
   
-      setIsUploadingModalOpen(false);
       setIsSuccessModalOpen(true);
   
       setSearchValue('');
@@ -128,9 +120,8 @@ const Main = () => {
       setFile(null);
     } catch (error) {
       console.error('Error uploading file:', error);
-      setIsUploadingModalOpen(false);
     }
-  };  
+  };
 
   return (
     <Box
@@ -178,7 +169,7 @@ const Main = () => {
           </Box>
         </>
       )}
-      <UploadingModal open={isUploadingModalOpen} onClose={() => setIsUploadingModalOpen(false)} />
+      <UploadingModal open={isTranscribing} onClose={() => reset()} />
       <SuccessModal open={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
     </Box>
   );

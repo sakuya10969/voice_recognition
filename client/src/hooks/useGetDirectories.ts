@@ -1,8 +1,9 @@
 import useSWR from 'swr';
 
 import { fetcher } from '@/utils/fetcher';
+import { apiUrl } from '@/constants';
 
-export const useGetDirectories = (apiUrl: string, siteId: string | null) => {
+export const useGetDirectories = (siteId: string | null) => {
   const { data, error } = useSWR(
     siteId ? `${apiUrl}/directories?site_id=${encodeURIComponent(siteId)}` : null,
     fetcher,

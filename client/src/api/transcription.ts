@@ -1,5 +1,7 @@
 import axios from 'axios';
+
 import { SPOData, TranscriptionResult, TranscriptionResponse } from '@/types';
+import { apiUrl } from '@/constants';
 
 const validateSPODatas = (site: SPOData | null, directory: SPOData | null): void => {
   if (site && !directory) {
@@ -29,7 +31,6 @@ const createFormData = (
 };
 
 export const handleTranscription = async (
-  apiUrl: string,
   site: SPOData | null,
   directory: SPOData | null,
   subDirectory: SPOData | null,
@@ -44,7 +45,6 @@ export const handleTranscription = async (
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
       }
     );
     console.log(response.data.message);

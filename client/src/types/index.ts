@@ -47,7 +47,6 @@ export interface SuccessModalProps {
 }
 
 export interface TranscriptionParams {
-  apiUrl: string;
   site: SPOData | null;
   directory: SPOData | null;
   subDirectory: SPOData | null;
