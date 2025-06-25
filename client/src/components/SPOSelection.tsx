@@ -3,7 +3,7 @@ import { FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import FolderIcon from '@mui/icons-material/Folder';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 
 import { theme } from '@/theme/theme';
 import { SPOSelectionProps } from '@/types';
@@ -72,7 +72,7 @@ const SPOSelection = ({
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: '100%' }}>
-        <FolderOpenIcon sx={{ mr: 1 }} />
+        <SubdirectoryArrowRightIcon sx={{ mr: 1 }} />
         <FormControl fullWidth size="small">
           <InputLabel id="subdirectory-select-label">サブディレクトリ</InputLabel>
           <Select
