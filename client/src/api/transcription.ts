@@ -61,18 +61,10 @@ const pollTranscriptionStatus = async (
   taskId: string
 ): Promise<TranscriptionResult> => {
   const POLLING_INTERVAL = 40000;
-  const MAX_RETRIES = 10;
-  let retryCount = 0;
 
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
       try {
-        if (retryCount >= MAX_RETRIES) {
-          clearInterval(interval);
-          reject(new Error('Maximum retry attempts reached'));
-          return;
-        }
-
         const res = await axios.get<TranscriptionResponse>(`${apiUrl}/transcription/${taskId}`, {
           headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
         });
@@ -91,7 +83,7 @@ const pollTranscriptionStatus = async (
           reject(new Error('Transcription process failed'));
         }
 
-        retryCount++;
+        // statusが "processing" 等なら何もせず次回へ
       } catch (err) {
         clearInterval(interval);
         reject(
