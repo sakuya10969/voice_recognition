@@ -51,7 +51,7 @@ jobs:
           app_build_command: "yarn install && CI=false yarn build"
           ###### End of Repository/Build Configurations ######
         env:
-          REACT_APP_API_URL: https://ca-vr-dev-010.delightfulcliff-65b7d39f.japanwest.azurecontainerapps.io
+          REACT_APP_API_URL: https://ca-vr-dev-011.graydune-73910fd2.japaneast.azurecontainerapps.io
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
