@@ -74,21 +74,15 @@ class MP4ProcessingService:
                 "-i",
                 input_path,
                 "-vn",  # 映像なし
-                "-map",
-                "a",  # 音声ストリームのみ
+                "-acodec",
+                "pcm_s16le",  # PCM 16-bit little-endian
                 "-ar",
-                "16000",
+                "16000",  # サンプリングレート 16kHz
                 "-ac",
-                "1",
-                "-sample_fmt",
-                "s16",
+                "1",  # モノラル
                 "-f",
-                "wav",
-                "-threads",
-                "0",
-                "-preset",
-                "ultrafast",
-                "-y",
+                "wav",  # WAV形式
+                "-y",  # 上書き許可
                 output_path,
             ]
             process = subprocess.Popen(
