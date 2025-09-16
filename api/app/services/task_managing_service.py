@@ -1,4 +1,4 @@
-from app.domain.transcription import TaskStatus
+from app.schemas.transcription import TaskStatus
 
 
 class TaskManagingService:

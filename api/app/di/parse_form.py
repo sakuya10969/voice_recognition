@@ -1,5 +1,5 @@
 from fastapi import Form
-from app.domain.transcription import Transcription
+from app.schemas.transcription import Transcription
 
 
 def parse_transcription_form(
