@@ -2,7 +2,7 @@ import os
 import subprocess
 import logging
 import imageio_ffmpeg as ffmpeg
-from typing import Dict, Any
+from typing import Any
 from fastapi import HTTPException
 import asyncio
 import tempfile
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class MP4ProcessingService:
     """MP4ファイルをWAVファイルに変換・処理するサービス"""
 
-    async def process_mp4(self, file_path: str) -> Dict[str, Any]:
+    async def process_mp4(self, file_path: str) -> dict[str, Any]:
         sanitized_filename = os.path.basename(file_path)
         ext = os.path.splitext(sanitized_filename)[1].lower()
 
@@ -28,7 +28,7 @@ class MP4ProcessingService:
 
         return await self._process_audio_file(file_path, sanitized_filename)
 
-    async def _process_audio_file(self, file_path: str, filename: str) -> Dict[str, Any]:
+    async def _process_audio_file(self, file_path: str, filename: str) -> dict[str, Any]:
         tmpdir = tempfile.mkdtemp()
         input_path = os.path.join(tmpdir, filename)
         output_filename = f"{os.path.splitext(filename)[0]}.wav"
@@ -67,7 +67,7 @@ class MP4ProcessingService:
                 detail=f"FFmpeg失敗: {stderr.decode(errors='ignore')}",
             )
 
-    async def _read_file(self, file_path: str, filename: str) -> Dict[str, Any]:
+    async def _read_file(self, file_path: str, filename: str) -> dict[str, Any]:
         async with aio_open(file_path, "rb") as f:
             data = await f.read()
         return {"file_name": filename, "file_data": data}

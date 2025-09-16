@@ -1,4 +1,3 @@
-from typing import Dict, Optional
 from app.domain.transcription import TaskStatus
 
 
@@ -7,9 +6,9 @@ class TaskManagingService:
     タスクの状態と文字起こし・要約結果を管理するアプリケーションサービス
     """
     def __init__(self):
-        self.status: Dict[str, TaskStatus] = {}
-        self.transcribed_text: Dict[str, Optional[str]] = {}
-        self.summarized_text: Dict[str, Optional[str]] = {}
+        self.status: dict[str, TaskStatus] = {}
+        self.transcribed_text: dict[str, str | None] = {}
+        self.summarized_text: dict[str, str | None] = {}
 
     def initialize_task(self, task_id: str) -> None:
         """新規タスクを初期化する"""

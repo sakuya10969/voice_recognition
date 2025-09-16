@@ -1,5 +1,4 @@
 import asyncio
-from typing import List
 
 from app.infrastructure.az_openai import AzOpenAIClient
 from app.utils.token_chunking import split_token
@@ -26,17 +25,17 @@ class TextSummarizationService:
         chunk_summaries = await self._summarize_chunks_in_batches(chunks)
         return await self._summarize_final(chunk_summaries)
 
-    def _split_text_chunks(self, text: str) -> List[str]:
+    def _split_text_chunks(self, text: str) -> list[str]:
         """テキストをトークン数に基づいてチャンクに分割する"""
         chunks = split_token(text, max_tokens=self.max_tokens)
         if not chunks:
             raise ValueError("入力テキストが空です")
         return chunks
 
-    async def _summarize_chunks_in_batches(self, chunks: List[str]) -> List[str]:
+    async def _summarize_chunks_in_batches(self, chunks: list[str]) -> list[str]:
         """チャンクごとにプロンプトを生成し、バッチで要約する"""
         prompts = [generate_prompt(chunk) for chunk in chunks]
-        summaries: List[str] = []
+        summaries: list[str] = []
         for i in range(0, len(prompts), self.batch_size):
             batch = prompts[i : i + self.batch_size]
             tasks = [self._az_openai_client.get_summary(prompt) for prompt in batch]
@@ -44,7 +43,7 @@ class TextSummarizationService:
             summaries.extend([r for r in results if isinstance(r, str)])
         return summaries
 
-    async def _summarize_final(self, chunk_summaries: List[str]) -> str:
+    async def _summarize_final(self, chunk_summaries: list[str]) -> str:
         """チャンク要約をまとめて最終要約を生成"""
         combined_text = "\n".join(chunk_summaries)
         final_prompt = generate_prompt(combined_text)

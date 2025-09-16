@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 from fastapi import HTTPException
-from typing import Dict, Any, Optional
+from typing import Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class AzSpeechClient:
         self._endpoint = az_speech_endpoint.rstrip("/")
         self._headers = self._create_headers(az_speech_key)
 
-    def _create_headers(self, az_speech_key: str) -> Dict[str, str]:
+    def _create_headers(self, az_speech_key: str) -> dict[str, str]:
         return {
             "Ocp-Apim-Subscription-Key": az_speech_key,
             "Content-Type": "application/json",
@@ -34,7 +34,7 @@ class AzSpeechClient:
             await self._session.close()
 
     async def create_transcription_job(
-        self, blob_url: str, display_name: Optional[str] = None
+        self, blob_url: str, display_name: str | None = None
     ) -> str:
         """文字起こしジョブを作成する"""
         body = self._create_transcription_config(blob_url, display_name)
@@ -43,8 +43,8 @@ class AzSpeechClient:
         return response_data["self"]
 
     def _create_transcription_config(
-        self, blob_url: str, display_name: Optional[str]
-    ) -> Dict[str, Any]:
+        self, blob_url: str, display_name: str | None = None
+    ) -> dict[str, Any]:
         """文字起こし設定を作成する"""
         return {
             "displayName": display_name or "Transcription",
@@ -128,17 +128,17 @@ class AzSpeechClient:
         result_url = await self.get_transcription_result_url(files_url)
         return await self.get_transcription_by_speaker(result_url)
 
-    async def _get(self, url: str) -> Dict[str, Any]:
+    async def _get(self, url: str) -> dict[str, Any]:
         """GETリクエストを実行する"""
         return await self._make_request("GET", url)
 
-    async def _post(self, url: str, json_body: Dict[str, Any]) -> Dict[str, Any]:
+    async def _post(self, url: str, json_body: dict[str, Any]) -> dict[str, Any]:
         """POSTリクエストを実行する"""
         return await self._make_request("POST", url, json_body)
 
     async def _make_request(
-        self, method: str, url: str, json_body: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, method: str, url: str, json_body: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """HTTPリクエストを実行する"""
         try:
             async with self._session.request(

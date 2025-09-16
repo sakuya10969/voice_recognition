@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any
+from typing import Any
 from fastapi import HTTPException
 from app.infrastructure.az_speech import AzSpeechClient
 from app.infrastructure.az_blob import AzBlobClient
@@ -23,7 +23,7 @@ class AudioProcessingService:
         self.mp4_processing_service = mp4_processing_service
         self.audio_transcription_service = audio_transcription_service
 
-    async def process_audio_file(self, file_path: str) -> Dict[str, Any]:
+    async def process_audio_file(self, file_path: str) -> dict[str, Any]:
         """音声ファイルを処理し、Blobストレージにアップロードする"""
         try:
             # MP4の処理

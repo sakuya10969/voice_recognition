@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any
 from pathlib import Path
 import logging
 
@@ -42,7 +42,7 @@ class AudioProcessingUseCase:
         self._ms_sharepoint_client = ms_sharepoint_client
 
     async def execute(
-        self, task_id: str, site_data: Optional[Dict[str, Any]], file_path: str
+        self, task_id: str, site_data: dict[str, Any] | None, file_path: str
     ) -> None:
         """音声文字起こしの実行"""
         try:
@@ -69,14 +69,14 @@ class AudioProcessingUseCase:
             self._task_managing_service.fail_task(task_id, error_message)
             raise
 
-    def _should_upload_to_sharepoint(self, site_data: Optional[Dict[str, Any]]) -> bool:
+    def _should_upload_to_sharepoint(self, site_data: dict[str, Any] | None) -> bool:
         """SharePointアップロードが必要か判定"""
         return site_data is not None and all(
             key in site_data for key in ["site", "directory"]
         )
 
     async def _generate_and_upload_word(
-        self, task_id: str, site_data: Dict[str, Any]
+        self, task_id: str, site_data: dict[str, Any]
     ) -> None:
         """Wordファイルの生成とアップロード(必要な場合のみ)"""
         transcribed_text = self._task_managing_service.transcribed_text[task_id]

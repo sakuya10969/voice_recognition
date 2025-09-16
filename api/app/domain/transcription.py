@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 from enum import Enum
-from typing import Optional
 
 class Transcription(BaseModel):
     site: str = Field(default="")
@@ -23,5 +22,5 @@ class TranscriptionStatusResponse(BaseModel):
     """文字起こし状態のレスポンスデータ"""
     task_id: str
     status: str
-    transcribed_text: Optional[str]
-    summarized_text: Optional[str]
+    transcribed_text: str | None
+    summarized_text: str | None

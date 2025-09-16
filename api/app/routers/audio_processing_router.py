@@ -1,6 +1,6 @@
 import uuid
 import logging
-from typing import Optional, Dict, Any
+from typing import Any
 
 from fastapi import (
     APIRouter,
@@ -43,7 +43,7 @@ def _create_audio_usecase(request: Request) -> AudioProcessingUseCase:
 
 async def _handle_audio_operation(
     operation_name: str, operation: callable
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """文字起こし操作の共通エラーハンドリング"""
     try:
         return await operation()
@@ -60,7 +60,7 @@ async def process_audio(
     request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    site_data: Optional[Transcription] = Depends(parse_transcription_form),
+    site_data: Transcription | None = Depends(parse_transcription_form),
 ):
     """音声ファイルの文字起こしと要約を非同期で実行"""
 

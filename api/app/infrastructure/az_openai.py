@@ -1,7 +1,7 @@
 from openai import AsyncAzureOpenAI
 from fastapi import HTTPException
 import asyncio
-from typing import List, Dict, Any
+from typing import Any
 
 
 class AzOpenAIClient:
@@ -20,7 +20,7 @@ class AzOpenAIClient:
         )
         self.semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def get_summary(self, prompt_messages: List[Dict[str, Any]]) -> str:
+    async def get_summary(self, prompt_messages: list[dict[str, Any]]) -> str:
         """要約を取得する"""
         async with self.semaphore:
             try:

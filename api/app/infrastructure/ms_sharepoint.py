@@ -1,7 +1,7 @@
 import msal
 import requests
 from functools import cache
-from typing import Optional, Dict, Any
+from typing import Any
 from pathlib import Path
 
 
@@ -13,7 +13,7 @@ class MsSharePointClient:
         self.tenant_id = tenant_id
         self.authority = f"https://login.microsoftonline.com/{tenant_id}"
         self.scope = ["https://graph.microsoft.com/.default"]
-        self.access_token: Optional[str] = None
+        self.access_token: str | None = None
         self._get_access_token()
 
     def _get_access_token(self) -> None:
@@ -36,14 +36,14 @@ class MsSharePointClient:
             raise ValueError("アクセストークンが設定されていません")
 
     @cache
-    def graph_api_get(self, endpoint: str) -> Optional[requests.Response]:
+    def graph_api_get(self, endpoint: str) -> requests.Response | None:
         """Graph APIのGETリクエストを実行"""
         self._validate_token()
         return requests.get(
             endpoint, headers={"Authorization": f"Bearer {self.access_token}"}
         )
 
-    def graph_api_put(self, endpoint: str, data: Any) -> Optional[requests.Response]:
+    def graph_api_put(self, endpoint: str, data: Any) -> requests.Response | None:
         """Graph APIのPUTリクエストを実行"""
         self._validate_token()
         return requests.put(
@@ -52,12 +52,12 @@ class MsSharePointClient:
             data=data,
         )
 
-    def get_sites(self) -> Dict:
+    def get_sites(self) -> dict:
         """SharePointのサイト一覧を取得"""
         response = self.graph_api_get("https://graph.microsoft.com/v1.0/sites")
         return response.json()
 
-    def get_site_id(self, site_name: str) -> Optional[str]:
+    def get_site_id(self, site_name: str) -> str | None:
         """サイト名からサイトIDを取得"""
         sites = self.get_sites()
         for site in sites["value"]:
@@ -65,7 +65,7 @@ class MsSharePointClient:
                 return site["id"]
         return None
 
-    def get_folders(self, site_id: str, folder_id: str = "root") -> Optional[Dict]:
+    def get_folders(self, site_id: str, folder_id: str = "root") -> dict | None:
         """指定したサイトのフォルダ一覧を取得"""
         response = self.graph_api_get(
             f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/items/{folder_id}/children"
@@ -82,7 +82,7 @@ class MsSharePointClient:
 
     def get_folder_id(
         self, site_id: str, folder_name: str, folder_id: str = "root"
-    ) -> Optional[str]:
+    ) -> str | None:
         """フォルダ名からフォルダIDを取得"""
         folders = self.get_folders(site_id, folder_id)
         if folders is None:
@@ -95,7 +95,7 @@ class MsSharePointClient:
 
     def get_folder(
         self, site_id: str, folder_name: str, folder_id: str = "root"
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """フォルダ名からフォルダ情報を取得"""
         folders = self.get_folders(site_id, folder_id)
         if folders is None:
@@ -108,11 +108,11 @@ class MsSharePointClient:
 
     def get_folder_id_from_tree(
         self, site_id: str, sharepoint_directory: str, folder_id: str = "root"
-    ) -> Optional[str]:
+    ) -> str | None:
         """ディレクトリツリーの最下層フォルダIDを取得"""
         return self.get_folder_id(site_id, sharepoint_directory, folder_id)
 
-    def get_subfolders(self, site_id: str, folder_id: str) -> Optional[Dict]:
+    def get_subfolders(self, site_id: str, folder_id: str) -> dict | None:
         """指定フォルダ内のサブフォルダ一覧を取得"""
         return self.get_folders(site_id, folder_id)
 

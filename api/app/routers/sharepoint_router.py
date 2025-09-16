@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, Callable
+from typing import Any, Callable
 from fastapi import APIRouter, HTTPException, status, Request, Query
 
 from app.infrastructure.ms_sharepoint import MsSharePointClient
@@ -16,7 +16,7 @@ def _get_sharepoint_client(request: Request) -> MsSharePointClient:
 
 def _handle_sharepoint_operation(
     operation_name: str, operation: Callable
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """SharePoint操作の共通エラーハンドリング"""
     try:
         return operation()
@@ -29,14 +29,14 @@ def _handle_sharepoint_operation(
 
 
 @router.get("/sites")
-def get_sites(request: Request) -> Dict[str, Any]:
+def get_sites(request: Request) -> dict[str, Any]:
     """SharePointのサイト一覧を取得する"""
     client = _get_sharepoint_client(request)
     return _handle_sharepoint_operation("サイト取得", client.get_sites)
 
 
 @router.get("/directories")
-def get_directories(request: Request, site_id: str = Query(...)) -> Dict[str, Any]:
+def get_directories(request: Request, site_id: str = Query(...)) -> dict[str, Any]:
     """指定されたサイトのディレクトリ一覧を取得する"""
     client = _get_sharepoint_client(request)
     return _handle_sharepoint_operation(
@@ -47,7 +47,7 @@ def get_directories(request: Request, site_id: str = Query(...)) -> Dict[str, An
 @router.get("/subdirectories")
 def get_subdirectories(
     request: Request, site_id: str = Query(...), directory_id: str = Query(...)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """指定されたディレクトリのサブディレクトリ一覧を取得する"""
     client = _get_sharepoint_client(request)
     return _handle_sharepoint_operation(
